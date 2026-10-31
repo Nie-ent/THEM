@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "pnpm --filter @them/game dev",
     "build": "pnpm --filter @them/game build && pnpm build:go",
-    "build:go": "cd services && go build ./...",
+    "build:go": "cd services && go build -o bin/ ./...",
     "lint": "eslint . --max-warnings 0 && pnpm lint:go",
     "lint:go": "cd services && go vet ./... && test -z \"$(gofmt -l .)\"",
     "typecheck": "pnpm -r --if-present typecheck && tsc -p packages/ui-tokens && tsc -p .",

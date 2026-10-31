@@ -1,0 +1,73 @@
+/**
+ * Floating virtual joystick (readability §9): appears where the thumb lands in the lower 45% of
+ * the screen, base 128 px, knob 56 px, dead zone 12%. Touch only; mouse uses the keyboard.
+ */
+import { useRef, useState, type PointerEvent } from 'react';
+import { tokens } from '@them/ui-tokens';
+import type { InputState } from '../game/input';
+
+const BASE = tokens.target.joystick;
+const KNOB = 56;
+const DEAD = 0.12;
+
+export function Joystick({ input, enabled }: { input: InputState; enabled: boolean }) {
+  const [stick, setStick] = useState<{ x: number; y: number; kx: number; ky: number } | null>(null);
+  const pid = useRef<number | null>(null);
+
+  const update = (cx: number, cy: number, px: number, py: number) => {
+    const max = BASE / 2;
+    let dx = px - cx, dy = py - cy;
+    const len = Math.hypot(dx, dy);
+    if (len > max) { dx = (dx / len) * max; dy = (dy / len) * max; }
+    const m = Math.min(1, len / max);
+    if (m < DEAD) { input.stickX = 0; input.stickY = 0; }
+    else { const s = (m - DEAD) / (1 - DEAD) / (len || 1); input.stickX = (px - cx) * s; input.stickY = (py - cy) * s; }
+    const l2 = Math.hypot(input.stickX, input.stickY);
+    if (l2 > 1) { input.stickX /= l2; input.stickY /= l2; }
+    setStick({ x: cx, y: cy, kx: dx, ky: dy });
+  };
+
+  const down = (e: PointerEvent<HTMLDivElement>) => {
+    if (!enabled || e.pointerType === 'mouse' || pid.current !== null) return;
+    pid.current = e.pointerId;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    input.stickActive = true;
+    update(e.clientX, e.clientY, e.clientX, e.clientY);
+  };
+  const move = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerId !== pid.current || !stick) return;
+    update(stick.x, stick.y, e.clientX, e.clientY);
+  };
+  const up = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.pointerId !== pid.current) return;
+    pid.current = null;
+    input.stickActive = false;
+    input.stickX = input.stickY = 0;
+    setStick(null);
+  };
+
+  return (
+    <div
+      data-testid="joystick-zone"
+      className="absolute inset-x-0 bottom-0 h-[45%] touch-none"
+      style={{ zIndex: tokens.z.joystick, pointerEvents: enabled ? 'auto' : 'none' }}
+      onPointerDown={down}
+      onPointerMove={move}
+      onPointerUp={up}
+      onPointerCancel={up}
+    >
+      {stick && (
+        <div
+          data-testid="joystick"
+          className="pointer-events-none fixed rounded-full border-2 border-border-strong bg-hud-plate"
+          style={{ left: stick.x - BASE / 2, top: stick.y - BASE / 2, width: BASE, height: BASE }}
+        >
+          <div
+            className="absolute rounded-full bg-text-muted"
+            style={{ width: KNOB, height: KNOB, left: BASE / 2 - KNOB / 2 + stick.kx, top: BASE / 2 - KNOB / 2 + stick.ky }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
