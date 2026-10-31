@@ -32,6 +32,7 @@ test.afterEach(async ({ page }) => {
 async function crowd(page: Page, n: number): Promise<void> {
   await run(page, `(s, n) => {
     const r = s.run; r.debugInvulnerable = true;
+    r.spawnQueue.length = 0; r.spawnCursor = 0; // wave 1's own queue would block entries timed at 0
     const mix = [['raider', 40], ['torch-bearer', 14], ['brute', 10], ['slinger', 12], ['wolf-rider', 10], ['war-drummer', 5], ['shield-chieftain', 1], ['beast-master', 1], ['fire-priest', 1], ['varkul', 1]];
     const total = mix.reduce((a, m) => a + m[1], 0);
     let k = 0;
@@ -182,4 +183,24 @@ test('damage numbers are capped at 24 and merge per target', async ({ page }) =>
   expect(r.after).toBe(24);
   // Thick outline setting re-baked the 3 px textures.
   expect(await page.evaluate(`window.__them.game.textures.exists('hero-o3')`)).toBe(true);
+});
+
+test('north spawn chevrons clear the HUD', async ({ page }, info) => {
+  await page.goto('/?seed=7');
+  await page.getByTestId('menu-start').click();
+  await expect(page.getByTestId('stage').locator('canvas')).toBeVisible();
+  // Force the first wave to spawn from the north, then start it: chevrons show for 2 s.
+  await run(page, `(s) => { for (const g of s.run.worldDef.waves[0].groups) g.side = 'N'; }`);
+  await page.getByTestId('prep-call-early').click();
+  await expect.poll(() => run<string>(page, '(s) => s.run.phase')).toBe('wave');
+  await run(page, '(s) => { s.advance = () => {}; }'); // hold the 2 s chevron window open
+  await page.waitForTimeout(250);
+  await shot(page, info, 'spawn-chevrons-north');
+  // Their screen position must sit below the HUD inset (150 px desktop / 180 px portrait).
+  const minTop = info.project.name === 'mobile' ? 180 : 150;
+  const top = await run<number>(page, `(s) => {
+    const sc = window.__them.game.scene.getScene('stage'), cam = sc.cameras.main;
+    const r = sc.safeRect(); return (r.y - cam.worldView.y) * cam.zoom;
+  }`);
+  expect(top).toBeGreaterThanOrEqual(minTop - 1);
 });
