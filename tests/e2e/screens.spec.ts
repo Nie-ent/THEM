@@ -40,23 +40,46 @@ async function expectFits(page: Page, ids: string[]): Promise<void> {
   }
 }
 
+interface Ending { result: 'win' | 'lose'; seconds: number; waveIndex: number; coreFrac: number; hitShare: number }
+
+/** Standard time and GDD §12 constants; the owner rule: a loss is graded at the lowest band (C, 60%). */
+const SCORING = { standard: 1500, kill: { normal: 1, elite: 5, miniboss: 100 }, bossBonus: 500 };
+
 /**
- * End the run the way the sim does (phase, result, runEnd event) with a breakdown computed from the
- * GDD §12 example (1600×1 + 40×5 + 3×100, speed 1.15, damage 1.05). Core destroyed unless `win`.
+ * End the run the way the sim does (phase, result, runEnd event). The breakdown is computed from the
+ * §12 formulas so every number on screen is consistent with the time, wave and Core HP shown.
  */
-async function endRun(page: Page, result: 'win' | 'lose'): Promise<void> {
+async function endRun(page: Page, e: Ending): Promise<void> {
+  const kills = e.result === 'win' ? { normal: 1600, elite: 40, miniboss: 3, boss: 1 } : { normal: 420, elite: 9, miniboss: 1, boss: 0 };
+  const killPoints = kills.normal * SCORING.kill.normal + kills.elite * SCORING.kill.elite + kills.miniboss * SCORING.kill.miniboss;
+  const bossBonus = e.result === 'win' ? SCORING.bossBonus : 0;
+  const mSpeed = Math.min(1.3, Math.max(0.7, SCORING.standard / e.seconds));
+  const mDamage = (0.7 + 0.3 * e.coreFrac) * (1.2 - 0.4 * e.hitShare);
+  const performance = mSpeed * mDamage;
+  const grade = e.result === 'lose' ? 'C' : performance >= 1.4 ? 'S' : performance >= 1.15 ? 'A' : performance >= 0.9 ? 'B' : 'C';
+  const rewardPct = e.result === 'lose' ? 60 : { S: 120, A: 100, B: 80, C: 60 }[grade];
+  const score = { kills, killPoints, bossBonus, mDifficulty: 1, mSpeed, mDamage, performance, total: Math.round((killPoints + bossBonus) * mSpeed * mDamage), grade, rewardPct };
   await sim(page, `(s) => {
     const r = s.run;
-    const base = 1600 + 200 + 300 + (${result === 'win' ? 500 : 0});
-    const mSpeed = 1.15, mDamage = 1.05;
-    r.w.hp[r.core] = ${result === 'win' ? 'r.w.maxHp[r.core]' : '0'};
-    r.phase = 'ended'; r.result = '${result}';
-    r.events.push({ type: 'runEnd', result: '${result}', score: {
-      kills: { normal: 1600, elite: 40, miniboss: 3, boss: 0 }, killPoints: 2100, bossBonus: base - 2100,
-      mDifficulty: 1, mSpeed, mDamage, performance: mSpeed * mDamage, total: Math.round(base * mSpeed * mDamage),
-      grade: 'A', rewardPct: 100 } });
+    r.waveIndex = ${e.waveIndex};
+    r.activeTicks = ${Math.round(e.seconds * 30)};
+    r.w.hp[r.core] = r.w.maxHp[r.core] * ${e.coreFrac};
+    r.phase = 'ended'; r.result = '${e.result}';
+    r.events.push({ type: 'runEnd', result: '${e.result}', score: ${JSON.stringify(score)} });
     s.advance(40);
   }`);
+}
+
+const LOSS: Ending = { result: 'lose', seconds: 12 * 60 + 5, waveIndex: 8, coreFrac: 0, hitShare: 0.4 };
+const VICTORY: Ending = { result: 'win', seconds: 19 * 60 + 10, waveIndex: 19, coreFrac: 1, hitShare: 0.1 };
+
+/** Jump to mini-boss wave 5 and start it: the boss bar and the boss's intro line appear. */
+async function startBossWave(page: Page): Promise<void> {
+  await sim(page, '(s) => { s.run.waveIndex = 4; }');
+  await page.getByTestId('prep-call-early').click();
+  // Software GL renders few frames; step the sim directly until the chieftain (spawns ~4 s in) is out.
+  await sim(page, '(s) => { for (let i = 0; i < 200 && s.run.bosses.length === 0; i++) s.advance(100); }');
+  await expect(page.getByTestId('hud-boss')).toBeVisible({ timeout: 10_000 });
 }
 
 /** Open a card draft by granting a pending level; the sim opens the offer on its next step. */
@@ -169,12 +192,13 @@ for (const lang of LANGS) {
 
     test(`results (defeat): ${lang}`, async ({ page }, info) => {
       await open(page, lang);
-      await endRun(page, 'lose');
+      await endRun(page, LOSS);
       await expect(page.getByTestId('results-grade')).toBeVisible();
       await expect(page.getByTestId('results-play-again')).toBeFocused();
       await page.keyboard.press('Shift'); // any key skips the reveal
       await page.waitForTimeout(300);
-      await expect(page.getByTestId('results-grade')).toHaveText(/^[SABC]$/);
+      await expect(page.getByTestId('results-grade')).toHaveText('C');
+      await expect(page.getByTestId('results-line-damage')).toContainText('0%');
       for (const k of ['kill', 'boss', 'base', 'difficulty', 'speed', 'damage']) await expect(page.getByTestId(`results-line-${k}`)).toBeVisible();
       await expect(page.getByTestId('results-score')).toBeVisible();
       await expect(page.getByTestId('results-cause')).toBeVisible();
@@ -182,6 +206,37 @@ for (const lang of LANGS) {
       const grade = (await page.getByTestId('results-grade').boundingBox())!;
       expect(grade.width).toBeGreaterThanOrEqual(info.project.name === 'mobile' ? 160 : 200);
       await shot(page, info, 'results', lang);
+    });
+
+    test(`results (victory, grade S): ${lang}`, async ({ page }, info) => {
+      await open(page, lang);
+      await endRun(page, VICTORY);
+      await expect(page.getByTestId('results-grade')).toBeVisible();
+      await page.keyboard.press('Shift');
+      await page.waitForTimeout(300);
+      await expect(page.getByTestId('results-grade')).toHaveText('S');
+      await expect(page.getByTestId('results-cause')).toHaveCount(0);
+      await expect(page.getByTestId('results-line-boss')).toContainText('500');
+      await shot(page, info, 'results-victory', lang);
+    });
+
+    test(`hud boss bar, boss line and Core-threat flash: ${lang}`, async ({ page }, info) => {
+      await open(page, lang);
+      await startBossWave(page);
+      await expect(page.getByTestId('hud-boss-line')).toBeVisible({ timeout: 10_000 });
+      // A Core-targeted telegraph flashes the Core bar frame (AC-H8) for 1.5 s; shoot while it is on.
+      await sim(page, `(s) => { s.run.events.push({ type: 'telegraph', id: 9999, state: 'start', targetsCore: true }); s.advance(40); }`);
+      await expect(page.getByTestId('hud-core-hp')).toHaveClass(/outline-stage-core-threat/);
+      await shot(page, info, 'hud-boss', lang);
+    });
+
+    test(`pause confirm dialog: ${lang}`, async ({ page }, info) => {
+      await open(page, lang);
+      await page.getByTestId('hud-pause').click();
+      await page.getByTestId('pause-quit').click();
+      await expect(page.getByTestId('confirm-keep')).toBeFocused();
+      await expectFits(page, ['confirm-keep', 'confirm-quit']);
+      await shot(page, info, 'pause-confirm', lang);
     });
   });
 }
@@ -275,12 +330,12 @@ test('pause: Esc closes the topmost layer, restart asks first, resume counts 3-2
 
 test('results: Menu returns to the menu, Play again restarts', async ({ page }) => {
   await open(page, 'en');
-  await endRun(page, 'win');
+  await endRun(page, VICTORY);
   await expect(page.getByTestId('results-line-boss')).toContainText('500');
   await page.getByTestId('results-play-again').click();
   await expect(page.getByTestId('results')).toBeHidden();
   await expect.poll(() => sim<string>(page, '(s) => s.run.phase')).toBe('prep');
-  await endRun(page, 'lose');
+  await endRun(page, LOSS);
   await page.getByTestId('results-menu').click();
   await expect(page.getByTestId('menu')).toBeVisible();
   await expect(page.getByTestId('menu-best')).toBeVisible();

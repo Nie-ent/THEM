@@ -5,7 +5,7 @@ import { content, type Grade } from '@them/content';
 import type { ScoreBreakdown } from '@them/core';
 import type { GameSession } from '../game/session';
 import { useHud } from '../game/store';
-import { BlotIcon, Button, PenIcon, mmss, useDesktop, useFmt } from './kit';
+import { BlotIcon, Button, PenIcon, Wrap, mmss, useDesktop, useFmt } from './kit';
 import { readJson, writeStore } from './storage';
 
 export const BEST_KEY = 'them.best';
@@ -137,9 +137,9 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
 
   const heading = (
     <div className="flex flex-col gap-2">
-      <h1 className="font-display text-4xl font-extrabold leading-display md:text-4xl">{t(win ? 'ui.results.victory' : 'ui.results.defeat')}</h1>
+      <h1 className="font-display text-3xl font-extrabold leading-display md:text-4xl"><Wrap text={t(win ? 'ui.results.victory' : 'ui.results.defeat')} /></h1>
       {!win && <p className="flex items-center gap-2 text-lg text-semantic-danger" data-testid="results-cause">{t(`ui.results.${cause}`, { wave: h.wave })}</p>}
-      <p className="flex items-start gap-2 font-hand text-xl leading-display text-annotation"><PenIcon size={18} />“{t(win ? 'ui.results.quote' : 'ui.results.quoteDefeat')}”</p>
+      <p className="flex items-start gap-2 font-hand text-xl leading-display text-annotation"><PenIcon size={18} /><span>“<Wrap text={t(win ? 'ui.results.quote' : 'ui.results.quoteDefeat')} />”</span></p>
     </div>
   );
   const scoreBadge = newBest && <span data-testid="results-new-best" className="rounded-sm border border-reward px-2 text-sm text-reward">{t('ui.results.newBest')}</span>;
@@ -177,6 +177,9 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
           <div className="them-scroll-y flex min-h-0 flex-1 flex-col gap-4 px-6 py-4">
             {heading}
             <div className="self-center">{stamp('h-40 w-40 text-5xl')}</div>
+            <p className="flex items-baseline justify-between gap-3 border-y border-border-strong py-2 font-display text-xl font-semibold" data-testid="results-score-top">
+              <span>{t('ui.results.score')}</span><span className="tabular-nums">{int(final.total)}</span>
+            </p>
             {lines}
             {scoreBadge && <div>{scoreBadge}</div>}
           </div>

@@ -19,10 +19,10 @@ const RARITY_EDGE: Record<CardDef['rarity'], string> = {
 function Card({ index, option, selected, dimmed, desktop, coarse, onPick }: {
   index: number; option: CardOption; selected: boolean; dimmed: boolean; desktop: boolean; coarse: boolean; onPick: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const card = content.cards.find((c) => c.id === option.cardId);
   if (!card) return null;
-  const tags = card.tags.filter((tag) => i18n.exists(`ui.tag.${tag}`));
+  const tags = card.tags.filter((tag) => tag !== 'drawback');
   return (
     <button
       type="button"

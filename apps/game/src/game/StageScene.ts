@@ -96,7 +96,7 @@ export class StageScene extends Phaser.Scene {
 
   /* ---------------------------------------------------------------------------------------- */
 
-  private bakeShape(key: string, hint: RenderHint, r: number, fill: number, rim?: number): void {
+  private bakeShape(key: string, hint: Omit<RenderHint, 'shape'> & { shape: RenderHint['shape'] | 'triangle-up' }, r: number, fill: number, rim?: number): void {
     if (this.textures.exists(key)) return;
     const shape = SHAPES[hint.shape];
     const size = Math.ceil((r * 1.5 + OUTLINE + 2) * 2);
@@ -171,7 +171,7 @@ export class StageScene extends Phaser.Scene {
     this.bakeShape('proj-enemy', { shape: 'circle', scale: 1, marks: [] }, 4, col(C.enemyProjectile));
     this.bakeShape('pickup-xp', { shape: 'diamond', scale: 1, marks: [] }, 4, col(C.xpOrb));
     this.bakeShape('pickup-wood', { shape: 'square', scale: 1, marks: [] }, 4, col(C.pickupWood));
-    this.bakeShape('pickup-stone', { shape: 'triangle', scale: 1, marks: [] }, 4, col(C.pickupStone));
+    this.bakeShape('pickup-stone', { shape: 'triangle-up', scale: 1, marks: [] }, 4, col(C.pickupStone));
   }
 
   private skinFor(v: RunView, i: number): Skin {

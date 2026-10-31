@@ -135,6 +135,8 @@ export function Hud({ session, slotRef }: { session: GameSession; slotRef?: (el:
   const h = useHud(session.hud, (s) => s);
   const score = useThrottled(h.score, 250);
   if (!h.ready) return null;
+  // The sim is paused during a draft; hide (not unmount) the HUD so the draft header never collides with it.
+  const hidden = h.draft !== null;
   const low = h.heroHp / h.heroMaxHp < LOW && h.phase !== 'ended';
 
   const xp = (
@@ -148,7 +150,7 @@ export function Hud({ session, slotRef }: { session: GameSession; slotRef?: (el:
   );
 
   return (
-    <>
+    <div className={hidden ? 'invisible' : undefined} aria-hidden={hidden || undefined}>
       {low && <div aria-hidden className="pointer-events-none absolute inset-0 z-hud opacity-25" style={{ boxShadow: 'inset 0 0 var(--them-space-6) var(--them-space-3) var(--them-color-hud-hp-hero)' }} />}
       <div className="pointer-events-none absolute inset-x-0 top-0 z-hud pt-[env(safe-area-inset-top)]">
         {xp}
@@ -184,6 +186,6 @@ export function Hud({ session, slotRef }: { session: GameSession; slotRef?: (el:
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
