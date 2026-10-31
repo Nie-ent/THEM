@@ -202,6 +202,7 @@ What P1-09 must satisfy (details in `readability.md`; colors only from `tokens.c
 | Date | Commit | Grayscale | CVD emulation | 500-enemy frame | Mobile thumb test | Result | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-01 | 0eecddf | ok (M1) | ok | ok (M1) | ok (M2) | CHANGES | M1, M2 |
+| 2026-11-01 | re-review | ok | ok | ok | ok | PASS | M1 aura is a thin ring under units, no longer floods 200/500 frames; M2 north chevrons clear the HUD on both viewports. P2-11: with the boss bar inset, north chevrons can overlap the Core ring (200-enemy frames); offset them sideways or fade near the Core later. |
 
 **Verdict P1-09: CHANGES (2 small must-fix).** Silhouettes match §4 and every role reads in
 grayscale; 2 px outlines everywhere; telegraph wind-up dashed / commit solid + hatch / Core threat
