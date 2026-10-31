@@ -66,8 +66,12 @@ const S = { planner: summarise(results.planner), 'no-build': summarise(results['
 const total = (performance.now() - t0) / 1000;
 
 const row = (label: string, f: (s: ReturnType<typeof summarise>) => string) => `| ${label} | ${MODES.map((m) => f(S[m])).join(' | ')} |`;
-const dodPlanner = S.planner.winAB / S.planner.n > 0.5;
-const dodNoBuild = (S['no-build'].n - S['no-build'].wins) / S['no-build'].n > 0.5;
+// Owner decision 31 Oct (docs/PHASE1.md): planner wins about 50% (QA band 35–65%), no-build loses
+// almost always (QA bar >= 90%), and a loss is graded C at best.
+const plannerRate = S.planner.wins / S.planner.n;
+const dodPlanner = plannerRate >= 0.35 && plannerRate <= 0.65;
+const dodNoBuild = (S['no-build'].n - S['no-build'].wins) / S['no-build'].n >= 0.9;
+const lossesAboveC = MODES.flatMap((m) => results[m]).filter((r) => r.result !== 'win' && r.score.grade !== 'C').length;
 
 const md = `# Balance bot — latest run
 
@@ -79,8 +83,9 @@ all AI heroes. Seeds 1…${SEEDS}. Total wall time ${f1(total)} s. Numbers only 
 
 | Criterion | Result | Status |
 | --- | --- | --- |
-| Planner completes 20 waves with grade A/B on most seeds | ${S.planner.winAB}/${S.planner.n} (${pc(S.planner.winAB, S.planner.n)}) won with S/A/B | ${dodPlanner ? 'PASS' : 'FAIL'} |
-| No-build fails on most seeds (planning matters) | ${S['no-build'].n - S['no-build'].wins}/${S['no-build'].n} (${pc(S['no-build'].n - S['no-build'].wins, S['no-build'].n)}) failed | ${dodNoBuild ? 'PASS' : 'FAIL'} |
+| Planner wins about 50% of seeds (QA band 35–65%) | ${S.planner.wins}/${S.planner.n} (${pc(S.planner.wins, S.planner.n)}) won; ${S.planner.winAB} of them S/A/B | ${dodPlanner ? 'PASS' : 'FAIL'} |
+| No-build loses almost always (QA bar ≥ 90%) | ${S['no-build'].n - S['no-build'].wins}/${S['no-build'].n} (${pc(S['no-build'].n - S['no-build'].wins, S['no-build'].n)}) lost | ${dodNoBuild ? 'PASS' : 'FAIL'} |
+| A loss is graded C at best | ${lossesAboveC} losses graded above C | ${lossesAboveC === 0 ? 'PASS' : 'FAIL'} |
 
 ## Summary
 
