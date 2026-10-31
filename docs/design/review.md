@@ -201,4 +201,41 @@ What P1-09 must satisfy (details in `readability.md`; colors only from `tokens.c
 
 | Date | Commit | Grayscale | CVD emulation | 500-enemy frame | Mobile thumb test | Result | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| | | | | | | | |
+| 2026-11-01 | 0eecddf | ok (M1) | ok | ok (M1) | ok (M2) | CHANGES | M1, M2 |
+
+**Verdict P1-09: CHANGES (2 small must-fix).** Silhouettes match §4 and every role reads in
+grayscale; 2 px outlines everywhere; telegraph wind-up dashed / commit solid + hatch / Core threat
+violet double outline + 2 Hz Core pulse + edge arrow with countdown, all distinguishable under
+protan/deutan/tritan emulation; burning stages and stone spark-only are right; damage numbers are
+pooled BitmapText capped at 24 with merge; load-shedding order matches §8; hero sits at 38% with the
+joystick down on 390×844. Stone icon is now point-up everywhere.
+
+Must fix:
+
+1. **M1 Drummer aura floods the field and mimics telegraph fills.** `apps/game/src/game/StageScene.ts`
+   (enemy loop, "Pulsing aura on every beat"): the aura is a filled 120 px disc on the `over` layer,
+   so with 8+ drummers (200/500-enemy frames) overlapping red discs sit on top of enemy bodies and,
+   in grayscale, look like telegraph wind-up fills. Change to what §4 specifies: a **ring**, not a
+   disc — `g.lineStyle(2, col(C.enemy), auraAlpha * 2 * (1 - beat))` + `strokeCircle(x, y, rr)` with
+   `rr = 120 * beat` (expanding pulse) — and draw it on the `under` graphics (ground plane, below
+   units) instead of `over`. Keep the 8% shed step. Re-shoot `enemies-200-*` and `enemies-500-desktop`.
+2. **M2 Edge indicators hide under the HUD.** Spawn chevrons from the north side sit behind the
+   wave/timer plate on desktop and behind the level/wave row on mobile (`burning-stages-desktop`,
+   `telegraphs-core-threat-tritanopia-mobile`), and the Core-threat arrow can do the same when the
+   Core is above the view. In `StageScene.ts` `drawEdge` and `fx.ts` `drawEdgeArrow`, clamp to a
+   view rect inset by the HUD: top inset 150 px desktop / 180 px portrait (plus boss bar 40 px when
+   a boss is up), bottom 24 px desktop / 0 portrait, sides 24 px; pass it as a `Phaser.Geom.Rectangle`
+   in screen px divided by zoom. Add one screenshot with north spawn chevrons on each viewport.
+
+P2 notes (do not block):
+
+- P2-5 Self-reported range rings for all towers in prep: this matches readability §4 ("only while
+  selected or during prep"). Not a gap. Could thin them to 1 px at 20% if they clutter late-game prep.
+- P2-6 No mini-boss spawn name plate in-stage; the HUD boss bar already names it. Add the 2 s plate
+  with the next art pass.
+- P2-7 "Threat under the thumb" edge markers (§9) not implemented; schedule with phone playtests.
+- P2-8 500-enemy fps unmeasured headless (scene.update ≈5.5 ms CPU/frame is within budget on
+  paper). QA must measure 60 fps desktop / 300 enemies on a mid-range phone before the phase DoD.
+- P2-9 P1-08 screenshots predate the new stage art; regenerate them with `screens.spec.ts` after M1/M2
+  so the HUD review set shows real stage backgrounds.
+- P2-10 Hit flash uses `damageNormal` as a stand-in; designer to add `stage.hitFlash` token later.
