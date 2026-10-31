@@ -161,15 +161,14 @@ export class Sparks {
 }
 
 /**
- * Edge arrow for a world point that is off-screen: clipped to the view rectangle (inset by `margin`
- * screen px), pointing at the target, optionally with a countdown arc. Drawn in world space, so every
+ * Edge arrow for a world point outside `view` (the HUD-safe rectangle from StageScene.safeRect): clipped to it, pointing at the target, optionally with a countdown arc. Drawn in world space, so every
  * size is divided by the camera zoom.
  */
 export function drawEdgeArrow(
   g: Phaser.GameObjects.Graphics, view: Phaser.Geom.Rectangle, zoom: number, tx: number, ty: number,
   color: number, countdown: number | null,
 ): boolean {
-  const m = 30 / zoom;
+  const m = 0;
   const cx = view.centerX, cy = view.centerY;
   const hx = view.width / 2 - m, hy = view.height / 2 - m;
   const dx = tx - cx, dy = ty - cy;

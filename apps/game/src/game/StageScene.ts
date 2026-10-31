@@ -65,6 +65,7 @@ export class StageScene extends Phaser.Scene {
   private camY = 0;
   private offBridge: (() => void)[] = [];
 
+  private safe = new Phaser.Geom.Rectangle();
   private teleCache = new Map<number, TeleShape>();
   private flashes: ImpactFlash[] = [];
   private charred: { x: number; y: number }[] = [];
@@ -411,6 +412,17 @@ export class StageScene extends Phaser.Scene {
         if (r > 0) g.strokeCircle(e.x[i]!, e.y[i]!, r);
       }
     }
+    // War-drummer beat: an expanding outline ring (radius 0 to 120) on the ground plane, under units
+    // (readability §4). Never a filled disc, so it cannot be mistaken for a telegraph fill.
+    {
+      const e = v.entities;
+      const beat = (this.time.now % 1000) / 1000;
+      const alpha = (this.shed >= 3 ? 0.08 : 0.15) * 2 * (1 - beat);
+      g.lineStyle(2, col(C.enemy), alpha);
+      for (let i = 0; i < e.count; i++) {
+        if (e.kind[i] === Kind.Enemy && this.drumDef[e.def[i]!]) g.strokeCircle(e.x[i]!, e.y[i]!, 120 * beat);
+      }
+    }
     // Telegraphs (ground plane, under units). Cache the shape so the impact flash can reuse it.
     let coreThreat = false;
     for (const t of v.telegraphs) {
@@ -458,10 +470,7 @@ export class StageScene extends Phaser.Scene {
     const now = this.time.now;
     const hx = e.prevX[v.hero]! + (e.x[v.hero]! - e.prevX[v.hero]!) * a;
     const hy = e.prevY[v.hero]! + (e.y[v.hero]! - e.prevY[v.hero]!) * a;
-    const shed = this.shed;
     const flick6 = Math.floor(now / 83) % 2; // 6 Hz two-frame flicker
-    const beat = (now % 1000) / 1000;
-    const auraAlpha = shed >= 3 ? 0.08 : 0.15;
     let aimN = 0;
 
     for (let i = 0; i < e.count; i++) {
@@ -470,11 +479,6 @@ export class StageScene extends Phaser.Scene {
         const x = e.x[i]!, y = e.y[i]!, r = e.radius[i]!;
         const def = e.def[i]!;
         if (e.flags[i]! & Flag.Fire) this.drawEnemyFlame(g, x, y - r, flick6);
-        if (this.drumDef[def]) {
-          // Pulsing aura on every beat (radius 120, 15% alpha; 8% under heavy load).
-          const rr = 120 * (0.92 + 0.08 * Math.sin(beat * Math.PI * 2));
-          g.fillStyle(col(C.enemy), auraAlpha * (1 - beat * 0.5)).fillCircle(x, y, rr);
-        }
         if (e.aim[i]! > 0 && e.target[i]! >= 0) {
           // Keep only the MAX_AIM aim lines nearest the hero.
           const d = (x - hx) * (x - hx) + (y - hy) * (y - hy);
@@ -575,12 +579,27 @@ export class StageScene extends Phaser.Scene {
   /* Edge indicators (never shed)                                                             */
   /* ---------------------------------------------------------------------------------------- */
 
+  /**
+   * View rectangle (world units) inset by the HUD: top 150 px desktop / 180 px portrait (+40 px with a
+   * boss bar), bottom 24 px desktop / 0 portrait, sides 24 px. Edge indicators clamp inside it.
+   */
+  private safeRect(): Phaser.Geom.Rectangle {
+    const cam = this.cameras.main;
+    const portrait = this.scale.height > this.scale.width;
+    const top = (portrait ? 180 : 150) + (this.session.hud.get().boss ? 40 : 0);
+    const bottom = portrait ? 0 : 24;
+    const z = cam.zoom, wv = cam.worldView;
+    const r = this.safe;
+    r.setTo(wv.x + 24 / z, wv.y + top / z, wv.width - 48 / z, wv.height - (top + bottom) / z);
+    return r;
+  }
+
   private drawEdge(v: RunView, dt: number): void {
     const g = this.edge;
     g.clear();
     const cam = this.cameras.main;
-    const view_ = cam.worldView;
     const zoom = cam.zoom;
+    const view_ = this.safeRect();
     const e = v.entities;
     // Core-threat arrow with a countdown arc when the Core is off-screen.
     let best: Readonly<(typeof v.telegraphs)[number]> | null = null;
@@ -593,7 +612,7 @@ export class StageScene extends Phaser.Scene {
       c.t += dt;
       if (c.t > 2) { this.chevrons.splice(q, 1); continue; }
       const sp = SIDE_POS[c.side];
-      const m = 46 * s;
+      const m = 22 * s;
       const px = Phaser.Math.Clamp(sp.fx * W, view_.x + m, view_.right - m);
       const py = Phaser.Math.Clamp(sp.fy * H, view_.y + m, view_.bottom - m);
       const alpha = c.t > 1.6 ? (2 - c.t) / 0.4 : 0.6 + 0.4 * Math.sin(c.t * Math.PI * 6);
