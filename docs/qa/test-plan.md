@@ -10,7 +10,7 @@ the sign-off table at the end (passes). Visible tickets also need the designer's
 | Command | What it runs |
 | --- | --- |
 | `pnpm lint && pnpm typecheck && pnpm test` | ESLint, tsc (incl. `tests/tsconfig.json`), Vitest (packages + `tests/gates/`), Go |
-| `pnpm e2e` | Playwright desktop 1280×720 + mobile 390×844: `tests/e2e/smoke.spec.ts`, `tests/e2e/full-run.spec.ts`. Run with `CI=1` when other worktrees may be serving port 4173 (finding QA-P1-10-005). |
+| `pnpm e2e` | Playwright desktop 1280×720 + mobile 390×844: `tests/e2e/smoke.spec.ts`, `tests/e2e/full-run.spec.ts`. Each checkout gets its own port (`E2E_PORT` overrides). Takes > 10 min. |
 | `pnpm bench` | Core bench, 500 enemies, budget 4 ms/step mean |
 | `pnpm balance [--seeds N]` | Headless balance bot, writes `docs/qa/balance-latest.md` |
 
@@ -22,7 +22,7 @@ the sign-off table at the end (passes). Visible tickets also need the designer's
 | All strings th/en, no missing keys, no clipped text | `packages/i18n/test/*`, `tests/gates/i18n-usage.test.ts`, smoke "switches language" + manual screenshots per screen per locale | Zero missing keys from content and from `t('…')` in `apps/game/src`; no clipped/overflowing text in any screen at both viewports |
 | 500 enemies at 60 fps desktop (bench in CI) | `pnpm bench` | mean ≤ 4 ms/step; manual: 60 fps in dev build with 500 enemies (devtools) |
 | Determinism green | `packages/core/test/determinism.test.ts`, `tests/gates/determinism.test.ts` | Identical state hash + score on replay of a JSON-serialised input log for 3 seeds; different seeds diverge |
-| Balance: planner wins A/B on most seeds; no-build fails | `pnpm balance` (50 seeds) | planner S/A/B wins > 50 % **and** no-build failure rate > 50 % |
+| Balance (owner decision 31 Oct): planner wins ≈50 %; no-build loses almost always; a loss is C at best | `pnpm balance` (50 seeds) | planner win rate 35–65 %, no-build loss rate ≥ 90 %, 0 losses graded above C |
 | QA + designer sign-off recorded | this file + `docs/design/review.md` | Both tables filled |
 
 ## Per ticket
@@ -112,16 +112,41 @@ and reads content data to classify buildings/cards, so it re-runs without change
 Policy is described at the end of `docs/qa/balance-latest.md`. QA does not tune content from it;
 results go to the supervisor.
 
+### P1-11 Engine gaps + QA fixes
+| # | Check | Type | Pass/fail |
+| --- | --- | --- | --- |
+| 11.1 | Slinger soft-lock gone (QA-P1-10-003) | headless repro + balance bot | wave ends; 0 timeouts |
+| 11.2 | Loss graded C at best (QA-P1-10-004) | balance report + `screens.spec` results (defeat) | 0 losses above C |
+| 11.3 | Token hit-flash (QA-P1-10-002) | gate (`hygiene.test.ts`) | empty allow-list, passes |
+| 11.4 | Isolated e2e server (QA-P1-10-005) | `playwright.config.ts` review | own port, never reused |
+| 11.5 | Determinism kept after engine changes | gate (determinism) | passes |
+
 ## QA sign-off
+
+Final pass on `main` @ 0eecddf, 2026-11-01 (first pass @ 479b63d is in git history).
 
 | Ticket | QA status | Date | Notes |
 | --- | --- | --- | --- |
-| P1-01 | pass | 2026-10-31 | e2e passes only with its own server (QA-P1-10-005) |
-| P1-02 | pass | 2026-10-31 | |
-| P1-03 | **fail** | 2026-10-31 | QA-P1-10-003 (stuck wave), QA-P1-10-004 (grade on loss) |
-| P1-04 | pass with finding | 2026-10-31 | QA-P1-10-002 |
-| P1-05 | not reviewed by QA (designer-owned) | | |
-| P1-06 | **fail** | 2026-10-31 | QA-P1-10-001 (balance DoD) |
-| P1-07 | **fail** | 2026-10-31 | QA-P1-10-003 (fire-pit cannot be hit by slingers) |
-| P1-08 | not on `main` | | DebugHud only; no menu/settings yet |
-| P1-09 | not on `main` | | |
+| P1-01 | PASS | 2026-11-01 | scripts green; e2e isolated per checkout |
+| P1-02 | PASS | 2026-11-01 | determinism gates green; bench 0.79 ms/step |
+| P1-03 | PASS | 2026-11-01 | 003 and 004 closed via P1-11 |
+| P1-04 | PASS | 2026-11-01 | 002 closed |
+| P1-05 | PASS (QA scope: token sync tests) | 2026-11-01 | UX acceptance is the designer's |
+| P1-06 | PASS | 2026-11-01 | scope gate green; 006 (wave-15 spike) open as P2, belongs to P1-12 |
+| P1-07 | PASS | 2026-11-01 | scope + registry gates green |
+| P1-08 | PASS | 2026-11-01 | `screens.spec` all green th/en × desktop/mobile (incl. text-fits checks); designer PASS recorded |
+| P1-09 | PASS with finding | 2026-11-01 | hygiene green; stage-art 10/12 (QA-P1-10-007, test robustness); **designer verdict not yet recorded** in review.md |
+| P1-10 | n/a (own ticket) | 2026-11-01 | |
+| P1-11 | PASS | 2026-11-01 | see 11.1–11.5 |
+| P1-12 | not merged | | balance already in band without it |
+
+## Definition-of-done verdict (2026-11-01, `main` @ 0eecddf)
+
+| DoD item | Verdict | Evidence |
+| --- | --- | --- |
+| `pnpm dev` → World 1 menu → results, desktop + 390×844 | **PASS** | `full-run.spec` both projects (menu-start → ended → results → play again) |
+| th/en, no missing keys, no clipped text | **PASS** | i18n gates; `screens.spec` th/en × 2 viewports with fit checks; designer PASS on P1-08 |
+| 500 enemies at 60 fps desktop (bench in CI) | **PASS (bench)** | `pnpm bench` 0.79 ms/step mean (budget 4). Browser fps not measurable on this host (QA-P1-10-007) |
+| Determinism green | **PASS** | core + QA determinism gates |
+| Planner ≈50 %, no-build loses, loss C at best | **PASS** | `balance-latest.md`: 23/50 (46 %), 0/50, 0 losses above C |
+| QA + designer sign-off recorded | **PARTIAL** | QA: this table. Designer: P1-08 PASS; P1-09 row in `docs/design/review.md` still empty |

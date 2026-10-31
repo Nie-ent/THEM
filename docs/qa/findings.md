@@ -1,15 +1,33 @@
 # QA findings
 
-Audit of `main` @ 479b63d (P1-01…P1-07 merged; P1-08/P1-09 not yet), 2026-10-31, branch `qa/P1-10`.
+First audit: `main` @ 479b63d (2026-10-31). **Final Phase 1 re-verification: `main` @ 0eecddf
+(2026-11-01)**, branch `qa/P1-final` (P1-01…P1-11, P1-08 fixes, P1-09 art; P1-12 tuning not merged).
 Severity: **P0** blocks play / data loss · **P1** breaks a Definition-of-done item or a core rule ·
-**P2** quality / tooling. QA reports; the supervisor assigns. Status `open` until QA re-verifies.
+**P2** quality / tooling. QA reports; the supervisor assigns.
 
-Baseline on that commit: `pnpm lint` 0, `pnpm typecheck` 0, `pnpm test` 122/122 + Go ok,
-`pnpm bench` mean 0.76 ms/step (p99 12.1 ms) OK, `CI=1 pnpm e2e` 11 passed / 3 skipped (by design),
-including the new one-full-run test on both viewports (seed 7: lost on wave 20, grade B, 1332).
+Final baseline @ 0eecddf: `pnpm lint` 0, `pnpm typecheck` 0, `pnpm test` 146/146 + Go ok,
+`pnpm bench` mean 0.79 ms/step (p95 3.1, p99 12.5) OK, `CI=1 pnpm e2e` 68 passed / 8 skipped (by design) /
+**2 failed** (QA-P1-10-007, reproduced on a second run), 15.7 min,
+`pnpm balance` planner 23/50 wins, no-build 0/50.
 
 | ID | Sev | Area | Summary | Status |
 | --- | --- | --- | --- | --- |
+| QA-P1-10-001 | P1 | balance (P1-06/07) | Planner bot won 3/50; DoD balance criterion failed | **closed** 2026-11-01: 23/50 (46%) vs owner target ≈50%; no-build 0/50 |
+| QA-P1-10-003 | P1 | core + content (P1-03/07) | Slingers targeted fire-pit traps they could never hit, so the wave never ended | **closed** 2026-11-01 (P1-11): ranged enemies skip non-blocking structures; repro now finishes, 0 timeouts in 100 bot runs |
+| QA-P1-10-004 | P1 | scoring (P1-03) | Losing early earned grade A | **closed** 2026-11-01 (P1-11, owner decision): same repro now C; 0 of 77 bot losses graded above C |
+| QA-P1-10-002 | P2 | game app (P1-04) | Raw colour `0xffffff` (hit flash) in StageScene.ts | **closed** 2026-11-01 (P1-11): token hit-flash; hygiene gate has an empty allow-list and passes |
+| QA-P1-10-005 | P2 | tooling (P1-01) | `pnpm e2e` reused a foreign server on port 4173 | **closed** 2026-11-01 (P1-11): per-checkout port, `reuseExistingServer: false` |
+| QA-P1-10-007 | P2 | e2e (P1-09) | `stage-art` 200- and 500-enemy crowd tests fail on desktop: crowd never spawns at ~6 fps headless | open |
+| QA-P1-10-006 | P2 | balance (P1-12) | Planner losses still cluster on wave 15 (9 of 27) and wave 20 (6); P1-12 smoothing not merged | open |
+
+Re-verification notes:
+- 001: the bot policy and seeds are unchanged since the first audit, so the numbers are comparable.
+  The new DoD rows in `balance-latest.md` use QA bands: planner win rate 35–65 %, no-build loses ≥ 90 %.
+- 003: the headless repro below now has the slingers walk to the Core (target = Core) and the wave
+  ends. Fix confirmed in `sim.ts` (`if (ranged && !(w.flags[s] & Flag.Blocking)) continue;` in targeting).
+- 004: the repro is lost on wave 3 with grade C (performance 1.36 would have been A).
+
+--- | --- | --- | --- | --- |
 | QA-P1-10-001 | P1 | balance (P1-06/07) | Planner bot wins 3/50; DoD "planner wins A/B on most seeds" fails | open |
 | QA-P1-10-003 | P1 | core + content (P1-03/07) | Slingers target fire-pit traps but their shots can never hit them, so the wave never ends | open |
 | QA-P1-10-004 | P1 | scoring (P1-03) | Losing early earns grade A (speed multiplier uses partial time) | open |
@@ -103,3 +121,35 @@ is removed.
 another branch's build. In the first audit run that server stopped mid-run and 8/12 tests failed
 with `ERR_CONNECTION_REFUSED`. With `CI=1` (own server) all passed. Suggest a per-worktree port
 (env `E2E_PORT`) or `reuseExistingServer: false`.
+
+## QA-P1-10-006 — P2 — Wave 15 and wave 20 still spike (P1-12 open)
+
+**Repro:** `pnpm balance` @ 0eecddf. Planner loss waves: w15×9, w16×4, w17×4, w20×6, others ≤ 1.
+Losses are mostly hero deaths (21 of 27).
+
+**Expected:** P1-12 asks to smooth the wave-15 and wave-19/20 spikes.
+
+**Actual:** the overall win rate is on target (46 %), but a third of losses still happen on the
+fire-priest wave. P1-12 has not been merged, so this is tracking only: it does not block the DoD.
+
+## QA-P1-10-007 — P2 — stage-art crowd tests fail on desktop headless
+
+**Repro:** `CI=1 pnpm exec playwright test stage-art` @ 0eecddf. Failing on desktop:
+"200-enemy frame, grayscale, and 500-enemy frame" and "500-enemy frame and render rate"
+(`crowd()` polls for ≥ 198 / ≥ 498 enemies, gets 4–5 after 20 s). Mobile passes. Failed the same
+way in two separate runs.
+
+**Cause (measured):** in this container the 1280×720 software-GL canvas renders about 6 fps,
+and the sim advances only about 3 ticks/s (`session.advance(delta)` gets Phaser's capped frame
+delta). `crowd()` pushes its spawns at the end of `spawnQueue`, behind wave 1's 8 raiders spaced
+0.6 s apart. They only come out after `waveTime` ≥ 4.2 s, which takes about 40 s of wall time,
+longer than the 20 s poll.
+
+**Expected:** the evidence test does not depend on how fast the host renders. For example, put the
+crowd at the spawn cursor, or step the sim from the test.
+
+**Actual:** the test fails, and the 500-enemy frame-rate evidence (DoD "60 fps") cannot be
+captured on this host. The core bench (CI DoD item) passes.
+
+Side note for the engineer: at very low frame rates the sim runs slower than real time (about 10 %
+at 6 fps). Real devices do not drop that low, so this is not filed separately.

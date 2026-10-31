@@ -65,13 +65,13 @@ test('full run: prep → 20 waves or defeat → results screen (th + en) → pla
 
   const grade = page.getByTestId('results-grade');
   await expect(grade).toBeVisible();
-  await expect(grade).toHaveText(/^[SABC]$/);
+  await expect(grade).toHaveText(end.result === 'lose' ? 'C' : /^[SABC]$/); // owner decision: a loss is C at best
   // The results screen formats numbers with grouping separators; compare digits only.
   // Per-language rendering of the results screen is covered by tests/e2e/screens.spec.ts.
   await expect.poll(async () => (await page.getByTestId('results-score').innerText()).replace(/\D/g, '')).toBe(String(end.total));
 
   await page.getByTestId('results-play-again').click();
   await expect.poll(() => sim<string>(page, '(s) => s.run.phase')).toBe('prep');
-  await expect(page.getByTestId('hud-wave')).toHaveText(/1\/20/);
+  await expect(page.getByTestId('hud-wave')).toHaveText(/(^|\D)1\/20$/);
   expect(errors).toEqual([]);
 });
