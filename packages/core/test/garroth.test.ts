@@ -147,6 +147,8 @@ describe('mini-bosses', () => {
     const ev: SimEvent[] = [];
     let spawned = 0;
     for (let i = 0; i < 30 * 14 && spawned === 0; i++) {
+      // Keep the boss alive in phase 2: the P1-07 kit kills it before the pack call otherwise.
+      run.w.hp[e] = Math.max(run.w.hp[e]!, run.w.maxHp[e]! * 0.4);
       ev.push(...tick(run));
       spawned = ev.filter((x) => x.type === 'spawn' && x.def === wolfDef).length;
     }
