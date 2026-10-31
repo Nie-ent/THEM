@@ -28,6 +28,27 @@ function patched(patch: (r: Record<string, unknown>) => void): ContentBundle {
   return loadContent(copy);
 }
 
+/**
+ * The engineer's worked-example boss ("slam-and-charge") is no longer used by World 1 content, so the
+ * worked-example tests below get it from a test-only patch of the shipped content.
+ */
+const TRIAL = patched((r) => {
+  (r.enemies as unknown[]).push({
+    id: 'trial-brute', nameKey: 'enemy.raider.name', descKey: 'enemy.raider.desc', tier: 'miniboss', hp: 900,
+    speed: 50, radius: 26, armor: 0.3, targeting: 'hero', weapon: { damage: 18, cooldown: 1.4, range: 8 },
+    xp: 25, boss: 'trial-brute', render: { shape: 'hexagon', scale: 2.2, marks: ['crown'] },
+  });
+  (r.bosses as unknown[]).push({
+    id: 'trial-brute', nameKey: 'boss.varkul.name', script: 'slam-and-charge', enrageSeconds: 90,
+    enrageDamageMult: 1.5, enrageSpeedMult: 1.3,
+    params: { slamRadius: 90, slamDamage: 25, slamWindup: 1.2, firstSlamDelay: 2 },
+    phases: [
+      { hpBelow: 1, params: { slamEvery: 5 } },
+      { hpBelow: 0.5, params: { slamEvery: 4, coreEvery: 7, coreDamage: 60, coreWidth: 50, coreWindup: 1.5 } },
+    ],
+  });
+});
+
 describe('run state machine', () => {
   it('starts in prep with the world prep time and moves to wave on timeout', () => {
     const run = newRun();
@@ -85,7 +106,7 @@ describe('wave intel', () => {
     expect(i.sides.N).toBe(1);
     const i5 = intel(run, 5)!;
     expect(i5.kind).toBe('miniboss');
-    expect(i5.enemies.map((e) => e.enemyId)).toContain('trial-brute');
+    expect(i5.enemies.map((e) => e.enemyId)).toContain('shield-chieftain');
     expect(intel(run, 21)).toBeNull();
   });
 });
@@ -233,7 +254,7 @@ describe('worked examples', () => {
   });
 
   it('card lifesteal (blood-price): heals on hit, raises damage taken', () => {
-    const run = newRun();
+    const run = newRun(1, TRIAL);
     pick(run, 'blood-price');
     expect(run.mods.damageTakenMult).toBeCloseTo(1.15);
     run1(run, { ...idle, callWave: true });
@@ -273,7 +294,7 @@ describe('worked examples', () => {
   });
 
   it('boss slam-and-charge: telegraphs, changes phase at 50%, Core-targeted attack, enrage', () => {
-    const run = newRun();
+    const run = newRun(1, TRIAL);
     run1(run, { ...idle, callWave: true });
     const ctx = getCtx(run);
     const b = ctx.spawnEnemy('trial-brute', 600, 600);
@@ -298,7 +319,7 @@ describe('worked examples', () => {
   });
 
   it('telegraph is cancelled when its owner dies', () => {
-    const run = newRun();
+    const run = newRun(1, TRIAL);
     run1(run, { ...idle, callWave: true });
     const ctx = getCtx(run);
     const b = ctx.spawnEnemy('trial-brute', 600, 600);

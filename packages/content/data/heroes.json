@@ -12,5 +12,19 @@
     "weapon": { "damage": 10, "cooldown": 0.7, "range": 240, "projectileSpeed": 520 },
     "params": { "leash": 40 },
     "render": { "shape": "rounded-square" }
+  },
+  {
+    "id": "brann",
+    "nameKey": "hero.brann.name",
+    "descKey": "hero.brann.desc",
+    "personalityKey": "hero.brann.personality",
+    "stars": 1,
+    "hp": 220,
+    "speed": 110,
+    "radius": 13,
+    "personality": "reckless",
+    "weapon": { "damage": 14, "cooldown": 0.8, "range": 8 },
+    "params": { "chaseRange": 360, "homeStop": 8 },
+    "render": { "shape": "chevron" }
   }
 ]
