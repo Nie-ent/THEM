@@ -2,5 +2,84 @@
   "app": {
     "title": "THEM",
     "loading": "Loading…"
+  },
+  "world": {
+    "garroth": {
+      "name": "Garroth Bloodfields",
+      "desc": "Torch-bearers set wooden structures on fire. Build in wood for speed or stone to stand."
+    }
+  },
+  "enemy": {
+    "raider": { "name": "Raider", "desc": "The baseline horde. Walks for the Core." },
+    "torch-bearer": {
+      "name": "Torch-bearer",
+      "desc": "Hunts your structures and sets wood on fire.",
+      "counter": "burns wood"
+    },
+    "trial-brute": { "name": "Trial Brute", "desc": "Armoured mini-boss that hunts the hero." }
+  },
+  "boss": {
+    "trial-brute": { "name": "Trial Brute" }
+  },
+  "card": {
+    "sharpened-edge": { "name": "Sharpened Edge", "desc": "Hero damage +15% per level." },
+    "blood-price": {
+      "name": "Blood Price",
+      "desc": "Heal for part of the damage you deal.",
+      "drawback": "Damage taken +15%"
+    },
+    "split-shot": {
+      "name": "Split Shot",
+      "desc": "Fire one more arrow per level.",
+      "drawback": "Hero damage −15%"
+    }
+  },
+  "building": {
+    "wood-wall": { "name": "Wood wall", "desc": "Cheap. Burns." },
+    "stone-wall": { "name": "Stone wall", "desc": "Costly. Fireproof." },
+    "archer-tower-wood": { "name": "Archer tower", "desc": "Shoots the nearest enemy in range. Burns." }
+  },
+  "hero": {
+    "mira": { "name": "Mira", "desc": "A careful archer who never leaves her post." }
+  },
+  "personality": {
+    "cautious": "Cautious"
+  },
+  "hud": {
+    "wave": "Wave {{wave}}/{{total}}",
+    "level": "Lv {{level}}",
+    "prep": "Prep {{time}}",
+    "callEarly": "Call wave early",
+    "wood": "Wood",
+    "stone": "Stone",
+    "score": "Score",
+    "pause": "Pause",
+    "paused": "Paused",
+    "resume": "Resume",
+    "heroHp": "Hero HP",
+    "coreHp": "Core HP",
+    "slots": "Slots {{used}}/{{max}}",
+    "intel": "Next: wave {{wave}}",
+    "build": "Build",
+    "sell": "Sell",
+    "language": "Language"
+  },
+  "draft": {
+    "title": "Level {{level}} — choose one",
+    "reroll": "Reroll ({{count}} left)",
+    "take": "Take"
+  },
+  "results": {
+    "win": "Victory",
+    "lose": "Defeat",
+    "score": "Score",
+    "grade": "Grade",
+    "again": "Play again"
+  },
+  "side": {
+    "N": "North",
+    "E": "East",
+    "S": "South",
+    "W": "West"
   }
 }

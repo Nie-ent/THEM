@@ -1,0 +1,42 @@
+[
+  {
+    "id": "wood-wall",
+    "nameKey": "building.wood-wall.name",
+    "descKey": "building.wood-wall.desc",
+    "material": "wood",
+    "cost": { "wood": 4 },
+    "upkeep": { "wood": 1 },
+    "hp": 220,
+    "flammable": true,
+    "blocking": true,
+    "behavior": "static",
+    "render": { "shape": "square-planks" }
+  },
+  {
+    "id": "stone-wall",
+    "nameKey": "building.stone-wall.name",
+    "descKey": "building.stone-wall.desc",
+    "material": "stone",
+    "cost": { "stone": 6 },
+    "upkeep": { "stone": 1 },
+    "hp": 320,
+    "flammable": false,
+    "blocking": true,
+    "behavior": "static",
+    "render": { "shape": "square-bricks" }
+  },
+  {
+    "id": "archer-tower-wood",
+    "nameKey": "building.archer-tower-wood.name",
+    "descKey": "building.archer-tower-wood.desc",
+    "material": "wood",
+    "cost": { "wood": 8 },
+    "upkeep": { "wood": 1 },
+    "hp": 160,
+    "flammable": true,
+    "blocking": true,
+    "behavior": "tower",
+    "params": { "damage": 9, "cooldown": 0.8, "range": 220, "projectileSpeed": 520 },
+    "render": { "shape": "square-tower" }
+  }
+]

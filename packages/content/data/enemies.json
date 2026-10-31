@@ -1,0 +1,50 @@
+[
+  {
+    "id": "raider",
+    "nameKey": "enemy.raider.name",
+    "descKey": "enemy.raider.desc",
+    "tier": "normal",
+    "hp": 20,
+    "speed": 70,
+    "radius": 8,
+    "targeting": "core",
+    "aggroRadius": 140,
+    "weapon": { "damage": 5, "cooldown": 1, "range": 4 },
+    "xp": 1,
+    "drops": { "wood": 1, "chance": 0.25 },
+    "render": { "shape": "triangle" }
+  },
+  {
+    "id": "torch-bearer",
+    "nameKey": "enemy.torch-bearer.name",
+    "descKey": "enemy.torch-bearer.desc",
+    "counterKey": "enemy.torch-bearer.counter",
+    "tier": "normal",
+    "hp": 18,
+    "speed": 75,
+    "radius": 8,
+    "targeting": "structure",
+    "aggroRadius": 100,
+    "weapon": { "damage": 3, "cooldown": 1, "range": 4, "damageType": "fire" },
+    "xp": 1,
+    "drops": { "stone": 1, "chance": 0.25 },
+    "behaviors": [{ "id": "ignite" }],
+    "render": { "shape": "triangle-flame" }
+  },
+  {
+    "id": "trial-brute",
+    "nameKey": "enemy.trial-brute.name",
+    "descKey": "enemy.trial-brute.desc",
+    "tier": "miniboss",
+    "hp": 900,
+    "speed": 50,
+    "radius": 26,
+    "armor": 0.3,
+    "targeting": "hero",
+    "weapon": { "damage": 18, "cooldown": 1.4, "range": 8 },
+    "xp": 25,
+    "drops": { "wood": 10, "stone": 10, "chance": 1 },
+    "boss": "trial-brute",
+    "render": { "shape": "hexagon", "scale": 2.2, "marks": ["crown"] }
+  }
+]
