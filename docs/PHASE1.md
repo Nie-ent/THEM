@@ -41,6 +41,8 @@ beyond placeholder bleeps.
 | P1-07 | Laborer B | 12 skill cards, 4 buildings, 2 AI heroes as data + effects via registries, strings th/en | P1-03 |
 | P1-08 | Laborer C | React screens: menu, HUD, card draft, prep/intel/build, pause/settings, results | P1-04, P1-05 |
 | P1-09 | Laborer A/B | Placeholder geometric art + hit/death/telegraph VFX per readability rules | P1-04, P1-05 |
+| P1-11 | Engineer | Engine gaps from P1-06/07 + QA fixes: slinger soft-lock, first-class enemy burning, safe on-hit damage hook, same-tick spatial hash for spawns, boss line events, per-phase boss stats, token hit-flash, isolated e2e server, **loss grade capped at C** (owner decision) | P1-10 |
+| P1-12 | Laborer A | Tune World 1 with `pnpm balance`: target planner win rate **≈50%** (owner decision), no-build ≈0%; smooth the wave-15 and wave-19/20 spikes | P1-11 |
 | P1-10 | QA | Test plan, determinism + i18n completeness tests, e2e smoke (desktop + mobile, th + en), headless balance bot that plays 20 waves and reports grade distribution | P1-03 onward |
 
 ## Definition of done (phase)
@@ -48,6 +50,6 @@ beyond placeholder bleeps.
 - `pnpm dev` → playable World 1 from menu to results on desktop and a 390×844 viewport.
 - All strings switch between Thai and English with no missing keys and no clipped text.
 - 500 enemies hold 60 fps on desktop (bench in CI).
-- Determinism test green. Balance bot completes 20 waves at recommended power with grade A or B on
-  most seeds and fails without building towers (planning matters).
+- Determinism test green. Balance bot (planner) wins about 50% of seeds at recommended power (owner decision 31 Oct) and the
+  no-build bot loses almost always (planning matters). A loss is graded C at best.
 - QA and designer sign-off recorded in `docs/qa/` and `docs/design/review.md`.
