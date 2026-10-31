@@ -1,0 +1,10 @@
+{
+  // QA balance bot + gate tests import packages/core source directly, so they use core's compiler
+  // settings (noUncheckedIndexedAccess off, see packages/core/tsconfig.json). e2e stays on the root config.
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": false,
+    "types": ["node"]
+  },
+  "include": ["balance/**/*.ts", "gates/**/*.ts"]
+}
