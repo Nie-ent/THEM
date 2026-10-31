@@ -143,6 +143,32 @@ right tokens and the right names.
 5. **N5** Mobile results heading is `text-4xl`; use `text-3xl` below `md` so EN fits on one or two
    lines with room for the quote.
 
+#### Re-review 2026-11-01 at 119e960 (42 screenshots + code)
+
+| Screen | Date | Commit | Desktop th | Desktop en | Mobile th | Mobile en | Result | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Menu | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M1 fixed |
+| HUD (+ boss, Core threat) | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M2, M9 fixed; violet Core frame + boss bar + boss line shown |
+| Card draft | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M3 HUD hidden, M4 "%" attached, N3 tag dropped |
+| Prep | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M5 upkeep 0/0 + in stock, M6 tiles show cost/upkeep/Burns |
+| Pause / settings (+ confirm) | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M1 segments wrap under label; Keep playing focused |
+| Results (defeat + victory) | 2026-11-01 | 119e960 | ok | ok | ok | ok | PASS | M7, M8 (loss C, 60%, "run lost"), N2 score above fold, N5 |
+
+**Verdict P1-08: PASS** (designer). All M1–M9 resolved; N2, N3, N5 done, N4 resolved by compact rows.
+No raw hex in `apps/game/src/ui/`; `Wrap` keeps non-word segments attached; HUD is `invisible` +
+`aria-hidden` under the draft.
+
+P2 notes (do not block):
+
+- P2-1 N1 still open: results derives hero hit share by inverting the damage formula; expose
+  `heroDamageShare`/`coreHpFrac` on `ScoreBreakdown` when core is next touched.
+- P2-2 Mobile Thai boss line wraps leaving one short word ("ต่อ") on line 2; consider `text-wrap: balance`
+  on the boss line plate.
+- P2-3 Boss line is set in the text face on mobile TH and Charm-like serif on desktop EN; confirm it
+  uses `font-hand` consistently once fonts load (it is Author/boss voice, Charm is correct).
+- P2-4 Mobile draft: card 3 overlaps the build sheet behind the scrim; harmless (sim paused, HUD hidden)
+  but a darker scrim below `md` would read cleaner.
+
 #### Font risks to re-check once Google Fonts load (not failures now)
 
 - Charm Thai in the draft drawback heading sits in a card with `overflow-hidden` at line-height 1.3:
