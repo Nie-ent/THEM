@@ -27,13 +27,14 @@ function missing(cost: Cost, h: HudState): { wood: number; stone: number } {
 }
 
 /** Cost or upkeep as icon + number pairs; a number turns danger-red (with its icon) when short. */
-function Amounts({ cost, h, prefix }: { cost: Cost; h?: HudState; prefix?: string }) {
+function Amounts({ cost, h, prefix, zeros }: { cost: Cost; h?: HudState; prefix?: string; zeros?: boolean }) {
   const { int } = useFmt();
   const short = h ? missing(cost, h) : { wood: 0, stone: 0 };
+  if (!zeros && (cost.wood ?? 0) === 0 && (cost.stone ?? 0) === 0) return null;
   return (
     <span className="inline-flex items-center gap-2 tabular-nums">
       {prefix && <span aria-hidden className="text-text-subtle">{prefix}</span>}
-      {(['wood', 'stone'] as const).map((k) => ((cost[k] ?? 0) > 0 ? (
+      {(['wood', 'stone'] as const).map((k) => ((zeros || (cost[k] ?? 0) > 0) ? (
         <span key={k} className={`inline-flex items-center gap-1 ${short[k] > 0 ? 'text-semantic-danger' : ''}`}>
           <ResIcon kind={k} size={14} />{int(cost[k] ?? 0)}
         </span>
@@ -237,12 +238,13 @@ function Tile({ b, h, selected, onPick }: { b: BuildingDef; h: HudState; selecte
       aria-pressed={selected}
       aria-disabled={poor}
       onClick={onPick}
-      className={`pointer-events-auto flex h-30 w-24 shrink-0 flex-col items-start gap-1 rounded-md border bg-surface-raised p-2 text-left ${selected ? 'border-2 border-focus' : 'border-border-strong'} ${poor ? 'opacity-50' : ''}`}
+      className={`pointer-events-auto flex min-h-30 w-32 shrink-0 flex-col items-start gap-1 rounded-md border bg-surface-raised p-2 text-left ${selected ? 'border-2 border-focus' : 'border-border-strong'} ${poor ? 'opacity-50' : ''}`}
     >
       <ShapeIcon shape={b.render.shape} color={buildingColor(b)} size={24} />
       <span className="text-sm font-semibold leading-ui"><Wrap text={t(b.nameKey)} /></span>
       <span className="mt-auto flex flex-col gap-1 text-sm">
         <Amounts cost={b.cost} h={h} />
+        <Amounts cost={b.upkeep} prefix="↻" />
         <Fact b={b} />
       </span>
     </button>
@@ -260,13 +262,7 @@ function SlotsUpkeep({ h }: { h: HudState }) {
         <span>{t('ui.build.slots', { used: h.slotsUsed, max: h.maxSlots })}</span>
         {noSlots && <span>· {t('ui.build.noSlots')}</span>}
       </div>
-      <div data-testid="build-upkeep" className={`flex flex-wrap items-center gap-x-2 ${shortUp ? 'text-semantic-warning' : ''}`}>
-        {shortUp && <WarnIcon color="var(--them-color-semantic-warning)" size={14} />}
-        <span>{t('ui.build.upkeepSummary')}</span>
-        <Amounts cost={{ wood: h.upkeepWood, stone: h.upkeepStone }} />
-        <span className="text-text-subtle">· {t('ui.build.stock')}</span>
-        <Amounts cost={{ wood: h.wood, stone: h.stone }} />
-      </div>
+      <UpkeepLines h={h} />
       {shortUp && <p className="text-semantic-warning">{t('ui.build.upkeepShort')}</p>}
       {h.burning > 0 && <p className="flex items-center gap-1 text-stage-burning"><FlameIcon size={14} />{t('ui.build.burningNow', { count: h.burning })}</p>}
     </div>
@@ -398,10 +394,10 @@ export function PrepScreen({ session, topSlot }: { session: GameSession; topSlot
     return (
       <>
         <IntelPanel intel={h.intel} />
-        <aside data-testid="build-menu" className="anim-fade pointer-events-auto absolute bottom-24 right-4 top-40 z-drawer flex w-80 flex-col gap-2 rounded-lg border border-border bg-surface p-3 shadow-sheet">
+        <aside data-testid="build-menu" className="anim-fade pointer-events-auto absolute bottom-24 right-4 top-40 z-drawer them-scroll-y flex w-80 flex-col gap-2 rounded-lg border border-border bg-surface p-3 shadow-sheet">
           <h2 className="font-display text-lg font-semibold leading-display">{t('ui.build.title')}</h2>
           {tabs}
-          <div className="them-scroll-y flex min-h-0 flex-1 flex-col gap-2">
+          <div className="flex shrink-0 flex-col gap-2">
             {items.length === 0 && <p className="text-md text-text-muted">{t('ui.build.none')}</p>}
             {items.map((b) => (
               <ItemRow key={b.id} b={b} index={content.buildings.indexOf(b)} h={h} selected={sel === b.id} hotkey onPick={() => pickItem(b)} />
@@ -436,7 +432,7 @@ export function PrepScreen({ session, topSlot }: { session: GameSession; topSlot
   return (
     <>
       {topSlot && createPortal(topStack, topSlot)}
-      <div className="anim-fade pointer-events-auto absolute inset-x-0 bottom-0 z-drawer flex h-65 flex-col gap-2 rounded-t-lg border-t border-border bg-surface px-3 pb-[max(var(--them-space-3),env(safe-area-inset-bottom))] pt-3 shadow-sheet">
+      <div className="anim-fade pointer-events-auto absolute inset-x-0 bottom-0 z-drawer flex flex-col gap-2 rounded-t-lg border-t border-border bg-surface px-3 pb-[max(var(--them-space-3),env(safe-area-inset-bottom))] pt-3 shadow-sheet">
         {confirmFlow && (sel || cell >= 0 || msg) && (
           <div className="pointer-events-auto absolute inset-x-2 bottom-full mb-2 flex items-center gap-2 rounded-md border border-border-strong bg-surface p-2" data-testid="build-confirm-bar">
             <p role="status" className="min-w-0 flex-1 text-sm leading-ui text-text">
@@ -456,23 +452,29 @@ export function PrepScreen({ session, topSlot }: { session: GameSession; topSlot
           {items.length === 0 && <p className="text-md text-text-muted">{t('ui.build.none')}</p>}
           {items.map((b) => <Tile key={b.id} b={b} h={h} selected={sel === b.id} onPick={() => pickItem(b)} />)}
         </div>
-        <div className="flex items-center justify-between gap-2">
-          <MobileUpkeep h={h} />
-          <Heroes placing={placing} onPick={choosePlacing} />
-        </div>
+        <UpkeepLines h={h} />
+        {h.upkeepWood > h.wood || h.upkeepStone > h.stone ? <p className="text-sm text-semantic-warning">{t('ui.build.upkeepShort')}</p> : null}
+        <Heroes placing={placing} onPick={choosePlacing} />
       </div>
     </>
   );
 }
 
-function MobileUpkeep({ h }: { h: HudState }) {
+/** Upkeep amounts always print (zeros included); stock sits on its own labelled line. */
+function UpkeepLines({ h }: { h: HudState }) {
   const { t } = useTranslation();
   const shortUp = h.wood < h.upkeepWood || h.stone < h.upkeepStone;
   return (
-    <div data-testid="build-upkeep" className={`flex items-center gap-1 text-sm ${shortUp ? 'text-semantic-warning' : ''}`} title={shortUp ? t('ui.build.upkeepShort') : undefined}>
-      {shortUp && <WarnIcon size={14} color="var(--them-color-semantic-warning)" />}
-      <span className="sr-only">{t('ui.build.upkeepSummary')}</span>
-      <Amounts cost={{ wood: h.upkeepWood, stone: h.upkeepStone }} prefix="↻" />
+    <div data-testid="build-upkeep" className="flex flex-col gap-1 text-sm">
+      <div className={`flex flex-wrap items-center gap-x-2 ${shortUp ? 'text-semantic-warning' : ''}`}>
+        {shortUp && <WarnIcon color="var(--them-color-semantic-warning)" size={14} />}
+        <span>{t('ui.build.upkeepSummary')}</span>
+        <Amounts cost={{ wood: h.upkeepWood, stone: h.upkeepStone }} zeros />
+      </div>
+      <div className="flex flex-wrap items-center gap-x-2 text-text-muted">
+        <span>{t('ui.build.stock')}</span>
+        <Amounts cost={{ wood: h.wood, stone: h.stone }} zeros />
+      </div>
     </div>
   );
 }

@@ -53,9 +53,9 @@ export type PauseFlow = ReturnType<typeof usePauseFlow>;
 
 function SettingRow({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex min-h-14 flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-border py-2">
+    <div className="flex min-h-14 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border py-2">
       <span className="min-w-0 text-md leading-ui">{label}</span>
-      {children}
+      <div className="ml-auto max-w-full overflow-x-auto">{children}</div>
     </div>
   );
 }

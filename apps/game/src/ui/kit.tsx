@@ -1,7 +1,6 @@
 /** Shared UI primitives: buttons, segmented control, icons, media hooks, number formatting. */
 import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ButtonHTMLAttributes, type ReactNode, type RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
-import { segmentWords } from '@them/i18n';
 import { SHAPES } from '../game/shapes';
 
 /* ---------------------------------------------------------------------------------------- */
@@ -82,11 +81,13 @@ export function useFocusTrap(active: boolean, ref: RefObject<HTMLElement | null>
 export function Wrap({ text }: { text: string }) {
   const { i18n } = useTranslation();
   if (i18n.language !== 'th') return <>{text}</>;
-  const words = segmentWords(text, 'th');
+  // Offer a break only before word-like segments; punctuation and symbols (%, ., /, )) stay attached.
+  const seg = new Intl.Segmenter('th', { granularity: 'word' });
+  const words = [...seg.segment(text)].map((x) => ({ w: x.segment, word: x.isWordLike === true }));
   return (
     <>
-      {words.map((w, i) => (
-        <Fragment key={i}>{i > 0 && <wbr />}{w}</Fragment>
+      {words.map((x, i) => (
+        <Fragment key={i}>{i > 0 && x.word && <wbr />}{x.w}</Fragment>
       ))}
     </>
   );
@@ -121,7 +122,7 @@ export function Segmented<T extends string>({ value, options, onChange, testid, 
   value: T; options: SegOption<T>[]; onChange: (v: T) => void; testid: string; label: string; className?: string;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} data-testid={testid} className={`pointer-events-auto inline-flex rounded-md border border-border-strong ${className}`}>
+    <div role="radiogroup" aria-label={label} data-testid={testid} className={`pointer-events-auto grid grid-flow-col auto-cols-fr rounded-md border border-border-strong ${className}`}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -130,7 +131,7 @@ export function Segmented<T extends string>({ value, options, onChange, testid, 
           aria-checked={value === o.value}
           data-testid={`${testid}-${o.value}`}
           onClick={() => onChange(o.value)}
-          className={`min-h-11 min-w-11 flex-1 whitespace-nowrap px-3 text-center text-md font-medium leading-ui first:rounded-l-md last:rounded-r-md ${value === o.value ? 'bg-surface-raised text-reward' : 'text-text-muted hover:text-text'}`}
+          className={`min-h-11 min-w-max flex-none whitespace-nowrap px-3 text-center text-md font-medium leading-ui first:rounded-l-md last:rounded-r-md ${value === o.value ? 'bg-surface-raised text-reward' : 'text-text-muted hover:text-text'}`}
         >
           {o.label}
         </button>
@@ -168,9 +169,9 @@ export function ShapeIcon({ shape, color = V('stage-enemy'), size = 20, title }:
   );
 }
 
-/** Wood = square, stone = triangle: the same shapes as the pickups. */
+/** Wood = square, stone = point-up triangle: the same shapes as the pickups. */
 export function ResIcon({ kind, size = 16 }: { kind: 'wood' | 'stone'; size?: number }) {
-  return <ShapeIcon shape={kind === 'wood' ? 'square' : 'triangle'} color={V(kind === 'wood' ? 'hud-resource-wood' : 'hud-resource-stone')} size={size} />;
+  return <ShapeIcon shape={kind === 'wood' ? 'square' : 'triangle-up'} color={V(kind === 'wood' ? 'hud-resource-wood' : 'hud-resource-stone')} size={size} />;
 }
 
 export function HeartIcon({ size = 16 }: { size?: number }) {

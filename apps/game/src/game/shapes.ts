@@ -15,11 +15,13 @@ function regular(n: number, rot = 0): Poly {
   return out;
 }
 
-export const SHAPES: Record<RenderHint['shape'], Poly | 'circle'> = {
+export const SHAPES: Record<RenderHint['shape'] | 'triangle-up', Poly | 'circle'> = {
   circle: 'circle',
   'circle-ticks': 'circle',
   'ring-dashed': 'circle',
   triangle: [[1.15, 0], [-0.8, 0.85], [-0.8, -0.85]],
+  /** Stone pickup / icon: point-up so it never reads as the point-forward raider. */
+  'triangle-up': [[0, -1.15], [0.85, 0.8], [-0.85, 0.8]],
   'triangle-flame': [[1.15, 0], [-0.8, 0.85], [-0.8, -0.85]],
   hexagon: regular(6),
   octagon: regular(8, Math.PI / 8),
