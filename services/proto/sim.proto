@@ -1,0 +1,46 @@
+// PLACEHOLDER (phase 4). Contract between Go services and the Node sim workers that run
+// packages/core. Nothing generates code from this yet; it records the intended shape.
+syntax = "proto3";
+
+package them.sim.v1;
+
+option go_package = "github.com/nie-ent/them/services/gen/simv1;simv1";
+
+// One tick of player input, mirrors `InputFrame` in packages/core/src/api.ts.
+message InputFrame {
+  uint32 tick = 1;
+  sint32 move_x = 2;   // quantized -127..127
+  sint32 move_y = 3;
+  sint32 card_pick = 4; // -1 = none
+  bool reroll = 5;
+  bool call_wave = 6;
+  bool pause = 7;
+  repeated BuildCommand builds = 8;
+}
+
+message BuildCommand {
+  string building_id = 1;
+  int32 cell = 2;
+  bool sell = 3;
+}
+
+message VerifyRunRequest {
+  string content_version = 1;
+  string world_id = 2;
+  uint64 seed = 3;
+  repeated InputFrame inputs = 4;
+  uint32 claimed_score = 5;
+  string claimed_state_hash = 6;
+}
+
+message VerifyRunResponse {
+  bool valid = 1;
+  uint32 score = 2;
+  string grade = 3;
+  string state_hash = 4;
+}
+
+service SimWorker {
+  // Replays a recorded run deterministically and returns the authoritative result.
+  rpc VerifyRun(VerifyRunRequest) returns (VerifyRunResponse);
+}

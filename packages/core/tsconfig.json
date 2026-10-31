@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Core is typed-array heavy (SoA ECS). With noUncheckedIndexedAccess every `w.x[i]` becomes
+    // `number | undefined`, which buys nothing here (indices are entity ids bounded by highWater)
+    // and buries the hot loops in `!`. Off for core only; every other package keeps it on.
+    "noUncheckedIndexedAccess": false,
+    "types": ["node"]
+  },
+  "include": ["src", "test", "bench"]
+}

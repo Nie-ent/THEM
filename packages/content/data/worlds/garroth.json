@@ -1,0 +1,619 @@
+{
+  "id": "garroth",
+  "nameKey": "world.garroth.name",
+  "descKey": "world.garroth.desc",
+  "arena": {
+    "width": 2400,
+    "height": 2400
+  },
+  "core": {
+    "hp": 600,
+    "radius": 28
+  },
+  "buildGrid": {
+    "cellSize": 40,
+    "cols": 13,
+    "rows": 13,
+    "mask": [
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      ".....###.....",
+      ".....###.....",
+      ".....###.....",
+      ".............",
+      ".............",
+      ".............",
+      ".............",
+      "............."
+    ],
+    "maxSlots": 12
+  },
+  "prepSeconds": 25,
+  "standardTimeSeconds": 1500,
+  "recommendedPower": 1000,
+  "startingResources": {
+    "wood": 20,
+    "stone": 10
+  },
+  "rules": {
+    "burnDps": 12,
+    "burnSeconds": 6
+  },
+  "waves": [
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 8,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.6
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 10,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 3,
+          "side": "W",
+          "delay": 3,
+          "interval": 1.2
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 12,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 3,
+          "side": "N",
+          "delay": 3,
+          "interval": 1.2
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 14,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 4,
+          "side": "E",
+          "delay": 3,
+          "interval": 1.2
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "miniboss",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 4,
+          "side": "S",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "trial-brute",
+          "count": 1,
+          "side": "E",
+          "delay": 4,
+          "interval": 0
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 18,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 5,
+          "side": "W",
+          "delay": 3,
+          "interval": 1.2
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 20,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 5,
+          "side": "N",
+          "delay": 3,
+          "interval": 1.2
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 22,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 6,
+          "side": "E",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 8,
+          "side": "E",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 24,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 6,
+          "side": "S",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 9,
+          "side": "S",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "miniboss",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 26,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 7,
+          "side": "W",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 10,
+          "side": "W",
+          "delay": 6,
+          "interval": 0.4
+        },
+        {
+          "enemy": "trial-brute",
+          "count": 1,
+          "side": "S",
+          "delay": 4,
+          "interval": 0
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 28,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 7,
+          "side": "N",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 11,
+          "side": "N",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 30,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 8,
+          "side": "E",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 12,
+          "side": "E",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 32,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 8,
+          "side": "S",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 13,
+          "side": "S",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 34,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 9,
+          "side": "W",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 14,
+          "side": "W",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "miniboss",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 36,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 9,
+          "side": "N",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 15,
+          "side": "N",
+          "delay": 6,
+          "interval": 0.4
+        },
+        {
+          "enemy": "trial-brute",
+          "count": 1,
+          "side": "W",
+          "delay": 4,
+          "interval": 0
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 38,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 10,
+          "side": "E",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "E",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 40,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 10,
+          "side": "S",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 17,
+          "side": "S",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 42,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 11,
+          "side": "W",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 18,
+          "side": "W",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 44,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 11,
+          "side": "N",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 19,
+          "side": "N",
+          "delay": 6,
+          "interval": 0.4
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    },
+    {
+      "kind": "boss",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 46,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.6
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 12,
+          "side": "E",
+          "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "raider",
+          "count": 20,
+          "side": "E",
+          "delay": 6,
+          "interval": 0.4
+        },
+        {
+          "enemy": "trial-brute",
+          "count": 1,
+          "side": "N",
+          "delay": 4,
+          "interval": 0
+        }
+      ],
+      "clearBonus": {
+        "wood": 4,
+        "stone": 2
+      }
+    }
+  ]
+}

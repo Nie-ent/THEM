@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"],
+    // The app compiles @them/core from source (no build step), and core opts out of this flag for
+    // its typed-array hot loops (see packages/core/tsconfig.json). `strict` stays on.
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}

@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+/* Design tokens (`@them/ui-tokens/tokens.css`) are imported once from main.tsx, so its Google Fonts
+   @import stays first in its own stylesheet. */
+
+/*
+ * Tailwind theme → design tokens. Utilities resolve to `var(--them-*)`, so components never hold raw
+ * values: bg-surface, text-text-muted, text-hud-hp-hero, bg-stage-enemy, p-4 (= --them-space-4),
+ * rounded-md, font-display, z-hud, etc. Default palette/spacing are cleared so stray utilities fail.
+ */
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-bg: var(--them-color-semantic-bg);
+  --color-surface: var(--them-color-semantic-surface);
+  --color-surface-raised: var(--them-color-semantic-surface-raised);
+  --color-scrim: var(--them-color-semantic-scrim);
+  --color-hud-plate: var(--them-color-semantic-hud-plate);
+  --color-border: var(--them-color-semantic-border);
+  --color-border-strong: var(--them-color-semantic-border-strong);
+  --color-text: var(--them-color-semantic-text);
+  --color-text-muted: var(--them-color-semantic-text-muted);
+  --color-text-subtle: var(--them-color-semantic-text-subtle);
+  --color-text-on-accent: var(--them-color-semantic-text-on-accent);
+  --color-accent: var(--them-color-semantic-accent);
+  --color-accent-text: var(--them-color-semantic-accent-text);
+  --color-reward: var(--them-color-semantic-reward);
+  --color-focus: var(--them-color-semantic-focus);
+  --color-annotation: var(--them-color-semantic-annotation);
+  --color-semantic-success: var(--them-color-semantic-success);
+  --color-semantic-warning: var(--them-color-semantic-warning);
+  --color-semantic-danger: var(--them-color-semantic-danger);
+  --color-semantic-info: var(--them-color-semantic-info);
+  --color-hud-hp-hero: var(--them-color-hud-hp-hero);
+  --color-hud-hp-core: var(--them-color-hud-hp-core);
+  --color-hud-xp: var(--them-color-hud-xp);
+  --color-hud-track: var(--them-color-hud-track);
+  --color-hud-loss: var(--them-color-hud-loss);
+  --color-hud-resource-wood: var(--them-color-hud-resource-wood);
+  --color-hud-resource-stone: var(--them-color-hud-resource-stone);
+  --color-grade-s: var(--them-color-grade-s);
+  --color-grade-a: var(--them-color-grade-a);
+  --color-grade-b: var(--them-color-grade-b);
+  --color-grade-c: var(--them-color-grade-c);
+  --color-stage-enemy: var(--them-color-stage-enemy);
+  --color-stage-core-threat: var(--them-color-stage-core-threat);
+  --color-stage-burning: var(--them-color-stage-burning);
+
+  --font-*: initial;
+  --font-display: var(--them-font-family-display);
+  --font-text: var(--them-font-family-text);
+  --font-hand: var(--them-font-family-hand);
+  --font-weight-regular: var(--them-font-weight-regular);
+  --font-weight-medium: var(--them-font-weight-medium);
+  --font-weight-semibold: var(--them-font-weight-semibold);
+  --font-weight-bold: var(--them-font-weight-bold);
+
+  --text-*: initial;
+  --text-2xs: var(--them-size-2xs);
+  --text-xs: var(--them-size-xs);
+  --text-sm: var(--them-size-sm);
+  --text-md: var(--them-size-md);
+  --text-base: var(--them-size-md);
+  --text-lg: var(--them-size-lg);
+  --text-xl: var(--them-size-xl);
+  --text-2xl: var(--them-size-2xl);
+  --text-3xl: var(--them-size-3xl);
+  --text-4xl: var(--them-size-4xl);
+  --text-5xl: var(--them-size-5xl);
+  --text-6xl: var(--them-size-6xl);
+
+  /* Tailwind spacing scale is multiples of --spacing; the token grid is 4 px, so p-4 = 16px = --them-space-4. */
+  --spacing: var(--them-space-1);
+
+  --radius-*: initial;
+  --radius-none: var(--them-radius-none);
+  --radius-sm: var(--them-radius-sm);
+  --radius-md: var(--them-radius-md);
+  --radius-lg: var(--them-radius-lg);
+  --radius-full: var(--them-radius-full);
+
+  --shadow-sheet: var(--them-shadow-sheet);
+  --shadow-focus: var(--them-shadow-focus);
+
+}
+
+/*
+ * Breakpoints must be literal: CSS variables are not allowed inside @media conditions.
+ * Values mirror tokens.breakpoint; src/tokens-sync.test.ts fails if they drift.
+ */
+@theme {
+  --breakpoint-*: initial;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+@theme inline {
+
+  --ease-standard: var(--them-motion-easing-standard);
+  --ease-enter: var(--them-motion-easing-enter);
+  --ease-exit: var(--them-motion-easing-exit);
+}
+
+/* z-index utilities from tokens: z-stage, z-hud, z-joystick, z-modal … */
+@utility z-stage { z-index: var(--them-z-stage); }
+@utility z-stage-overlay { z-index: var(--them-z-stage-overlay); }
+@utility z-hud { z-index: var(--them-z-hud); }
+@utility z-joystick { z-index: var(--them-z-joystick); }
+@utility z-toast { z-index: var(--them-z-toast); }
+@utility z-drawer { z-index: var(--them-z-drawer); }
+@utility z-modal { z-index: var(--them-z-modal); }
+@utility z-tooltip { z-index: var(--them-z-tooltip); }
+@utility z-system { z-index: var(--them-z-system); }
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--them-color-semantic-bg);
+  color: var(--them-color-semantic-text);
+  font-family: var(--them-font-family-text);
+  line-height: var(--them-font-line-height-ui);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: none;
+}

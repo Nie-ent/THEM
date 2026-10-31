@@ -1,0 +1,16 @@
+[
+  {
+    "id": "mira",
+    "nameKey": "hero.mira.name",
+    "descKey": "hero.mira.desc",
+    "personalityKey": "personality.cautious",
+    "stars": 2,
+    "hp": 140,
+    "speed": 120,
+    "radius": 12,
+    "personality": "cautious",
+    "weapon": { "damage": 10, "cooldown": 0.7, "range": 240, "projectileSpeed": 520 },
+    "params": { "leash": 40 },
+    "render": { "shape": "rounded-square" }
+  }
+]

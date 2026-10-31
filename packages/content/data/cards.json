@@ -1,0 +1,37 @@
+[
+  {
+    "id": "sharpened-edge",
+    "nameKey": "card.sharpened-edge.name",
+    "descKey": "card.sharpened-edge.desc",
+    "rarity": "common",
+    "weight": 3,
+    "maxLevel": 3,
+    "effect": "stat-mods",
+    "params": { "damageMult": [0.15, 0.3, 0.45] },
+    "tags": ["damage"]
+  },
+  {
+    "id": "blood-price",
+    "nameKey": "card.blood-price.name",
+    "descKey": "card.blood-price.desc",
+    "drawbackKey": "card.blood-price.drawback",
+    "rarity": "rare",
+    "weight": 1,
+    "maxLevel": 3,
+    "effect": "lifesteal",
+    "params": { "leech": [0.04, 0.07, 0.1], "damageTaken": 0.15 },
+    "tags": ["sustain"]
+  },
+  {
+    "id": "split-shot",
+    "nameKey": "card.split-shot.name",
+    "descKey": "card.split-shot.desc",
+    "drawbackKey": "card.split-shot.drawback",
+    "rarity": "rare",
+    "weight": 1.5,
+    "maxLevel": 2,
+    "effect": "stat-mods",
+    "params": { "projectileCountAdd": [1, 2], "damageMult": -0.15 },
+    "tags": ["projectile"]
+  }
+]
