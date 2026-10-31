@@ -171,11 +171,20 @@ function moveVector(run: Run, v: RunView): { x: number; y: number } {
   const cx = e.x[v.core]!, cy = e.y[v.core]!;
   let mx = 0, my = 0;
 
-  // 1. Step out of any active telegraph (move away from its origin).
+  // 1. Step out of any active telegraph (move away from its origin). Escaping overrides everything.
+  let escaping = false;
   for (const t of v.telegraphs) {
     if (!t.active) continue;
     const dx = hx - t.x, dy = hy - t.y, d = Math.sqrt(dx * dx + dy * dy);
-    if (d < t.r + 30) { const s = d > 1e-6 ? 1 / d : 1; mx += dx * s * 3; my += dy * s * 3; }
+    if (d < t.r + 30) {
+      escaping = true;
+      const s = d > 1e-6 ? 1 / d : 1;
+      mx += d > 1e-6 ? dx * s : 1; my += d > 1e-6 ? dy * s : 0;
+    }
+  }
+  if (escaping) {
+    const len = Math.sqrt(mx * mx + my * my);
+    return len > 1e-3 ? { x: mx / len, y: my / len } : { x: 1, y: 0 };
   }
 
   // 2. Kite: repel from nearby enemies; remember the nearest enemy for "hunt" pull.

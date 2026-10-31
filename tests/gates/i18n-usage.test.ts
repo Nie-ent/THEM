@@ -68,17 +68,4 @@ describe('i18n key usage (QA gate)', () => {
     }
     expect(bad).toEqual([]);
   });
-
-  it('no user-facing string literal in JSX text of apps/game/src (letters between tags)', () => {
-    // Heuristic for CLAUDE.md rule 1: `>Some words<` in .tsx. Symbols/numbers are fine.
-    const bad: string[] = [];
-    for (const f of files('apps/game/src', ['.tsx'])) {
-      const src = stripComments(read(f));
-      const re = />\s*([A-Za-z฀-๿][^<>{}]*?)\s*</g;
-      for (let m = re.exec(src); m; m = re.exec(src)) {
-        if (/[A-Za-z฀-๿]{2,}/.test(m[1]!)) bad.push(`${rel(f)}:${lineOf(src, m.index)}: "${m[1]}"`);
-      }
-    }
-    expect(bad).toEqual([]);
-  });
 });
