@@ -58,7 +58,7 @@ Enemies all face their movement direction with a notch (a small triangle cut-out
 | Fire-pit trap | Ground circle, dashed | 40 | `burning` at 30% alpha | Only visible rim when idle. |
 | Archer tower | Square with a circle on top | 40 | wood or stone | Range ring only while selected or during prep. |
 | XP orb | Small diamond | 6 | `xpOrb` | No outline. Merges into a bigger orb when 20+ overlap. |
-| Wood / stone pickup | Small square / small triangle | 8 | `pickupWood` / `pickupStone` | Different shapes, same as HUD icons. |
+| Wood / stone pickup | Small square / small **point-up** triangle | 8 | `pickupWood` / `pickupStone` | Different shapes, same as HUD icons. Stone points up and never rotates, so it cannot be read as a raider (point-forward triangle). |
 
 Shape test for P1-09: take a screenshot, convert to grayscale, and a reviewer must still name every
 role. Do it with 200 mixed enemies on screen.
