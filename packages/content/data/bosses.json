@@ -1,15 +1,120 @@
 [
   {
-    "id": "trial-brute",
-    "nameKey": "boss.trial-brute.name",
-    "script": "slam-and-charge",
-    "enrageSeconds": 90,
+    "id": "shield-chieftain",
+    "nameKey": "boss.shield-chieftain.name",
+    "script": "shield-wall",
+    "enrageSeconds": 100,
+    "enrageDamageMult": 1.4,
+    "enrageSpeedMult": 1.3,
+    "params": {
+      "introKey": "boss.shield-chieftain.intro",
+      "defeatKey": "boss.shield-chieftain.defeat",
+      "shieldArmor": 0.85,
+      "firstShieldDelay": 4,
+      "firstBashDelay": 3,
+      "bashRange": 130,
+      "bashCos": 0.7,
+      "bashWindup": 1,
+      "bashDamage": 22
+    },
+    "phases": [
+      { "hpBelow": 1, "params": { "shieldUp": 4, "shieldDown": 4, "bashEvery": 5 } },
+      { "hpBelow": 0.5, "params": { "lineKey": "boss.shield-chieftain.phase2", "shieldUp": 5, "shieldDown": 3, "bashEvery": 4, "callEvery": 10, "callCount": 4 } }
+    ]
+  },
+  {
+    "id": "beast-master",
+    "nameKey": "boss.beast-master.name",
+    "script": "houndcaller",
+    "enrageSeconds": 100,
+    "enrageDamageMult": 1.4,
+    "enrageSpeedMult": 1.3,
+    "params": {
+      "introKey": "boss.beast-master.intro",
+      "defeatKey": "boss.beast-master.defeat",
+      "firstHowlDelay": 4,
+      "firstLanceDelay": 2.5,
+      "howlRadius": 80,
+      "howlWindup": 1.2,
+      "howlDamage": 10,
+      "lanceLength": 320,
+      "lanceWidth": 36,
+      "lanceWindup": 1.1,
+      "lanceDamage": 24
+    },
+    "phases": [
+      { "hpBelow": 1, "params": { "howlEvery": 10, "howlWolves": 3, "lanceEvery": 6 } },
+      { "hpBelow": 0.5, "params": { "lineKey": "boss.beast-master.phase2", "howlEvery": 7, "howlWolves": 5, "lanceEvery": 5 } }
+    ]
+  },
+  {
+    "id": "fire-priest",
+    "nameKey": "boss.fire-priest.name",
+    "script": "pyre-priest",
+    "enrageSeconds": 110,
+    "enrageDamageMult": 1.4,
+    "enrageSpeedMult": 1.3,
+    "params": {
+      "introKey": "boss.fire-priest.intro",
+      "defeatKey": "boss.fire-priest.defeat",
+      "firstPyreDelay": 6,
+      "firstColumnDelay": 2.5,
+      "pyreRadius": 270,
+      "pyreWindup": 1.8,
+      "pyreDamage": 8,
+      "columnRadius": 60,
+      "columnWindup": 1,
+      "columnDamage": 22
+    },
+    "phases": [
+      { "hpBelow": 1, "params": { "pyreEvery": 14, "columnEvery": 5, "columns": 1 } },
+      { "hpBelow": 0.5, "params": { "lineKey": "boss.fire-priest.phase2", "pyreEvery": 9, "columnEvery": 4, "columns": 2 } }
+    ]
+  },
+  {
+    "id": "varkul",
+    "nameKey": "boss.varkul.name",
+    "script": "varkul",
+    "enrageSeconds": 180,
     "enrageDamageMult": 1.5,
     "enrageSpeedMult": 1.3,
-    "params": { "slamRadius": 90, "slamDamage": 25, "slamWindup": 1.2, "firstSlamDelay": 2 },
+    "params": {
+      "introKey": "boss.varkul.intro",
+      "defeatKey": "boss.varkul.defeat",
+      "firstCleaveDelay": 3,
+      "firstCallDelay": 8,
+      "cleaveRange": 150,
+      "cleaveCos": 0.5,
+      "cleaveWindup": 1,
+      "cleaveDamage": 30,
+      "quakeOuter": 260,
+      "quakeInner": 80,
+      "quakeWindup": 1.3,
+      "quakeDamage": 40,
+      "pyreRadius": 270,
+      "pyreWindup": 1.8,
+      "pyreDamage": 10
+    },
     "phases": [
-      { "hpBelow": 1, "params": { "slamEvery": 5 } },
-      { "hpBelow": 0.5, "params": { "slamEvery": 4, "coreEvery": 7, "coreDamage": 60, "coreWidth": 50, "coreWindup": 1.5 } }
+      { "hpBelow": 1, "params": { "cleaveEvery": 5, "callEvery": 14, "callRaiders": 6, "callSlingers": 2 } },
+      {
+        "hpBelow": 0.66,
+        "params": {
+          "lineKey": "boss.varkul.phase2",
+          "cleaveEvery": 4.5, "callEvery": 14, "callRaiders": 4, "callWolves": 3, "callDrummers": 1,
+          "lanceEvery": 10, "firstLanceDelay": 3, "lanceWidth": 50, "lanceWindup": 1.6, "lanceDamage": 70, "lances": 1
+        }
+      },
+      {
+        "hpBelow": 0.33,
+        "params": {
+          "lineKey": "boss.varkul.phase3",
+          "cleaveEvery": 4, "callEvery": 16, "callRaiders": 4, "callTorches": 5, "callWolves": 2,
+          "lanceEvery": 9, "firstLanceDelay": 3, "lanceWidth": 50, "lanceWindup": 1.5, "lanceDamage": 70, "lances": 2,
+          "quakeEvery": 8, "firstQuakeDelay": 3,
+          "pyreEvery": 15, "firstPyreDelay": 5
+        }
+      }
     ]
   }
 ]

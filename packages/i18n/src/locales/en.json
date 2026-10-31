@@ -6,20 +6,89 @@
   "world": {
     "garroth": {
       "name": "Garroth Bloodfields",
-      "desc": "Torch-bearers set wooden structures on fire. Build in wood for speed or stone to stand."
+      "desc": "Torch-bearers set wooden structures on fire. Build in wood for speed or stone to stand.",
+      "rule": "Torches burn wood. Stone does not catch.",
+      "tip": "Wood is cheap but burns fast. Stone is costly but holds all battle. Mix them.",
+      "intro": "This field once held grain. Now it holds only smoke and the sound of drums."
     }
   },
   "enemy": {
-    "raider": { "name": "Raider", "desc": "The baseline horde. Walks for the Core." },
+    "raider": {
+      "name": "Raider",
+      "desc": "The tribe's baseline horde. Walks straight for the Core.",
+      "counter": "comes in swarms"
+    },
     "torch-bearer": {
       "name": "Torch-bearer",
       "desc": "Hunts your structures and sets wood on fire.",
       "counter": "burns wood"
     },
-    "trial-brute": { "name": "Trial Brute", "desc": "Armoured mini-boss that hunts the hero." }
+    "brute": {
+      "name": "Ironhide Brute",
+      "desc": "A hulk in scavenged iron plate. Slow, but hits hard.",
+      "counter": "resists physical; use fire or focus"
+    },
+    "slinger": {
+      "name": "Slinger",
+      "desc": "Stays far back and hurls stones at your structures. Outranges archer towers.",
+      "counter": "outranges towers"
+    },
+    "wolf-rider": {
+      "name": "Wolf Rider",
+      "desc": "The fastest thing on the field. Ignores everything but the Core.",
+      "counter": "ignores decoys"
+    },
+    "war-drummer": {
+      "name": "War Drummer",
+      "desc": "Its drumbeat makes nearby enemies hit harder and move faster.",
+      "counter": "kill first"
+    },
+    "shield-chieftain": {
+      "name": "Brannok, Shieldwall Chieftain",
+      "desc": "Raises a shield that turns aside ordinary weapons, then lowers it for a moment.",
+      "counter": "shield blocks physical; fire pierces"
+    },
+    "beast-master": {
+      "name": "Kharsa the Houndcaller",
+      "desc": "Howls to call wolf packs that dive for the Core.",
+      "counter": "stop the howl before the pack"
+    },
+    "fire-priest": {
+      "name": "Ashmoth the Pyre-Priest",
+      "desc": "Sets the whole base alight at once. Wood burns, stone survives.",
+      "counter": "burns all your wood"
+    },
+    "varkul": {
+      "name": "Varkul, the Unbeaten",
+      "desc": "The warlord who gathered Garroth under one banner. Fights in three forms."
+    }
   },
   "boss": {
-    "trial-brute": { "name": "Trial Brute" }
+    "shield-chieftain": {
+      "name": "Brannok, Shieldwall Chieftain",
+      "intro": "My shield has never broken. Only men who tire of striking it.",
+      "phase2": "Close the wall!",
+      "defeat": "The shield grows heavier…as if someone wrote me to carry it."
+    },
+    "beast-master": {
+      "name": "Kharsa the Houndcaller",
+      "intro": "Hear them? My pack. They are hungrier than I am.",
+      "phase2": "Come, my children. All of you!",
+      "defeat": "Pack…I only barked the lines I was given."
+    },
+    "fire-priest": {
+      "name": "Ashmoth the Pyre-Priest",
+      "intro": "Every beam is kindling. Every wall of yours, an altar.",
+      "phase2": "Burn! Let the whole field see!",
+      "defeat": "The fire is out…but the ink on my hands is not yet dry."
+    },
+    "varkul": {
+      "name": "Varkul, the Unbeaten",
+      "intro": "I have never lost, small trespasser. Be the last page I fill.",
+      "phase2": "One banner. One drum. One pack. Watch where my iron points.",
+      "phase3": "If this field must burn, let it burn with my name on it!",
+      "defeat": "I was never beaten…because whoever wrote this line never let me be."
+    }
   },
   "card": {
     "sharpened-edge": { "name": "Sharpened Edge", "desc": "Hero damage +15% per level." },
