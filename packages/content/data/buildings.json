@@ -31,12 +31,26 @@
     "descKey": "building.archer-tower-wood.desc",
     "material": "wood",
     "cost": { "wood": 8 },
-    "upkeep": { "wood": 1 },
+    "upkeep": { "wood": 2 },
     "hp": 160,
     "flammable": true,
     "blocking": true,
     "behavior": "tower",
     "params": { "damage": 9, "cooldown": 0.8, "range": 220, "projectileSpeed": 520 },
     "render": { "shape": "square-tower" }
+  },
+  {
+    "id": "fire-pit-trap",
+    "nameKey": "building.fire-pit-trap.name",
+    "descKey": "building.fire-pit-trap.desc",
+    "material": "stone",
+    "cost": { "wood": 2, "stone": 4 },
+    "upkeep": { "stone": 1, "wood": 1 },
+    "hp": 120,
+    "flammable": false,
+    "blocking": false,
+    "behavior": "fire-pit",
+    "params": { "damage": 6, "interval": 1, "radius": 60, "igniteSeconds": 3, "scorchRadius": 44 },
+    "render": { "shape": "ring-dashed" }
   }
 ]
