@@ -33,8 +33,22 @@ interfaces (all hooks, with docs): `packages/core/src/registry.ts`. You never ed
   use vector math or precomputed constants).
 - State: per entity `ctx.w.aux0[e]` / `aux1[e]`; per boss `boss.state.*`; per card
   `ctx.run.cardState['<card-id>.<name>']`. Never module-level variables or closures.
-- Act through `ctx`: `damage`, `heal`, `attack`, `fire`, `telegraph`, `ignite`, `spawnEnemy`,
-  `nearestEnemy`, `nearestPlayerSide`, `emit`. Time step is `DT` (1/30 s) from `../../constants`.
+- Act through `ctx`: `damage`, `heal`, `attack`, `fire`, `telegraph`, `ignite` (structures),
+  `igniteEnemy` / `isBurning` (enemies), `bossStance`, `spawnEnemy`, `nearestEnemy`,
+  `nearestPlayerSide`, `emit`. Time step is `DT` (1/30 s) from `../../constants`.
+- **Damage from hooks:** always use `ctx.damage`, also inside `onHeroHit`. A nested call is queued and
+  applied right after the triggering hit; a target dies exactly once and queued damage never
+  re-triggers `onHeroHit`. Never subtract from `w.hp` directly.
+- **Burning enemies** is an engine feature: call `ctx.igniteEnemy(e, seconds)`. The sim deals world
+  `rules.burnDps` per second once per tick (no double-burn from several sources) and emits
+  `burn` events (`kind`, `ignite`/`end`) for the renderer.
+- **Boss stats** (armor, speed, damage) are derived by the sim from enemy def × phase
+  (`phases[].armor/speedMult/damageMult`) × stance (`stances` + `ctx.bossStance`) × enrage. Scripts
+  never write `w.armor/speed/wDamage` of a boss.
+- **Boss lines:** put `introKey` / `defeatKey` in boss `params` and `lineKey` in a phase's `params`;
+  the sim emits `bossLine` events. No code needed.
+- **Spawns** are inserted into the spatial hash immediately, so area effects later in the same tick
+  see them.
 - Read params with `num(params, 'key', level, fallback)` (arrays = per-level tables).
 - Telegraphs: windup ≥ 0.7 s (clamped), shape = hitbox; set `targetsCore: true` for attacks on the
   Core (readability §5). Always pass `owner` so the attack cancels when the caster dies.

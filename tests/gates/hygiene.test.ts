@@ -13,9 +13,7 @@ import { files, lineOf, read, rel, stripComments } from './source-scan';
 const TOKEN_FILES = [/^packages\/ui-tokens\//, /(^|\/)tokens?[-.][^/]*\.(ts|css)$/];
 
 /** Known findings: `file:line-text` substring → finding id. */
-const ALLOW_COLOUR: Record<string, string> = {
-  'apps/game/src/game/StageScene.ts: 0xffffff': 'QA-P1-10-002',
-};
+const ALLOW_COLOUR: Record<string, string> = {};
 
 const COLOUR_RE = /#[0-9a-fA-F]{3,8}\b|\b0x[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?\b|\b(?:rgba?|hsla?)\s*\(/g;
 

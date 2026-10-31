@@ -108,9 +108,24 @@ export type EnemyDef = z.infer<typeof EnemyDef>;
 /* Bosses                                                                                     */
 /* ------------------------------------------------------------------------------------------ */
 
-export const BossPhase = z.object({
+/**
+ * Stat overrides the sim applies to a boss entity. Scripts never write armor/speed/damage columns;
+ * they pick a phase (by HP) and optionally a named stance (`ctx.bossStance`). Effective stats:
+ *   armor  = stance.armor ?? phase.armor ?? enemy.armor
+ *   speed  = enemy.speed  × phase.speedMult  × stance.speedMult  × (enraged ? enrageSpeedMult : 1)
+ *   damage = weapon.damage × phase.damageMult × stance.damageMult × (enraged ? enrageDamageMult : 1)
+ */
+export const BossStats = z.object({
+  armor: z.number().min(0).max(0.9).optional(),
+  speedMult: z.number().positive().optional(),
+  damageMult: z.number().positive().optional(),
+});
+export type BossStats = z.infer<typeof BossStats>;
+
+export const BossPhase = BossStats.extend({
   /** Phase is active while hp fraction is <= this value. First phase must be 1. */
   hpBelow: z.number().min(0).max(1),
+  /** Optional `lineKey` (string) in params is emitted as a `bossLine` event on entering the phase. */
   params: Params.default({}),
 });
 
@@ -120,10 +135,13 @@ export const BossDef = z.object({
   /** Script id from `registry/bossScripts.ts`. */
   script: Id,
   phases: z.array(BossPhase).min(1),
+  /** Named stat stances a script can switch between with `ctx.bossStance(boss, name | null)`. */
+  stances: z.record(z.string(), BossStats).default({}),
   /** Seconds after spawn before enrage (0 = never). */
   enrageSeconds: z.number().nonnegative().default(0),
   enrageDamageMult: z.number().positive().default(1.5),
   enrageSpeedMult: z.number().positive().default(1.3),
+  /** Optional string params `introKey` / `defeatKey` are emitted as `bossLine` events. */
   params: Params.default({}),
 });
 export type BossDef = z.infer<typeof BossDef>;

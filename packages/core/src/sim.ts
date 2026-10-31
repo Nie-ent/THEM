@@ -14,6 +14,7 @@
 import type { ContentBundle, Side } from '@them/content';
 import { DT, DamageType, Flag, INPUT_SCALE, Kind, PickupType, Team } from './constants';
 import { createCtx, type Ctx, type CtxHooks } from './ctx';
+import { str } from './params';
 import { bossScripts, buildingBehaviors, cardEffects, enemyBehaviors, personalities } from './registry';
 import { Rng } from './rng';
 import { computeScore, powerMultiplier } from './scoring';
@@ -197,7 +198,31 @@ const hooks: CtxHooks = {
   },
   spawnEnemy: spawnEnemyAt,
   addTelegraph,
+  applyBossStats,
 };
+
+/**
+ * Boss stats are derived, never written by scripts:
+ *   armor  = stance.armor ?? phase.armor ?? enemy.armor
+ *   speed  = enemy.speed  × phase.speedMult  × stance.speedMult  × enrage
+ *   damage = weapon.damage × phase.damageMult × stance.damageMult × enrage
+ */
+function applyBossStats(run: Run, b: BossRuntime): void {
+  const w = run.w, e = b.e;
+  if (!w.isAlive(e) || w.uid[e] !== b.uid) return;
+  const bd = run.idx.bosses[b.def];
+  const ed = run.idx.enemies[w.def[e]];
+  const ph = bd.phases[b.phase];
+  const st = b.stance ? bd.stances[b.stance] : undefined;
+  w.armor[e] = st?.armor ?? ph.armor ?? ed.armor;
+  w.speed[e] = ed.speed * (ph.speedMult ?? 1) * (st?.speedMult ?? 1) * (b.enraged ? bd.enrageSpeedMult : 1);
+  w.wDamage[e] = ed.weapon.damage * (ph.damageMult ?? 1) * (st?.damageMult ?? 1) * (b.enraged ? bd.enrageDamageMult : 1);
+}
+
+function emitBossLine(run: Run, b: BossRuntime, moment: 'intro' | 'phase' | 'defeat', key: string): void {
+  if (!key) return;
+  run.events.push({ type: 'bossLine', e: b.e, bossId: run.idx.bosses[b.def].id, moment, phase: b.phase, key });
+}
 
 function spawnEnemyAt(run: Run, di: number, x: number, y: number): number {
   const w = run.w;
@@ -222,16 +247,22 @@ function spawnEnemyAt(run: Run, di: number, x: number, y: number): number {
   const len = Math.sqrt(dx * dx + dy * dy) || 1;
   w.fx[e] = dx / len; w.fy[e] = dy / len;
   run.waveAlive++;
+  // Visible to area effects and targeting for the rest of this tick. Safe: the hash is rebuilt
+  // from scratch each tick, ids released this tick are not reused until flushFree(), and every
+  // query filters by kind/alive, so a late insert can never alias another entity.
+  run.hash.insert(e, x, y, w.radius[e]);
   const ctx = getCtx(run);
   ctx.emit({ type: 'spawn', e, uid: w.uid[e], kind: Kind.Enemy, def: di });
   for (const { b, params } of run.res.enemyBehaviors[di]) if (b.onSpawn) b.onSpawn(ctx, e, params);
   if (d.boss) {
     w.flags[e] |= Flag.Boss;
     const bi = run.idx.bossIdx.get(d.boss)!;
-    const boss: BossRuntime = { e, uid: w.uid[e], def: bi, phase: 0, t: 0, enraged: false, state: {} };
+    const boss: BossRuntime = { e, uid: w.uid[e], def: bi, phase: 0, t: 0, enraged: false, stance: '', state: {} };
     run.bosses.push(boss);
     const bd = run.idx.bosses[bi];
     const script = run.res.bossScripts[bi];
+    applyBossStats(run, boss);
+    emitBossLine(run, boss, 'intro', str(bd.params, 'introKey'));
     if (script.onSpawn) script.onSpawn(ctx, boss, bd.params);
   }
   return e;
@@ -277,7 +308,11 @@ function handleDeath(run: Run, ctx: Ctx, e: number, source: number): void {
     }
     if (w.flags[e] & Flag.Boss) {
       const bi = run.bosses.findIndex((b) => b.e === e);
-      if (bi >= 0) run.bosses.splice(bi, 1);
+      if (bi >= 0) {
+        const b = run.bosses[bi];
+        emitBossLine(run, b, 'defeat', str(run.idx.bosses[b.def].params, 'defeatKey'));
+        run.bosses.splice(bi, 1);
+      }
       for (const t of run.telegraphs) if (t.owner === e) t.active = false;
     }
     w.release(e);
@@ -558,7 +593,7 @@ function endWave(run: Run): void {
   }
   for (let i = 0; i < w.highWater; i++) if (w.kind[i] === Kind.Structure && w.burnT[i] > 0) {
     w.burnT[i] = 0;
-    run.events.push({ type: 'burn', e: i, uid: w.uid[i], state: 'end' });
+    run.events.push({ type: 'burn', e: i, uid: w.uid[i], kind: Kind.Structure, state: 'end' });
   }
   run.waveIndex++;
   run.phase = 'prep';
@@ -609,6 +644,7 @@ export function currentScore(run: Run): ScoreBreakdown {
     actualTime: run.activeTicks * DT,
     coreHpFrac: Math.max(0, w.hp[run.core]) / w.maxHp[run.core],
     heroDamageFrac: waves > 0 ? run.heroDamageFracSum / waves : 0,
+    lost: run.result === 'lose',
   });
 }
 
@@ -676,6 +712,7 @@ export function stepRunImpl(run: Run, input: InputFrame): void {
     enemyAiSystem(run, ctx);
     allySystem(run, ctx);
     structureSystem(run, ctx);
+    enemyBurnSystem(run, ctx);
     heroAttackSystem(run, ctx);
     bossSystem(run, ctx);
     cardTickSystem(run, ctx);
@@ -775,10 +812,14 @@ function chooseEnemyTarget(run: Run, e: number): number {
     if (best >= 0) return best;
   }
   if (d.targeting === 'structure') {
+    // Projectiles fly over non-blocking structures (traps), so ranged hunters must never pick one:
+    // they could never damage it and the wave would never end (QA-P1-10-003).
+    const ranged = (w.flags[e] & Flag.Ranged) !== 0;
     let best = -1, bestD = Infinity;
     for (let k = 2; k < run.playerSideCount; k++) {
       const s = run.playerSide[k];
       if (w.kind[s] !== Kind.Structure) continue;
+      if (ranged && !(w.flags[s] & Flag.Blocking)) continue;
       const dx = w.x[s] - x, dy = w.y[s] - y, d2 = dx * dx + dy * dy;
       if (d2 < bestD) { best = s; bestD = d2; }
     }
@@ -837,8 +878,28 @@ function structureSystem(run: Run, ctx: Ctx): void {
     if (w.kind[i] === Kind.Structure && w.burnT[i] > 0) {
       w.burnT[i] -= DT;
       ctx.damage(i, rules.burnDps * DT, DamageType.Fire, -1);
-      if (w.kind[i] === Kind.Structure && w.burnT[i] <= 0) ctx.emit({ type: 'burn', e: i, uid: w.uid[i], state: 'end' });
+      if (w.kind[i] === Kind.Structure && w.burnT[i] <= 0) ctx.emit({ type: 'burn', e: i, uid: w.uid[i], kind: Kind.Structure, state: 'end' });
     }
+  }
+}
+
+/**
+ * Enemy burning (engine feature; sources call ctx.igniteEnemy). Once per tick: every burning enemy
+ * takes world rules.burnDps × DT fire damage (ignores armor). Emits `burn: end` when it goes out.
+ */
+function enemyBurnSystem(run: Run, ctx: Ctx): void {
+  const w = run.w;
+  const hw = w.highWater;
+  const dps = run.worldDef.rules.burnDps;
+  for (let i = 0; i < hw; i++) {
+    if (w.kind[i] !== Kind.Enemy || w.burnT[i] <= 0) continue;
+    w.burnT[i] -= DT;
+    if (w.burnT[i] <= 1e-9) {
+      w.burnT[i] = 0;
+      w.flags[i] &= ~Flag.Fire;
+      ctx.emit({ type: 'burn', e: i, uid: w.uid[i], kind: Kind.Enemy, state: 'end' });
+    }
+    ctx.damage(i, dps * DT, DamageType.Fire, -1);
   }
 }
 
@@ -863,13 +924,14 @@ function bossSystem(run: Run, ctx: Ctx): void {
     for (let p = b.phase + 1; p < bd.phases.length; p++) if (frac <= bd.phases[p].hpBelow) phase = p;
     if (phase !== b.phase) {
       b.phase = phase;
+      applyBossStats(run, b);
       ctx.emit({ type: 'bossPhase', e: b.e, bossId: bd.id, phase });
+      emitBossLine(run, b, 'phase', str(bd.phases[phase].params, 'lineKey'));
       if (script.onPhase) script.onPhase(ctx, b, bd.phases[phase].params, bd.params);
     }
     if (!b.enraged && bd.enrageSeconds > 0 && b.t >= bd.enrageSeconds) {
       b.enraged = true;
-      w.wDamage[b.e] *= bd.enrageDamageMult;
-      w.speed[b.e] *= bd.enrageSpeedMult;
+      applyBossStats(run, b);
       ctx.emit({ type: 'enrage', e: b.e, bossId: bd.id });
       if (script.onEnrage) script.onEnrage(ctx, b, bd.params);
     }
@@ -979,6 +1041,19 @@ function movementSystem(run: Run): void {
   }
 }
 
+/**
+ * Squared distance from (cx, cy) to the segment (ax, ay)→(ax+sx, ay+sy). Used for swept projectile
+ * collision: a fast shot travels up to ~19 px per tick, more than an enemy's diameter, so testing
+ * only the end point lets point-blank shots pass straight through targets.
+ */
+function segDist2(ax: number, ay: number, sx: number, sy: number, cx: number, cy: number): number {
+  const len2 = sx * sx + sy * sy;
+  let t = len2 > 0 ? ((cx - ax) * sx + (cy - ay) * sy) / len2 : 0;
+  t = t < 0 ? 0 : t > 1 ? 1 : t;
+  const dx = ax + sx * t - cx, dy = ay + sy * t - cy;
+  return dx * dx + dy * dy;
+}
+
 function projectileSystem(run: Run, ctx: Ctx): void {
   const w = run.w;
   const hw = w.highWater;
@@ -986,41 +1061,54 @@ function projectileSystem(run: Run, ctx: Ctx): void {
   const scratch = run.scratch2;
   for (let p = 0; p < hw; p++) {
     if (w.kind[p] !== Kind.Projectile) continue;
-    w.x[p] += w.vx[p] * DT;
-    w.y[p] += w.vy[p] * DT;
+    const ax = w.x[p], ay = w.y[p];
+    const sx = w.vx[p] * DT, sy = w.vy[p] * DT;
+    w.x[p] = ax + sx;
+    w.y[p] = ay + sy;
     w.life[p] -= DT;
-    if (w.life[p] <= 0 || w.x[p] < 0 || w.y[p] < 0 || w.x[p] > width || w.y[p] > height) { w.release(p); continue; }
     const crit = (w.flags[p] & Flag.Crit) !== 0;
     const owner = w.owner[p];
+    let gone = false;
     if (w.team[p] === Team.Player) {
-      const n = run.hash.query(w.x[p], w.y[p], w.radius[p], scratch);
-      for (let j = 0; j < n; j++) {
-        const e = scratch[j];
-        if (w.kind[e] !== Kind.Enemy || e === w.lastHit[p]) continue;
-        const dx = w.x[e] - w.x[p], dy = w.y[e] - w.y[p];
-        const rr = w.radius[e] + w.radius[p];
-        if (dx * dx + dy * dy > rr * rr) continue;
-        w.lastHit[p] = e;
-        ctx.damage(e, w.wDamage[p], w.wType[p] as DamageType, owner, crit);
+      // Query around the segment midpoint with a radius covering half its length.
+      const half = Math.sqrt(sx * sx + sy * sy) * 0.5;
+      const n = run.hash.query(ax + sx * 0.5, ay + sy * 0.5, w.radius[p] + half, scratch);
+      // Hit in order along the path (then by id), so piercing resolves deterministically.
+      for (let j = 0; j < n && !gone; j++) {
+        let best = -1, bestT = Infinity;
+        for (let k = 0; k < n; k++) {
+          const e = scratch[k];
+          if (e < 0 || w.kind[e] !== Kind.Enemy || e === w.lastHit[p]) continue;
+          const rr = w.radius[e] + w.radius[p];
+          if (segDist2(ax, ay, sx, sy, w.x[e], w.y[e]) > rr * rr) continue;
+          const t = (w.x[e] - ax) * sx + (w.y[e] - ay) * sy;
+          if (t < bestT || (t === bestT && e < best)) { bestT = t; best = e; }
+        }
+        if (best < 0) break;
+        for (let k = 0; k < n; k++) if (scratch[k] === best) scratch[k] = -1;
+        w.lastHit[p] = best;
+        ctx.damage(best, w.wDamage[p], w.wType[p] as DamageType, owner, crit);
         w.value[p] -= 1;
-        if (w.value[p] < 0) { w.release(p); break; }
+        if (w.value[p] < 0) { w.release(p); gone = true; }
       }
     } else {
       for (let k = 0; k < run.playerSideCount; k++) {
         const t = run.playerSide[k];
         if (!w.isAlive(t) || (w.flags[t] & Flag.Down) || t === w.lastHit[p]) continue;
         const kind = w.kind[t];
-        const dx = w.x[t] - w.x[p], dy = w.y[t] - w.y[p];
-        const rr = w.radius[t] + w.radius[p];
-        if (dx * dx + dy * dy > rr * rr) continue;
-        // Arrows fly over traps (non-blocking structures).
+        // Arrows fly over traps (non-blocking structures). Ranged enemies never target those
+        // (chooseEnemyTarget), so this cannot soft-lock a wave.
         if (kind === Kind.Structure && !(w.flags[t] & Flag.Blocking)) continue;
+        const rr = w.radius[t] + w.radius[p];
+        if (segDist2(ax, ay, sx, sy, w.x[t], w.y[t]) > rr * rr) continue;
         w.lastHit[p] = t;
         ctx.damage(t, w.wDamage[p], w.wType[p] as DamageType, owner);
         w.release(p);
+        gone = true;
         break;
       }
     }
+    if (!gone && (w.life[p] <= 0 || w.x[p] < 0 || w.y[p] < 0 || w.x[p] > width || w.y[p] > height)) w.release(p);
   }
 }
 

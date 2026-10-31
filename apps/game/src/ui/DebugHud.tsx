@@ -64,6 +64,11 @@ export function DebugHud({ session }: { session: GameSession }) {
               <span>{'●'.repeat(h.boss.phase + 1)}{'○'.repeat(h.boss.phases - h.boss.phase - 1)}</span>
             </div>
           )}
+          {h.bossLine && (h.boss || h.bossLine.moment === 'defeat') && (
+            <span key={h.bossLine.seq} data-testid="hud-boss-line" className="max-w-xs font-hand text-sm text-annotation">
+              {t(h.bossLine.key)}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col items-end gap-1">

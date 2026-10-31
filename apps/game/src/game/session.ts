@@ -39,7 +39,7 @@ export class GameSession {
     this.input.clear();
     this.acc = 0;
     this.flushEvents();
-    this.hud.set({ final: null, selectedBuilding: null });
+    this.hud.set({ final: null, selectedBuilding: null, bossLine: null });
     this.publishHud(true);
   }
 
@@ -90,6 +90,9 @@ export class GameSession {
           break;
       }
       if (ev.type === 'runEnd') this.hud.set({ final: ev.score });
+      if (ev.type === 'bossLine') {
+        this.hud.set({ bossLine: { key: ev.key, bossId: ev.bossId, moment: ev.moment, seq: (this.hud.get().bossLine?.seq ?? 0) + 1 } });
+      }
     }
     if (discrete) this.publishHud(true);
   }

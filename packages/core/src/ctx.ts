@@ -5,7 +5,7 @@
  * events, kill tallies and scoring stay consistent.
  */
 import { DamageType, FAN_COS, FAN_SIN, Flag, Kind, PickupType, Team } from './constants';
-import type { Run, SimEvent, TelegraphSpec } from './types';
+import type { BossRuntime, Run, SimEvent, TelegraphSpec } from './types';
 import type { Rng } from './rng';
 import type { World } from './world';
 
@@ -15,7 +15,12 @@ export interface Ctx {
   /** Combat RNG stream. Registry code must use this, never Math.random. */
   readonly rng: Rng;
   emit(ev: SimEvent): void;
-  /** Deal damage (armor, crit and modifiers already applied by the caller unless `raw`). */
+  /**
+   * Deal damage. Physical damage is reduced by the target's armor; fire ignores armor. A target
+   * dies exactly once: damage to a dead/dying entity is ignored. Safe to call from any hook,
+   * including `onHeroHit` (re-entrant calls are applied after the current hit resolves; the extra
+   * damage does not re-trigger `onHeroHit`).
+   */
   damage(target: number, amount: number, type: DamageType, source: number, crit?: boolean): void;
   heal(target: number, amount: number): void;
   /**
@@ -33,6 +38,19 @@ export interface Ctx {
   telegraph(spec: TelegraphSpec): number;
   /** Set a flammable structure on fire (no-op + `resist` event if it is not flammable). */
   ignite(target: number): void;
+  /**
+   * Set an enemy burning for at least `seconds` (refreshes, never shortens). Burning enemies take
+   * world `rules.burnDps` fire damage per second (ignores armor), processed once per tick by the
+   * sim. Emits `burn` ignite/end events. Flying enemies burn too; filter them in the caller if needed.
+   */
+  igniteEnemy(target: number, seconds: number): void;
+  isBurning(target: number): boolean;
+  /**
+   * Switch a boss to a named stance from bosses.json `stances` (or `null` for none). The sim
+   * recomputes armor / speed / damage from enemy def × phase × stance × enrage. Scripts must use
+   * this instead of writing the armor/speed/wDamage columns.
+   */
+  bossStance(boss: BossRuntime, stance: string | null): void;
   /** Spawn an enemy by content id (used by summoner behaviours and boss scripts). */
   spawnEnemy(enemyId: string, x: number, y: number): number;
   /** Damage multiplier an attacker of this kind gets from cards and the difficulty limiter. */
@@ -46,11 +64,36 @@ export interface CtxHooks {
   onMeleeHit(run: Run, ctx: Ctx, attacker: number, target: number): void;
   spawnEnemy(run: Run, enemyIdx: number, x: number, y: number): number;
   addTelegraph(run: Run, spec: TelegraphSpec): number;
+  applyBossStats(run: Run, boss: BossRuntime): void;
 }
 
 export function createCtx(run: Run, hooks: CtxHooks): Ctx {
   const w = run.w;
   const scratch = run.scratch;
+  // Re-entrancy guard for damage(): nested calls (from hooks) are queued and drained in order.
+  let depth = 0;
+  const pending: { t: number; a: number; type: DamageType; s: number; crit: boolean }[] = [];
+
+  /** Apply one hit. `hookable` = may fire onHeroHit (false for damage queued by hooks). */
+  const applyHit = (target: number, amount: number, type: DamageType, source: number, crit: boolean, hookable: boolean): void => {
+    if (!w.isAlive(target) || amount <= 0) return;
+    const k = w.kind[target];
+    if (k === Kind.Pickup || k === Kind.Projectile) return;
+    if (w.flags[target] & Flag.Down) return;
+    if (w.hp[target] <= 0) return; // already dying this call chain
+    let dmg = amount;
+    if (type === DamageType.Physical) dmg *= 1 - w.armor[target];
+    if (k === Kind.Hero) {
+      dmg *= run.mods.damageTakenMult;
+      if (run.debugInvulnerable) dmg = 0;
+      run.heroDamageThisWave += dmg;
+    }
+    if (k === Kind.Core && run.debugInvulnerable) dmg = 0;
+    w.hp[target] -= dmg;
+    ctx.emit({ type: 'hit', e: target, uid: w.uid[target], kind: k as Kind, amount: dmg, crit, source, x: w.x[target], y: w.y[target] });
+    if (hookable && source >= 0 && w.kind[source] === Kind.Hero && k === Kind.Enemy) hooks.onHeroHit(run, ctx, source, target, dmg);
+    if (w.hp[target] <= 0 && w.kind[target] === k) hooks.onDeath(run, ctx, target, source);
+  };
 
   const ctx: Ctx = {
     run,
@@ -61,22 +104,22 @@ export function createCtx(run: Run, hooks: CtxHooks): Ctx {
     },
 
     damage(target, amount, type, source, crit = false) {
-      if (!w.isAlive(target) || amount <= 0) return;
-      const k = w.kind[target];
-      if (k === Kind.Pickup || k === Kind.Projectile) return;
-      if (w.flags[target] & Flag.Down) return;
-      let dmg = amount;
-      if (type === DamageType.Physical) dmg *= 1 - w.armor[target];
-      if (k === Kind.Hero) {
-        dmg *= run.mods.damageTakenMult;
-        if (run.debugInvulnerable) dmg = 0;
-        run.heroDamageThisWave += dmg;
+      if (depth > 0) {
+        pending.push({ t: target, a: amount, type, s: source, crit });
+        return;
       }
-      if (k === Kind.Core && run.debugInvulnerable) dmg = 0;
-      w.hp[target] -= dmg;
-      ctx.emit({ type: 'hit', e: target, uid: w.uid[target], kind: k as Kind, amount: dmg, crit, source, x: w.x[target], y: w.y[target] });
-      if (source >= 0 && w.kind[source] === Kind.Hero && k === Kind.Enemy) hooks.onHeroHit(run, ctx, source, target, dmg);
-      if (w.hp[target] <= 0) hooks.onDeath(run, ctx, target, source);
+      depth++;
+      try {
+        applyHit(target, amount, type, source, crit, true);
+        // Damage queued by hooks: applied in order, never re-triggers onHeroHit (no feedback loops).
+        for (let i = 0; i < pending.length; i++) {
+          const p = pending[i];
+          applyHit(p.t, p.a, p.type, p.s, p.crit, false);
+        }
+      } finally {
+        pending.length = 0;
+        depth--;
+      }
     },
 
     heal(target, amount) {
@@ -192,11 +235,32 @@ export function createCtx(run: Run, hooks: CtxHooks): Ctx {
     ignite(target) {
       if (!w.isAlive(target) || w.kind[target] !== Kind.Structure) return;
       if (!(w.flags[target] & Flag.Flammable)) {
-        ctx.emit({ type: 'burn', e: target, uid: w.uid[target], state: 'resist' });
+        ctx.emit({ type: 'burn', e: target, uid: w.uid[target], kind: Kind.Structure, state: 'resist' });
         return;
       }
-      if (w.burnT[target] <= 0) ctx.emit({ type: 'burn', e: target, uid: w.uid[target], state: 'ignite' });
+      if (w.burnT[target] <= 0) ctx.emit({ type: 'burn', e: target, uid: w.uid[target], kind: Kind.Structure, state: 'ignite' });
       w.burnT[target] = run.worldDef.rules.burnSeconds;
+    },
+
+    igniteEnemy(target, seconds) {
+      if (!w.isAlive(target) || w.kind[target] !== Kind.Enemy || seconds <= 0) return;
+      if (w.burnT[target] <= 0) ctx.emit({ type: 'burn', e: target, uid: w.uid[target], kind: Kind.Enemy, state: 'ignite' });
+      if (seconds > w.burnT[target]) w.burnT[target] = seconds;
+      w.flags[target] |= Flag.Fire;
+    },
+
+    isBurning(target) {
+      return w.isAlive(target) && w.burnT[target] > 0;
+    },
+
+    bossStance(boss, stance) {
+      const name = stance ?? '';
+      if (name && !(name in run.idx.bosses[boss.def].stances)) {
+        throw new Error(`bossStance: boss "${run.idx.bosses[boss.def].id}" has no stance "${name}"`);
+      }
+      if (boss.stance === name) return;
+      boss.stance = name;
+      hooks.applyBossStats(run, boss);
     },
 
     spawnEnemy(enemyId, x, y) {

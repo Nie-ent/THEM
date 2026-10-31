@@ -116,7 +116,8 @@ describe('mini-bosses', () => {
   it('shield-chieftain: shield raises armor, drops it again, bashes with a cone, calls raiders in phase 2', () => {
     const { run, e } = boss('shield-chieftain');
     const base = run.w.armor[e]!;
-    until(run, () => run.w.armor[e]! > base, 200);
+    // Shield is a bosses.json stance; the sim derives armor (P1-11).
+    until(run, () => run.bosses[0]!.stance === 'shield', 200);
     expect(run.w.armor[e]).toBeCloseTo(0.85);
     const shapes = new Set<string>();
     for (let i = 0; i < 30 * 12; i++) { tick(run); for (const t of tele(run)) shapes.add(t.shape); }

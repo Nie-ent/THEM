@@ -5,6 +5,8 @@
  *   M_speed  = clamp(standardTime / actualTime, 0.7, 1.3)
  *   M_damage = (0.7 + 0.3 × coreHpFrac) × (1.2 − 0.4 × heroDamageFrac)        ∈ [0.56, 1.2]
  *   grade by M_speed × M_damage: S ≥ 1.40, A ≥ 1.15, B ≥ 0.90, else C
+ *   a lost run is capped at the lowest band (C) — owner decision on QA-P1-10-004; the score itself
+ *   is computed as usual. S/A/B are only for wins.
  *
  * All constants come from `balance.scoring` in content. Pure functions, unit-tested.
  */
@@ -23,6 +25,8 @@ export interface ScoreInput {
   coreHpFrac: number;
   /** Fraction of damage the hero took, 0..1 (mean per-wave damage taken / max HP). */
   heroDamageFrac: number;
+  /** The run was lost (hero died or Core destroyed). Caps the grade at the lowest band. */
+  lost?: boolean;
 }
 
 const clamp = (v: number, lo: number, hi: number) => (v < lo ? lo : v > hi ? hi : v);
@@ -48,6 +52,11 @@ export function gradeFor(s: Scoring, performance: number): { grade: Grade; rewar
   return { grade: last.grade, rewardPct: last.rewardPct };
 }
 
+export function lowestGrade(s: Scoring): { grade: Grade; rewardPct: number } {
+  const last = [...s.grades].sort((a, b) => a.min - b.min)[0]!;
+  return { grade: last.grade, rewardPct: last.rewardPct };
+}
+
 export function computeScore(s: Scoring, i: ScoreInput): ScoreBreakdown {
   const kp = s.killPoints;
   const killPoints = i.kills.normal * kp.normal + i.kills.elite * kp.elite + i.kills.miniboss * kp.miniboss + i.kills.boss * kp.boss;
@@ -56,7 +65,7 @@ export function computeScore(s: Scoring, i: ScoreInput): ScoreBreakdown {
   const mSpeed = speedMultiplier(s, i.standardTime, i.actualTime);
   const mDamage = damageMultiplier(s, i.coreHpFrac, i.heroDamageFrac);
   const performance = mSpeed * mDamage;
-  const { grade, rewardPct } = gradeFor(s, performance);
+  const { grade, rewardPct } = i.lost ? lowestGrade(s) : gradeFor(s, performance);
   return {
     kills: { ...i.kills },
     killPoints,

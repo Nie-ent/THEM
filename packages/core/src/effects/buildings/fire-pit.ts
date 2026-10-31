@@ -1,6 +1,6 @@
 /**
  * "fire-pit": non-blocking trap. Every `interval` seconds, if any ground enemy is within `radius`,
- * it deals fire damage to all of them and sets them burning (see ../burning.ts).
+ * it deals fire damage to all of them and sets them burning (engine burning: ctx.igniteEnemy).
  *
  * Friendly fire, documented: YES for wood. While it is firing, every flammable structure in a
  * neighbouring cell (distance <= `scorchRadius`, default 44 px = the 4 orthogonal neighbours;
@@ -13,12 +13,10 @@
 import { DamageType, Flag, Kind } from '../../constants';
 import { num } from '../../params';
 import { buildingBehaviors } from '../../registry';
-import { igniteEnemy, processBurn } from '../burning';
 
 buildingBehaviors.register({
   id: 'fire-pit',
   tick(ctx, e, params) {
-    processBurn(ctx);
     const w = ctx.w, run = ctx.run;
     if (w.atkT[e] > 0) return;
     const radius = num(params, 'radius', 1, 60);
@@ -33,7 +31,7 @@ buildingBehaviors.register({
       const reach = radius + w.radius[t];
       if (dx * dx + dy * dy > reach * reach) continue;
       hit++;
-      igniteEnemy(ctx, t, secs);
+      ctx.igniteEnemy(t, secs);
       ctx.damage(t, dmg, DamageType.Fire, e);
     }
     if (hit === 0) return;

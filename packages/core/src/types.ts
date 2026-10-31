@@ -66,7 +66,8 @@ export type SimEvent =
   | { type: 'cardPicked'; cardId: string; level: number }
   | { type: 'buildingPlaced'; cell: number; buildingId: string; e: number }
   | { type: 'buildingSold'; cell: number; buildingId: string; refundWood: number; refundStone: number }
-  | { type: 'burn'; e: number; uid: number; state: 'ignite' | 'resist' | 'end' }
+  /** Structures and enemies. `ignite` on a new fire (not on refresh), `end` when it goes out. */
+  | { type: 'burn'; e: number; uid: number; kind: Kind; state: 'ignite' | 'resist' | 'end' }
   | { type: 'telegraph'; id: number; state: 'start' | 'impact'; targetsCore: boolean }
   | { type: 'waveStart'; wave: number }
   | { type: 'waveEnd'; wave: number }
@@ -74,6 +75,8 @@ export type SimEvent =
   | { type: 'pickup'; pickup: PickupType; amount: number }
   | { type: 'bossPhase'; e: number; bossId: string; phase: number }
   | { type: 'enrage'; e: number; bossId: string }
+  /** A boss line for the UI (i18n key from bosses.json: params.introKey/defeatKey, phase params.lineKey). */
+  | { type: 'bossLine'; e: number; bossId: string; moment: 'intro' | 'phase' | 'defeat'; phase: number; key: string }
   | { type: 'paused'; paused: boolean }
   | { type: 'rejected'; command: 'build' | 'sell' | 'pickCard' | 'reroll' | 'placeHero' | 'callWave'; reason: string }
   | { type: 'runEnd'; result: 'win' | 'lose'; score: ScoreBreakdown };
@@ -225,6 +228,8 @@ export interface BuildGrid {
 }
 
 export interface BossRuntime {
+  /** Active stance name from bosses.json `stances`, or '' for none. Set via ctx.bossStance. */
+  stance: string;
   e: number;
   uid: number;
   def: number;

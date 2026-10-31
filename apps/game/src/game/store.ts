@@ -34,6 +34,8 @@ export interface HudState {
   intel: WaveIntel | null;
   boss: { bossId: string; nameKey: string; hpFrac: number; phase: number; phases: number; enraged: boolean } | null;
   coreThreat: boolean;
+  /** Latest boss line (i18n key) for the UI to show; `seq` increments per line so repeats re-show. */
+  bossLine: { key: string; bossId: string; moment: 'intro' | 'phase' | 'defeat'; seq: number } | null;
   selectedBuilding: string | null;
   final: ScoreBreakdown | null;
 }
@@ -41,7 +43,7 @@ export interface HudState {
 export const initialHud: HudState = {
   ready: false, phase: 'prep', paused: false, result: null, wave: 1, waveCount: 20, prepTimeLeft: 0, elapsed: 0,
   heroHp: 0, heroMaxHp: 1, coreHp: 0, coreMaxHp: 1, level: 1, xp: 0, xpToNext: 1, wood: 0, stone: 0, score: 0,
-  draft: null, rerollsLeft: 0, slotsUsed: 0, maxSlots: 0, intel: null, boss: null, coreThreat: false,
+  draft: null, rerollsLeft: 0, slotsUsed: 0, maxSlots: 0, intel: null, boss: null, coreThreat: false, bossLine: null,
   selectedBuilding: null, final: null,
 };
 

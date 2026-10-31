@@ -97,7 +97,7 @@ export interface RunView {
   readonly cards: readonly { readonly id: string; readonly level: number }[];
   readonly grid: Readonly<BuildGrid>;
   readonly telegraphs: readonly Readonly<Telegraph>[];
-  readonly bosses: readonly { readonly e: number; readonly bossId: string; readonly phase: number; readonly enraged: boolean }[];
+  readonly bosses: readonly { readonly e: number; readonly bossId: string; readonly phase: number; readonly enraged: boolean; readonly stance: string }[];
 }
 
 /** Snapshot of run state for the renderer/HUD. Cheap: typed arrays are shared, not copied. */
@@ -132,7 +132,7 @@ export function view(run: Run): RunView {
     cards: run.cards,
     grid: run.grid,
     telegraphs: run.telegraphs,
-    bosses: run.bosses.map((b) => ({ e: b.e, bossId: run.idx.bosses[b.def]!.id, phase: b.phase, enraged: b.enraged })),
+    bosses: run.bosses.map((b) => ({ e: b.e, bossId: run.idx.bosses[b.def]!.id, phase: b.phase, enraged: b.enraged, stance: b.stance })),
   };
 }
 
@@ -168,7 +168,7 @@ export function stateHash(run: Run): string {
   for (const k of Object.keys(run.cardState).sort()) { mixS(k); mixF(run.cardState[k]!); }
   if (run.draft) for (const o of run.draft) mixS(o.cardId);
   for (const b of run.bosses) {
-    mixU(b.e); mixU(b.phase); mixF(b.t); mixU(b.enraged ? 1 : 0);
+    mixU(b.e); mixU(b.phase); mixF(b.t); mixU(b.enraged ? 1 : 0); mixS(b.stance);
     for (const k of Object.keys(b.state).sort()) { mixS(k); mixF(b.state[k]!); }
   }
   for (const t of run.telegraphs) { mixU(t.id); mixF(t.t); mixF(t.x); mixF(t.y); mixF(t.r); }
