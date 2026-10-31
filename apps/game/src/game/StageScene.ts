@@ -24,6 +24,12 @@ const C = tokens.color.stage;
 const col = (hex: string) => hexToInt(hex);
 const TILE = 40;
 const OUTLINE = 2;
+/**
+ * Hit flash fill (readability §7: "2-frame white hit flash"). ui-tokens has no dedicated flash
+ * token yet; the brightest stage white is `damageNormal` (vellum-100). Designer may add
+ * `stage.hitFlash` and this line switches to it.
+ */
+const HIT_FLASH = col(C.damageNormal);
 
 /** Draw order (readability §1): ground, grid, telegraphs, structures + Core, pickups, enemies, allies, hero, projectiles. */
 const DEPTH = { ground: 0, under: 1, structure: 2, pickup: 3, enemy: 4, ally: 5, hero: 6, projectile: 7, over: 8 } as const;
@@ -278,7 +284,7 @@ export class StageScene extends Phaser.Scene {
       if (skin.rotate) img.setRotation(Math.atan2(e.faceY[i]!, e.faceX[i]!));
       if (this.flashT[i]! > 0) {
         this.flashT[i]! -= dt;
-        img.setTint(0xffffff).setTintMode(Phaser.TintModes.FILL);
+        img.setTint(HIT_FLASH).setTintMode(Phaser.TintModes.FILL);
         if (this.flashT[i]! <= 0) img.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
       }
     }
@@ -382,6 +388,7 @@ export class StageScene extends Phaser.Scene {
     for (let i = 0; i < e.count; i++) {
       const k = e.kind[i];
       if (k === Kind.Enemy) {
+        if (e.flags[i]! & Flag.Fire) this.drawEnemyFlame(g, e.x[i]!, e.y[i]! - e.radius[i]!);
         if (e.aim[i]! > 0 && aimLines < 12) {
           const t = e.target[i]!;
           if (t >= 0) { g.lineStyle(1, col(C.telegraphWarn), 0.5).lineBetween(e.x[i]!, e.y[i]!, e.x[t]!, e.y[t]!); aimLines++; }
@@ -399,6 +406,13 @@ export class StageScene extends Phaser.Scene {
       g.fillStyle(col(k === Kind.Enemy ? C.enemy : k === Kind.Core ? tokens.color.hud.hpCore : C.heal), 1).fillRect(x, y, w * frac, 4);
       if (k === Kind.Structure && e.burn[i]! > 0) this.drawFlames(g, e.x[i]!, e.y[i]! - e.radius[i]!);
     }
+  }
+
+  /** One small flame tongue above a burning enemy (engine `burn` state, Flag.Fire). */
+  private drawEnemyFlame(g: Phaser.GameObjects.Graphics, x: number, y: number): void {
+    const flick = Math.floor(this.time.now / 166) % 2 === 0 ? 1 : 0.7;
+    g.fillStyle(col(C.burning), 1);
+    g.fillTriangle(x - 3, y, x + 3, y, x, y - 8 * flick);
   }
 
   private drawFlames(g: Phaser.GameObjects.Graphics, x: number, y: number): void {

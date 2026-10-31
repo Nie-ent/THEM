@@ -88,7 +88,7 @@ describe('card ember-ring', () => {
     const near = dummy(run, run.w.x[h]! + 50, run.w.y[h]!);
     const far = dummy(run, run.w.x[h]! + 500, run.w.y[h]!);
     for (const e of [near, far]) run.w.hp[e] = run.w.maxHp[e] = 1000;
-    for (let i = 0; i < 65; i++) run1(run); // first pulse misses (spawn not in hash yet); second lands
+    for (let i = 0; i < 65; i++) run1(run); // pulses land (spawns are visible to area effects the same tick)
     expect(run.w.hp[near]).toBeLessThan(1000);
     expect(run.w.burnT[near]).toBeGreaterThan(0);
     expect(run.w.hp[far]).toBe(1000);
@@ -163,8 +163,7 @@ describe('personalities reckless and cautious', () => {
   it('reckless returns to its post when nothing is in sight', () => {
     const { run, a, e } = placed('brann', 1300);
     for (let i = 0; i < 60; i++) run1(run);
-    run.w.hp[e] = 0;
-    getCtx(run).damage(e, 1, 0, a);
+    getCtx(run).damage(e, 1e9, 1, a); // lethal fire hit (ignores armor)
     for (let i = 0; i < 300; i++) run1(run);
     expect(Math.abs(run.w.x[a]! - 1000)).toBeLessThan(25);
   });

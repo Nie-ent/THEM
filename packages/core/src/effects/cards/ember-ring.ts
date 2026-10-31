@@ -7,12 +7,10 @@
 import { DT, DamageType, Kind } from '../../constants';
 import { num } from '../../params';
 import { cardEffects } from '../../registry';
-import { igniteEnemy, processBurn } from '../burning';
 
 cardEffects.register({
   id: 'ember-ring',
   onTick(ctx, level, params) {
-    processBurn(ctx);
     const run = ctx.run, w = ctx.w;
     const key = 'ember-ring.t';
     const t = (run.cardState[key] ?? 0) - DT;
@@ -29,7 +27,7 @@ cardEffects.register({
       const dx = w.x[e] - w.x[h], dy = w.y[e] - w.y[h];
       const reach = radius + w.radius[e];
       if (dx * dx + dy * dy > reach * reach) continue;
-      igniteEnemy(ctx, e, secs);
+      ctx.igniteEnemy(e, secs);
       ctx.damage(e, dmg, DamageType.Fire, h);
     }
   },

@@ -94,13 +94,21 @@ function BossBar({ h }: { h: HudState }) {
   const { t } = useTranslation();
   if (!h.boss) return null;
   const b = h.boss;
+  const line = h.bossLine && h.bossLine.bossId === b.bossId ? h.bossLine : null;
   return (
-    <div data-testid="hud-boss" className="flex items-center gap-3 rounded-md bg-hud-plate px-3 py-2 text-sm">
-      <span className="font-semibold">{t(b.nameKey)}</span>
-      <Bar frac={b.hpFrac} fill="var(--them-color-stage-enemy)" ghost={false} className="h-3 flex-1" />
-      <span aria-label={t('ui.hud.bossPhase', { phase: b.phase + 1, total: b.phases })} className="tracking-normal">
-        {'●'.repeat(b.phase + 1)}{'○'.repeat(Math.max(0, b.phases - b.phase - 1))}
-      </span>
+    <div className="flex flex-col items-center gap-1">
+      <div data-testid="hud-boss" className="flex w-full items-center gap-3 rounded-md bg-hud-plate px-3 py-2 text-sm">
+        <span className="font-semibold">{t(b.nameKey)}</span>
+        <Bar frac={b.hpFrac} fill="var(--them-color-stage-enemy)" ghost={false} className="h-3 flex-1" />
+        <span aria-label={t('ui.hud.bossPhase', { phase: b.phase + 1, total: b.phases })} className="tracking-normal">
+          {'●'.repeat(b.phase + 1)}{'○'.repeat(Math.max(0, b.phases - b.phase - 1))}
+        </span>
+      </div>
+      {line && (
+        <span key={line.seq} data-testid="hud-boss-line" role="status" className="max-w-full rounded-sm bg-hud-plate px-3 py-1 text-center font-hand text-md text-annotation">
+          {t(line.key)}
+        </span>
+      )}
     </div>
   );
 }

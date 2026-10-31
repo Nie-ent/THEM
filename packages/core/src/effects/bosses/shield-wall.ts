@@ -1,11 +1,13 @@
 /**
  * Mini-boss script — "shield-wall" (Brannok, Shieldwall Chieftain, wave 5).
  *
- * Cycles between SHIELD UP (armor raised to `shieldArmor`: physical is mostly wasted, fire is not)
- * and SHIELD DOWN (vulnerable). Every `bashEvery` s he telegraphs a cone shield-bash at the hero.
+ * Cycles between SHIELD UP (stance `shield` from bosses.json `stances`: high armor, so physical is
+ * mostly wasted, fire is not) and SHIELD DOWN (no stance: the enemy's base armor). The sim derives
+ * the armor column from enemy def × phase × stance; the script only switches stance.
+ * Every `bashEvery` s he telegraphs a cone shield-bash at the hero.
  * Phase 1 (≤ 50% HP) shortens the vulnerable window and calls raiders behind the wall.
- * Counter: fire (ignores armor), or burst him while the shield is down. `state.up` is 1 while the
- * shield is raised (the renderer can read the entity's armor column to draw it).
+ * Counter: fire (ignores armor), or burst him while the shield is down. `boss.stance === 'shield'`
+ * while raised (exposed to the renderer through view().bosses[].stance).
  * Enrage: cooldowns halve. All numbers in bosses.json.
  */
 import { DT } from '../../constants';
@@ -15,9 +17,8 @@ import { dirTo, summon } from './util';
 
 bossScripts.register({
   id: 'shield-wall',
-  onSpawn(ctx, boss, params) {
+  onSpawn(_ctx, boss, params) {
     const s = boss.state;
-    s.baseArmor = ctx.w.armor[boss.e];
     s.up = 0;
     s.shieldT = num(params, 'firstShieldDelay', 1, 4);
     s.bashT = num(params, 'firstBashDelay', 1, 3);
@@ -36,11 +37,11 @@ bossScripts.register({
     if (s.shieldT <= 0) {
       if (s.up === 0) {
         s.up = 1;
-        w.armor[e] = num(params, 'shieldArmor', 1, 0.85);
+        ctx.bossStance(boss, 'shield');
         s.shieldT = num(phaseParams, 'shieldUp', 1, 4);
       } else {
         s.up = 0;
-        w.armor[e] = s.baseArmor;
+        ctx.bossStance(boss, null);
         s.shieldT = num(phaseParams, 'shieldDown', 1, 4) * s.cdMult;
       }
     }
