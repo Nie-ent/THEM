@@ -8,19 +8,51 @@
     "maxLevel": 3,
     "effect": "stat-mods",
     "params": { "damageMult": [0.15, 0.3, 0.45] },
-    "tags": ["damage"]
+    "tags": ["damage", "upgrade"]
   },
   {
-    "id": "blood-price",
-    "nameKey": "card.blood-price.name",
-    "descKey": "card.blood-price.desc",
-    "drawbackKey": "card.blood-price.drawback",
-    "rarity": "rare",
-    "weight": 1,
+    "id": "quickdraw",
+    "nameKey": "card.quickdraw.name",
+    "descKey": "card.quickdraw.desc",
+    "rarity": "common",
+    "weight": 3,
     "maxLevel": 3,
-    "effect": "lifesteal",
-    "params": { "leech": [0.04, 0.07, 0.1], "damageTaken": 0.15 },
-    "tags": ["sustain"]
+    "effect": "stat-mods",
+    "params": { "cooldownMult": [-0.12, -0.22, -0.3] },
+    "tags": ["speed", "upgrade"]
+  },
+  {
+    "id": "piercing-bolt",
+    "nameKey": "card.piercing-bolt.name",
+    "descKey": "card.piercing-bolt.desc",
+    "rarity": "rare",
+    "weight": 1.5,
+    "maxLevel": 2,
+    "effect": "stat-mods",
+    "params": { "pierceAdd": [1, 2], "projectileSpeedMult": 0.1 },
+    "tags": ["projectile", "upgrade"]
+  },
+  {
+    "id": "magnet-charm",
+    "nameKey": "card.magnet-charm.name",
+    "descKey": "card.magnet-charm.desc",
+    "rarity": "common",
+    "weight": 2,
+    "maxLevel": 3,
+    "effect": "stat-mods",
+    "params": { "pickupRadiusMult": [0.4, 0.8, 1.2], "xpMult": [0.05, 0.1, 0.15] },
+    "tags": ["passive", "economy"]
+  },
+  {
+    "id": "tough-hide",
+    "nameKey": "card.tough-hide.name",
+    "descKey": "card.tough-hide.desc",
+    "rarity": "common",
+    "weight": 2.5,
+    "maxLevel": 3,
+    "effect": "stat-mods",
+    "params": { "maxHpMult": [0.15, 0.3, 0.45], "regenPerSec": [0.4, 0.8, 1.2], "armorAdd": [0, 0.05, 0.1] },
+    "tags": ["passive", "defense"]
   },
   {
     "id": "split-shot",
@@ -32,6 +64,82 @@
     "maxLevel": 2,
     "effect": "stat-mods",
     "params": { "projectileCountAdd": [1, 2], "damageMult": -0.15 },
-    "tags": ["projectile"]
+    "tags": ["projectile", "drawback"]
+  },
+  {
+    "id": "blood-price",
+    "nameKey": "card.blood-price.name",
+    "descKey": "card.blood-price.desc",
+    "drawbackKey": "card.blood-price.drawback",
+    "rarity": "rare",
+    "weight": 1,
+    "maxLevel": 3,
+    "effect": "lifesteal",
+    "params": { "leech": [0.04, 0.07, 0.1], "damageTaken": 0.15 },
+    "tags": ["sustain", "drawback"]
+  },
+  {
+    "id": "glass-cannon",
+    "nameKey": "card.glass-cannon.name",
+    "descKey": "card.glass-cannon.desc",
+    "drawbackKey": "card.glass-cannon.drawback",
+    "rarity": "epic",
+    "weight": 0.8,
+    "maxLevel": 2,
+    "effect": "stat-mods",
+    "params": { "damageMult": [0.5, 0.8], "maxHpMult": [-0.3, -0.4] },
+    "tags": ["damage", "drawback"]
+  },
+  {
+    "id": "swift-boots",
+    "nameKey": "card.swift-boots.name",
+    "descKey": "card.swift-boots.desc",
+    "drawbackKey": "card.swift-boots.drawback",
+    "rarity": "common",
+    "weight": 2,
+    "maxLevel": 3,
+    "effect": "stat-mods",
+    "params": { "speedMult": [0.12, 0.22, 0.3], "pickupRadiusMult": -0.3 },
+    "tags": ["mobility", "drawback"]
+  },
+  {
+    "id": "iron-vanguard",
+    "nameKey": "card.iron-vanguard.name",
+    "descKey": "card.iron-vanguard.desc",
+    "drawbackKey": "card.iron-vanguard.drawback",
+    "rarity": "rare",
+    "weight": 1,
+    "maxLevel": 2,
+    "effect": "stat-mods",
+    "params": { "damageMult": [0.3, 0.5], "armorAdd": 0.1, "structureDamageMult": -0.35 },
+    "tags": ["damage", "command", "drawback"]
+  },
+  {
+    "id": "pitch-arrows",
+    "nameKey": "card.pitch-arrows.name",
+    "descKey": "card.pitch-arrows.desc",
+    "drawbackKey": "card.pitch-arrows.drawback",
+    "rarity": "rare",
+    "weight": 1.2,
+    "maxLevel": 2,
+    "effect": "pitch-arrows",
+    "params": { "igniteSeconds": [3, 4], "burningBonus": [0.25, 0.4], "cooldownMult": 0.1 },
+    "tags": ["fire", "projectile", "drawback"]
+  },
+  {
+    "id": "ember-ring",
+    "nameKey": "card.ember-ring.name",
+    "descKey": "card.ember-ring.desc",
+    "rarity": "epic",
+    "weight": 0.8,
+    "maxLevel": 3,
+    "effect": "ember-ring",
+    "params": {
+      "damage": [8, 12, 16],
+      "interval": [2, 1.7, 1.4],
+      "radius": [80, 95, 110],
+      "igniteSeconds": [3, 3, 4]
+    },
+    "tags": ["fire", "weapon"]
   }
 ]

@@ -22,25 +22,89 @@
     "trial-brute": { "name": "Trial Brute" }
   },
   "card": {
-    "sharpened-edge": { "name": "Sharpened Edge", "desc": "Hero damage +15% per level." },
-    "blood-price": {
-      "name": "Blood Price",
-      "desc": "Heal for part of the damage you deal.",
-      "drawback": "Damage taken +15%"
+    "sharpened-edge": {
+      "name": "Sharpened Edge",
+      "desc": "Hero damage +15% per level."
+    },
+    "quickdraw": {
+      "name": "Quickdraw",
+      "desc": "Attack cooldown −12% / −22% / −30%."
+    },
+    "piercing-bolt": {
+      "name": "Piercing Bolt",
+      "desc": "Arrows pierce 1 more enemy per level and fly 10% faster."
+    },
+    "magnet-charm": {
+      "name": "Magnet Charm",
+      "desc": "Pickup radius +40% per level and a little extra XP."
+    },
+    "tough-hide": {
+      "name": "Tough Hide",
+      "desc": "Max HP +15% per level, regenerate HP, and gain armor at higher levels."
     },
     "split-shot": {
       "name": "Split Shot",
       "desc": "Fire one more arrow per level.",
       "drawback": "Hero damage −15%"
+    },
+    "blood-price": {
+      "name": "Blood Price",
+      "desc": "Heal for part of the damage you deal.",
+      "drawback": "Damage taken +15%"
+    },
+    "glass-cannon": {
+      "name": "Glass Cannon",
+      "desc": "Hero damage +50% (level 2: +80%).",
+      "drawback": "Max HP −30% (level 2: −40%)"
+    },
+    "swift-boots": {
+      "name": "Swift Boots",
+      "desc": "Move speed +12% / +22% / +30%.",
+      "drawback": "Pickup radius −30%"
+    },
+    "iron-vanguard": {
+      "name": "Iron Vanguard",
+      "desc": "Hero damage +30% (level 2: +50%) and +10% armor.",
+      "drawback": "Tower and trap damage −35%"
+    },
+    "pitch-arrows": {
+      "name": "Pitch Arrows",
+      "desc": "Arrows set enemies on fire. Burning enemies take +25% extra from your hits.",
+      "drawback": "Attack cooldown +10%"
+    },
+    "ember-ring": {
+      "name": "Ember Ring",
+      "desc": "A ring of fire pulses around you, hurting and igniting nearby enemies."
     }
   },
   "building": {
-    "wood-wall": { "name": "Wood wall", "desc": "Cheap. Burns." },
-    "stone-wall": { "name": "Stone wall", "desc": "Costly. Fireproof." },
-    "archer-tower-wood": { "name": "Archer tower", "desc": "Shoots the nearest enemy in range. Burns." }
+    "wood-wall": {
+      "name": "Wood wall",
+      "desc": "Cheap. Burns."
+    },
+    "stone-wall": {
+      "name": "Stone wall",
+      "desc": "Costly. Fireproof."
+    },
+    "archer-tower-wood": {
+      "name": "Archer tower",
+      "desc": "Shoots the nearest enemy in range. Burns. Upkeep 2 wood."
+    },
+    "fire-pit-trap": {
+      "name": "Fire pit",
+      "desc": "Burns and ignites enemies standing in it. Also ignites wooden walls on its 4 sides."
+    }
   },
   "hero": {
-    "mira": { "name": "Mira", "desc": "A careful archer who never leaves her post." }
+    "mira": {
+      "name": "Mira",
+      "desc": "A careful archer who never leaves her post."
+    },
+    "brann": {
+      "name": "Brann",
+      "desc": "A hot-headed brawler who charges any enemy he sees, far beyond the base.",
+      "personality": "Reckless"
+    }
   },
   "personality": {
     "cautious": "Cautious"
