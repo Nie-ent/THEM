@@ -34,6 +34,11 @@ export interface HudState {
   intel: WaveIntel | null;
   boss: { bossId: string; nameKey: string; hpFrac: number; phase: number; phases: number; enraged: boolean } | null;
   coreThreat: boolean;
+  /** Structures currently on fire. */
+  burning: number;
+  /** Wood/stone the standing structures cost to maintain at the end of this wave. */
+  upkeepWood: number;
+  upkeepStone: number;
   selectedBuilding: string | null;
   final: ScoreBreakdown | null;
 }
@@ -42,6 +47,7 @@ export const initialHud: HudState = {
   ready: false, phase: 'prep', paused: false, result: null, wave: 1, waveCount: 20, prepTimeLeft: 0, elapsed: 0,
   heroHp: 0, heroMaxHp: 1, coreHp: 0, coreMaxHp: 1, level: 1, xp: 0, xpToNext: 1, wood: 0, stone: 0, score: 0,
   draft: null, rerollsLeft: 0, slotsUsed: 0, maxSlots: 0, intel: null, boss: null, coreThreat: false,
+  burning: 0, upkeepWood: 0, upkeepStone: 0,
   selectedBuilding: null, final: null,
 };
 

@@ -69,6 +69,11 @@ export class StageScene extends Phaser.Scene {
     kb.on('keydown-P', () => this.session.command({ pause: true }));
     kb.addCapture('SPACE,UP,DOWN,LEFT,RIGHT');
 
+    this.session.screenToWorld = (x, y) => {
+      const w = this.cameras.main.getWorldPoint(x, y);
+      return { x: w.x, y: w.y };
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.session.screenToWorld = null; });
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onPointer(p));
     this.input.mouse?.disableContextMenu();
 
@@ -180,6 +185,8 @@ export class StageScene extends Phaser.Scene {
   private onPointer(p: Phaser.Input.Pointer): void {
     const s = this.session;
     const run = s.run;
+    if (p.rightButtonDown() && s.hud.get().selectedBuilding !== null) { s.selectBuilding(null); return; }
+    if (s.tapAt(p.x, p.y)) return; // a React screen (mobile build, hero placement) owns this tap
     if (p.wasTouch && p.y > this.scale.height * 0.55 && s.hud.get().selectedBuilding === null) return; // joystick zone
     if (run.phase !== 'prep' || run.paused) return;
     const wp = this.cameras.main.getWorldPoint(p.x, p.y);
@@ -211,10 +218,13 @@ export class StageScene extends Phaser.Scene {
     const v = view(this.session.run);
     const e = v.entities;
     const a = this.session.alpha;
-    const hx = e.prevX[v.hero]! + (e.x[v.hero]! - e.prevX[v.hero]!) * a;
-    const hy = e.prevY[v.hero]! + (e.y[v.hero]! - e.prevY[v.hero]!) * a;
-    // Hero at 38% from top in portrait → camera centre sits below the hero.
-    const offsetY = portrait ? ((0.5 - 0.38) * height) / zoom : 0;
+    // Prep frames the Core and build grid (prep.md); during waves the camera follows the hero.
+    const focus = v.phase === 'prep' ? v.core : v.hero;
+    const hx = e.prevX[focus]! + (e.x[focus]! - e.prevX[focus]!) * a;
+    const hy = e.prevY[focus]! + (e.y[focus]! - e.prevY[focus]!) * a;
+    // Portrait: hero at 38% from top (thumb room). In prep the Core sits at 55%, centred between
+    // the intel strip above and the build sheet below.
+    const offsetY = portrait ? ((0.5 - (v.phase === 'prep' ? 0.55 : 0.38)) * height) / zoom : 0;
     const tx = hx, ty = hy + offsetY;
     const k = snap ? 1 : 1 - Math.exp(-dt * 12);
     this.camX += (tx - this.camX) * k;
@@ -299,6 +309,20 @@ export class StageScene extends Phaser.Scene {
         }
       }
     }
+    // Placement ghost from the React build flow: dashed outline when valid, solid + cross when blocked.
+    const ghost = this.session.ghost;
+    if (ghost && v.phase === 'prep' && ghost.cell >= 0) {
+      const gx = grid.originX + (ghost.cell % grid.cols) * grid.cellSize, gy = grid.originY + Math.floor(ghost.cell / grid.cols) * grid.cellSize;
+      const gc = col(ghost.ok ? C.slotFree : C.slotBlocked);
+      g.fillStyle(gc, 0.25).fillRect(gx, gy, grid.cellSize, grid.cellSize);
+      g.lineStyle(2, gc, 1);
+      if (ghost.ok) this.dashedRect(g, gx, gy, grid.cellSize, grid.cellSize);
+      else {
+        g.strokeRect(gx, gy, grid.cellSize, grid.cellSize);
+        g.lineBetween(gx + 8, gy + 8, gx + grid.cellSize - 8, gy + grid.cellSize - 8);
+        g.lineBetween(gx + grid.cellSize - 8, gy + 8, gx + 8, gy + grid.cellSize - 8);
+      }
+    }
     // Telegraphs: wind-up dashed-ish outline in telegraphWarn (coreThreat if aimed at the Core),
     // commit phase (last 300 ms) solid telegraphImpact. Sweep fill shows time left.
     const commitS = tokens.motion.duration.telegraphCommit / 1000;
@@ -330,6 +354,17 @@ export class StageScene extends Phaser.Scene {
       const e = v.entities;
       g.lineStyle(3, col(C.coreThreat), 0.5 + 0.5 * Math.sin(this.time.now / 80)).strokeCircle(e.x[v.core]!, e.y[v.core]!, e.radius[v.core]! + 10);
     }
+  }
+
+  private dashedRect(g: Phaser.GameObjects.Graphics, x: number, y: number, w: number, h: number): void {
+    const dash = 8, gap = 6;
+    const edge = (x0: number, y0: number, dx: number, dy: number, len: number) => {
+      for (let t = 0; t < len; t += dash + gap) {
+        const e = Math.min(t + dash, len);
+        g.lineBetween(x0 + dx * t, y0 + dy * t, x0 + dx * e, y0 + dy * e);
+      }
+    };
+    edge(x, y, 1, 0, w); edge(x + w, y, 0, 1, h); edge(x + w, y + h, -1, 0, w); edge(x, y + h, 0, -1, h);
   }
 
   private drawOver(v: RunView): void {
