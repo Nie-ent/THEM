@@ -6,6 +6,7 @@ export default defineConfig({
       'packages/**/test/**/*.test.ts',
       'packages/ui-tokens/src/**/*.test.ts',
       'apps/**/src/**/*.test.ts',
+      'tests/gates/**/*.test.ts',
     ],
     environment: 'node',
     testTimeout: 120_000,

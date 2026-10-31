@@ -3,5 +3,7 @@
   "compilerOptions": {
     "types": ["node"]
   },
-  "include": ["*.ts", "tests/**/*.ts", "apps/game/src/**/*.test.ts"]
+  "include": ["*.ts", "tests/**/*.ts", "apps/game/src/**/*.test.ts"],
+  // QA bot + gates import core source; checked by tests/tsconfig.json with core's settings.
+  "exclude": ["tests/balance/**", "tests/gates/**"]
 }
