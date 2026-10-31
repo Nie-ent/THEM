@@ -5,11 +5,15 @@ async function sim<T>(page: Page, fn: string): Promise<T> {
   return page.evaluate(`(() => { const s = window.__them.session; return (${fn})(s); })()`) as Promise<T>;
 }
 
+// The menu defaults to Thai when the browser language is Thai.
+test.use({ locale: 'th-TH' });
+
 test.beforeEach(async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', (e) => errors.push(e.message));
   (page as unknown as { errors: string[] }).errors = errors;
   await page.goto('/?seed=7');
+  await page.getByTestId('menu-start').click();
   await expect(page.getByTestId('stage').locator('canvas')).toBeVisible();
   await expect(page.getByTestId('hud-wave')).toBeVisible();
 });
@@ -25,15 +29,18 @@ test('boots stage + HUD with every required readout', async ({ page }) => {
   await expect(page.getByTestId('hud-wave')).toHaveText('เวฟ 1/20');
 });
 
-test('switches language th ⇄ en', async ({ page }) => {
-  await page.getByTestId('lang-en').click();
+test('switches language th ⇄ en from pause → settings', async ({ page }) => {
+  await page.getByTestId('hud-pause').click();
+  await page.getByTestId('pause-settings').click();
+  await page.getByTestId('setting-language-en').click();
   await expect(page.getByTestId('hud-wave')).toHaveText('Wave 1/20');
   await expect(page.getByTestId('prep-call-early')).toHaveText('Call wave early');
-  await page.getByTestId('lang-th').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.getByTestId('setting-language-th').click();
   await expect(page.getByTestId('prep-call-early')).toHaveText('เรียกเวฟทันที');
 });
 
-test('prep → build → call wave early → enemies spawn and sim advances', async ({ page }) => {
+test('prep → build → call wave early → enemies spawn and sim advances', async ({ page, isMobile }) => {
   await page.getByTestId('build-item-wood-wall').click();
   // Click a grid cell 2 tiles above the Core (grid is centred on the Core).
   const cell = await sim<{ x: number; y: number }>(page, `(s) => {
@@ -42,6 +49,8 @@ test('prep → build → call wave early → enemies spawn and sim advances', as
     return { x: (c.x - cam.worldView.x) * cam.zoom, y: (c.y - cam.worldView.y) * cam.zoom };
   }`);
   await page.getByTestId('stage').click({ position: cell, force: true });
+  // Touch layouts are select-then-confirm: the tap only places the ghost.
+  if (isMobile) await page.getByTestId('build-confirm').click();
   await expect.poll(() => sim<number>(page, '(s) => s.run.grid.slotsUsed')).toBe(1);
   await page.getByTestId('prep-call-early').click();
   await expect.poll(() => sim<string>(page, '(s) => s.run.phase')).toBe('wave');

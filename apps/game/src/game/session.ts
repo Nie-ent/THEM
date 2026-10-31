@@ -6,7 +6,7 @@
  */
 import { content } from '@them/content';
 import {
-  DT, cellCenter, createRun, drainEvents, intel, quantizeMove, score, step, view, type InputFrame, type Run,
+  DT, Kind, cellAt, cellCenter, createRun, drainEvents, intel, quantizeMove, score, step, view, type InputFrame, type Run,
 } from '@them/core';
 import { EventBridge } from './bridge';
 import { InputState, type Command } from './input';
@@ -25,6 +25,12 @@ export class GameSession {
   private hudAcc = 0;
   private coreThreatT = 0;
   seed: number;
+  /** Set by the stage scene: screen pixels → world position. */
+  screenToWorld: ((x: number, y: number) => { x: number; y: number }) | null = null;
+  /** Set by a React screen that wants stage taps (mobile build slot, hero placement). */
+  tapListener: ((t: { cell: number; x: number; y: number }) => void) | null = null;
+  /** Placement ghost the scene draws on the build grid during prep. */
+  ghost: { cell: number; ok: boolean } | null = null;
 
   constructor(seed: number) {
     this.seed = seed;
@@ -45,6 +51,14 @@ export class GameSession {
 
   command(cmd: Command): void {
     this.input.push(cmd);
+  }
+
+  /** Route a stage tap to the listening screen. Returns true when it was consumed. */
+  tapAt(sx: number, sy: number): boolean {
+    if (!this.tapListener || !this.screenToWorld) return false;
+    const w = this.screenToWorld(sx, sy);
+    this.tapListener({ cell: cellAt(this.run.grid, w.x, w.y), x: w.x, y: w.y });
+    return true;
   }
 
   selectBuilding(id: string | null): void {
@@ -99,7 +113,18 @@ export class GameSession {
     const e = v.entities;
     const b = v.bosses[0];
     const bd = b ? content.bosses.find((x) => x.id === b.bossId) : undefined;
+    let burning = 0, upkeepWood = 0, upkeepStone = 0;
+    for (let i = 0; i < e.count; i++) if (e.kind[i] === Kind.Structure && e.burn[i]! > 0) burning++;
+    const grid = v.grid;
+    for (let c = 0; c < grid.cellDef.length; c++) {
+      const d = grid.cellDef[c]!;
+      if (d < 0) continue;
+      const up = content.buildings[d]?.upkeep;
+      upkeepWood += up?.wood ?? 0;
+      upkeepStone += up?.stone ?? 0;
+    }
     this.hud.set({
+      burning, upkeepWood, upkeepStone,
       ready: true,
       phase: v.phase,
       paused: v.paused,

@@ -155,6 +155,8 @@
       "start": "เริ่มเล่น",
       "settings": "ตั้งค่า",
       "version": "v{{version}}",
+      "langTh": "ไทย",
+      "langEn": "English",
       "language": "ภาษา"
     },
     "hud": {
@@ -197,12 +199,18 @@
     },
     "tag": {
       "damage": "ดาเมจ",
-      "sustain": "ฟื้นฟู",
-      "projectile": "กระสุน",
-      "defense": "ป้องกัน",
+      "upgrade": "อัปเกรด",
       "speed": "ความเร็ว",
-      "utility": "เสริม",
-      "build": "สร้าง"
+      "projectile": "กระสุน",
+      "passive": "ติดตัว",
+      "economy": "เศรษฐกิจ",
+      "defense": "ป้องกัน",
+      "drawback": "มีข้อเสีย",
+      "sustain": "ฟื้นฟู",
+      "mobility": "การเคลื่อนที่",
+      "command": "บัญชาการ",
+      "fire": "ไฟ",
+      "weapon": "อาวุธ"
     },
     "prep": {
       "title": "เตรียมตัว",

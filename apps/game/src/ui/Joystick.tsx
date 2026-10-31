@@ -4,13 +4,20 @@
  */
 import { useRef, useState, type PointerEvent } from 'react';
 import { tokens } from '@them/ui-tokens';
+import { JOYSTICK_SIZES, useSettings } from './settings';
 import type { InputState } from '../game/input';
 
-const BASE = tokens.target.joystick;
 const KNOB = 56;
 const DEAD = 0.12;
 
-export function Joystick({ input, enabled }: { input: InputState; enabled: boolean }) {
+/** A press that barely moves and ends fast is a tap: forwarded to `onTap` (mobile build slot picking). */
+const TAP_MOVE = 10;
+const TAP_MS = 400;
+
+export function Joystick({ input, enabled, onTap }: { input: InputState; enabled: boolean; onTap?: (x: number, y: number) => void }) {
+  const settings = useSettings();
+  const BASE = JOYSTICK_SIZES[settings.joystickSize];
+  const tapStart = useRef<{ id: number; x: number; y: number; t: number } | null>(null);
   const [stick, setStick] = useState<{ x: number; y: number; kx: number; ky: number } | null>(null);
   const pid = useRef<number | null>(null);
 
@@ -28,7 +35,9 @@ export function Joystick({ input, enabled }: { input: InputState; enabled: boole
   };
 
   const down = (e: PointerEvent<HTMLDivElement>) => {
-    if (!enabled || e.pointerType === 'mouse' || pid.current !== null) return;
+    if (!enabled) return;
+    tapStart.current = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now() };
+    if (e.pointerType === 'mouse' || pid.current !== null) return;
     pid.current = e.pointerId;
     e.currentTarget.setPointerCapture(e.pointerId);
     input.stickActive = true;
@@ -39,6 +48,11 @@ export function Joystick({ input, enabled }: { input: InputState; enabled: boole
     update(stick.x, stick.y, e.clientX, e.clientY);
   };
   const up = (e: PointerEvent<HTMLDivElement>) => {
+    const t = tapStart.current;
+    if (t && t.id === e.pointerId) {
+      tapStart.current = null;
+      if (onTap && Math.hypot(e.clientX - t.x, e.clientY - t.y) < TAP_MOVE && performance.now() - t.t < TAP_MS) onTap(e.clientX, e.clientY);
+    }
     if (e.pointerId !== pid.current) return;
     pid.current = null;
     input.stickActive = false;
@@ -49,7 +63,7 @@ export function Joystick({ input, enabled }: { input: InputState; enabled: boole
   return (
     <div
       data-testid="joystick-zone"
-      className="absolute inset-x-0 bottom-0 h-[45%] touch-none"
+      className={`absolute bottom-0 h-[45%] touch-none ${settings.joystickSide === 'left' ? 'left-0 w-1/2' : settings.joystickSide === 'right' ? 'right-0 w-1/2' : 'inset-x-0'}`}
       style={{ zIndex: tokens.z.joystick, pointerEvents: enabled ? 'auto' : 'none' }}
       onPointerDown={down}
       onPointerMove={move}

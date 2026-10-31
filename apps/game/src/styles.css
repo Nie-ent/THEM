@@ -22,6 +22,10 @@
   --color-text-muted: var(--them-color-semantic-text-muted);
   --color-text-subtle: var(--them-color-semantic-text-subtle);
   --color-text-on-accent: var(--them-color-semantic-text-on-accent);
+  --color-text-on-gilt: var(--them-color-semantic-text-on-gilt);
+  --color-disabled-text: var(--them-color-semantic-disabled-text);
+  --color-disabled-fill: var(--them-color-semantic-disabled-fill);
+  --color-reward-edge: var(--them-color-semantic-reward-edge);
   --color-accent: var(--them-color-semantic-accent);
   --color-accent-text: var(--them-color-semantic-accent-text);
   --color-reward: var(--them-color-semantic-reward);
@@ -45,6 +49,14 @@
   --color-stage-enemy: var(--them-color-stage-enemy);
   --color-stage-core-threat: var(--them-color-stage-core-threat);
   --color-stage-burning: var(--them-color-stage-burning);
+  --color-stage-enemy-elite: var(--them-color-stage-enemy-elite);
+  --color-stage-ally: var(--them-color-stage-ally);
+  --color-stage-core: var(--them-color-stage-core);
+  --color-stage-outline: var(--them-color-stage-outline);
+  --color-stage-structure-wood: var(--them-color-stage-structure-wood);
+  --color-stage-structure-stone: var(--them-color-stage-structure-stone);
+  --color-stage-slot-free: var(--them-color-stage-slot-free);
+  --color-stage-slot-blocked: var(--them-color-stage-slot-blocked);
 
   --font-*: initial;
   --font-display: var(--them-font-family-display);
@@ -54,6 +66,12 @@
   --font-weight-medium: var(--them-font-weight-medium);
   --font-weight-semibold: var(--them-font-weight-semibold);
   --font-weight-bold: var(--them-font-weight-bold);
+
+  --leading-*: initial;
+  --leading-tight: var(--them-font-line-height-tight);
+  --leading-display: var(--them-font-line-height-display);
+  --leading-ui: var(--them-font-line-height-ui);
+  --leading-body: var(--them-font-line-height-body);
 
   --text-*: initial;
   --text-2xs: var(--them-size-2xs);
@@ -129,3 +147,61 @@ body,
   -webkit-user-select: none;
   overscroll-behavior: none;
 }
+
+/* Keyboard focus is always visible: gilt ring with an ink gap (design principle 9). */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--them-shadow-focus);
+}
+
+/* Scrolling regions opt back in to touch panning (the page itself never scrolls). */
+.them-scroll-y {
+  overflow-y: auto;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+}
+.them-scroll-x {
+  overflow-x: auto;
+  touch-action: pan-x;
+  overscroll-behavior: contain;
+}
+
+input[type='range'] {
+  accent-color: var(--them-color-semantic-reward);
+  min-height: var(--them-target-min);
+}
+
+/* Motion: a pen stroke. Everything animated lives here so one switch can calm it. */
+@keyframes them-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes them-wipe { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes them-deal { from { opacity: 0; transform: translateY(var(--them-space-4)); } to { opacity: 1; transform: none; } }
+@keyframes them-stamp { from { opacity: 0; transform: scale(1.2); } to { opacity: 1; transform: none; } }
+@keyframes them-slide-in { from { opacity: 0; transform: translateX(calc(var(--them-space-8) * -1)); } to { opacity: 1; transform: none; } }
+@keyframes them-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@keyframes them-tick { 0% { transform: scale(1.05); } 100% { transform: none; } }
+
+.anim-fade { animation: them-fade var(--them-motion-duration-slow) var(--them-motion-easing-ink) both; }
+.anim-wipe { animation: them-wipe var(--them-motion-duration-ceremony) var(--them-motion-easing-ink) both; }
+.anim-deal { animation: them-deal var(--them-motion-duration-slow) var(--them-motion-easing-enter) both; }
+.anim-stamp { animation: them-stamp var(--them-motion-duration-ceremony) var(--them-motion-easing-ink) both; }
+.anim-slide { animation: them-slide-in var(--them-motion-duration-slow) var(--them-motion-easing-enter) both; }
+.anim-pulse { animation: them-pulse 1s steps(2, jump-none) infinite; }
+.anim-tick { animation: them-tick var(--them-motion-duration-base) var(--them-motion-easing-standard) both; }
+.lift { transition: transform var(--them-motion-duration-fast) var(--them-motion-easing-standard); }
+.lift:hover, .lift:focus-visible { transform: translateY(calc(var(--them-space-1) * -1)); }
+
+/* Reduced motion (system or setting): no movement, only a short opacity change. */
+html[data-motion='reduce'] .anim-wipe,
+html[data-motion='reduce'] .anim-deal,
+html[data-motion='reduce'] .anim-stamp,
+html[data-motion='reduce'] .anim-slide,
+html[data-motion='reduce'] .anim-fade {
+  animation: them-fade var(--them-motion-duration-fast) linear both;
+  animation-delay: 0ms !important;
+}
+html[data-motion='reduce'] .anim-pulse,
+html[data-motion='reduce'] .anim-tick { animation: none; }
+html[data-motion='reduce'] .lift { transition: none; }
+html[data-motion='reduce'] .lift:hover,
+html[data-motion='reduce'] .lift:focus-visible { transform: none; }
+.no-anim, .no-anim * { animation: none !important; }

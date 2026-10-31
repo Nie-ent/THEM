@@ -155,6 +155,8 @@
       "start": "Start",
       "settings": "Settings",
       "version": "v{{version}}",
+      "langTh": "ไทย",
+      "langEn": "English",
       "language": "Language"
     },
     "hud": {
@@ -197,12 +199,18 @@
     },
     "tag": {
       "damage": "Damage",
-      "sustain": "Sustain",
-      "projectile": "Projectile",
-      "defense": "Defense",
+      "upgrade": "Upgrade",
       "speed": "Speed",
-      "utility": "Utility",
-      "build": "Build"
+      "projectile": "Projectile",
+      "passive": "Passive",
+      "economy": "Economy",
+      "defense": "Defense",
+      "drawback": "Has a price",
+      "sustain": "Sustain",
+      "mobility": "Mobility",
+      "command": "Command",
+      "fire": "Fire",
+      "weapon": "Weapon"
     },
     "prep": {
       "title": "Prep",
