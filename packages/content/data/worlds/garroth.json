@@ -98,6 +98,13 @@
           "side": "N",
           "delay": 3,
           "interval": 1.2
+        },
+        {
+          "enemy": "slinger",
+          "count": 3,
+          "side": "W",
+          "delay": 5,
+          "interval": 1.5
         }
       ],
       "clearBonus": {
@@ -110,7 +117,7 @@
       "groups": [
         {
           "enemy": "raider",
-          "count": 14,
+          "count": 12,
           "side": "W",
           "delay": 0,
           "interval": 0.6
@@ -121,10 +128,24 @@
           "side": "E",
           "delay": 3,
           "interval": 1.2
+        },
+        {
+          "enemy": "slinger",
+          "count": 3,
+          "side": "N",
+          "delay": 5,
+          "interval": 1.5
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 3,
+          "side": "S",
+          "delay": 8,
+          "interval": 0.8
         }
       ],
       "clearBonus": {
-        "wood": 4,
+        "wood": 5,
         "stone": 2
       }
     },
@@ -133,7 +154,7 @@
       "groups": [
         {
           "enemy": "raider",
-          "count": 16,
+          "count": 14,
           "side": "N",
           "delay": 0,
           "interval": 0.6
@@ -146,7 +167,14 @@
           "interval": 1.2
         },
         {
-          "enemy": "trial-brute",
+          "enemy": "slinger",
+          "count": 3,
+          "side": "W",
+          "delay": 6,
+          "interval": 1.5
+        },
+        {
+          "enemy": "shield-chieftain",
           "count": 1,
           "side": "E",
           "delay": 4,
@@ -154,8 +182,8 @@
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 11,
+        "stone": 9
       }
     },
     {
@@ -163,22 +191,198 @@
       "groups": [
         {
           "enemy": "raider",
-          "count": 18,
+          "count": 14,
           "side": "E",
           "delay": 0,
           "interval": 0.6
         },
         {
+          "enemy": "brute",
+          "count": 2,
+          "side": "W",
+          "delay": 4,
+          "interval": 3
+        },
+        {
           "enemy": "torch-bearer",
           "count": 5,
-          "side": "W",
+          "side": "N",
           "delay": 3,
+          "interval": 1.2
+        },
+        {
+          "enemy": "slinger",
+          "count": 3,
+          "side": "S",
+          "delay": 6,
+          "interval": 1.5
+        }
+      ],
+      "clearBonus": {
+        "wood": 5,
+        "stone": 3
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "S",
+          "delay": 0,
+          "interval": 0.5
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 1,
+          "side": "N",
+          "delay": 3,
+          "interval": 0
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 5,
+          "side": "E",
+          "delay": 4,
+          "interval": 1.2
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 4,
+          "side": "W",
+          "delay": 8,
+          "interval": 0.8
+        }
+      ],
+      "clearBonus": {
+        "wood": 6,
+        "stone": 3
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "wolf-rider",
+          "count": 6,
+          "side": "E",
+          "delay": 0,
+          "interval": 0.7
+        },
+        {
+          "enemy": "slinger",
+          "count": 6,
+          "side": "W",
+          "delay": 2,
+          "interval": 1.2
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 8,
+          "side": "N",
+          "delay": 4,
+          "interval": 1
+        },
+        {
+          "enemy": "raider",
+          "count": 12,
+          "side": "S",
+          "delay": 6,
+          "interval": 0.5
+        }
+      ],
+      "clearBonus": {
+        "wood": 6,
+        "stone": 3
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "brute",
+          "count": 4,
+          "side": "S",
+          "delay": 0,
+          "interval": 3
+        },
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "N",
+          "delay": 2,
+          "interval": 0.5
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 2,
+          "side": "E",
+          "delay": 5,
+          "interval": 3
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 6,
+          "side": "W",
+          "delay": 6,
+          "interval": 1.2
+        },
+        {
+          "enemy": "slinger",
+          "count": 4,
+          "side": "N",
+          "delay": 10,
           "interval": 1.2
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 6,
+        "stone": 4
+      }
+    },
+    {
+      "kind": "miniboss",
+      "groups": [
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "W",
+          "delay": 0,
+          "interval": 0.5
+        },
+        {
+          "enemy": "brute",
+          "count": 2,
+          "side": "E",
+          "delay": 3,
+          "interval": 3
+        },
+        {
+          "enemy": "slinger",
+          "count": 5,
+          "side": "N",
+          "delay": 5,
+          "interval": 1.2
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 6,
+          "side": "S",
+          "delay": 6,
+          "interval": 1.2
+        },
+        {
+          "enemy": "beast-master",
+          "count": 1,
+          "side": "N",
+          "delay": 4,
+          "interval": 0
+        }
+      ],
+      "clearBonus": {
+        "wood": 13,
+        "stone": 10
       }
     },
     {
@@ -189,49 +393,121 @@
           "count": 20,
           "side": "S",
           "delay": 0,
-          "interval": 0.6
+          "interval": 0.5
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 6,
+          "side": "E",
+          "delay": 3,
+          "interval": 0.7
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 2,
+          "side": "N",
+          "delay": 5,
+          "interval": 3
         },
         {
           "enemy": "torch-bearer",
-          "count": 5,
-          "side": "N",
-          "delay": 3,
-          "interval": 1.2
+          "count": 8,
+          "side": "W",
+          "delay": 6,
+          "interval": 1
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 7,
+        "stone": 4
       }
     },
     {
       "kind": "normal",
       "groups": [
         {
-          "enemy": "raider",
-          "count": 22,
+          "enemy": "brute",
+          "count": 5,
           "side": "W",
           "delay": 0,
+          "interval": 2.5
+        },
+        {
+          "enemy": "slinger",
+          "count": 8,
+          "side": "N",
+          "delay": 3,
+          "interval": 1
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 8,
+          "side": "E",
+          "delay": 4,
+          "interval": 1
+        },
+        {
+          "enemy": "raider",
+          "count": 16,
+          "side": "S",
+          "delay": 6,
+          "interval": 0.5
+        }
+      ],
+      "clearBonus": {
+        "wood": 7,
+        "stone": 4
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "wolf-rider",
+          "count": 8,
+          "side": "N",
+          "delay": 0,
           "interval": 0.6
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 6,
+          "side": "S",
+          "delay": 2,
+          "interval": 0.6
+        },
+        {
+          "enemy": "slinger",
+          "count": 8,
+          "side": "E",
+          "delay": 4,
+          "interval": 1
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 2,
+          "side": "W",
+          "delay": 6,
+          "interval": 3
+        },
+        {
+          "enemy": "raider",
+          "count": 20,
+          "side": "W",
+          "delay": 8,
+          "interval": 0.4
         },
         {
           "enemy": "torch-bearer",
           "count": 6,
           "side": "E",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 8,
-          "side": "E",
-          "delay": 6,
-          "interval": 0.4
+          "delay": 10,
+          "interval": 1
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 8,
+        "stone": 5
       }
     },
     {
@@ -240,28 +516,42 @@
         {
           "enemy": "raider",
           "count": 24,
-          "side": "N",
+          "side": "E",
           "delay": 0,
-          "interval": 0.6
+          "interval": 0.5
+        },
+        {
+          "enemy": "brute",
+          "count": 6,
+          "side": "N",
+          "delay": 3,
+          "interval": 2
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 3,
+          "side": "S",
+          "delay": 4,
+          "interval": 3
         },
         {
           "enemy": "torch-bearer",
-          "count": 6,
-          "side": "S",
-          "delay": 3,
-          "interval": 1.2
+          "count": 10,
+          "side": "W",
+          "delay": 5,
+          "interval": 1
         },
         {
-          "enemy": "raider",
-          "count": 9,
+          "enemy": "slinger",
+          "count": 6,
           "side": "S",
-          "delay": 6,
-          "interval": 0.4
+          "delay": 9,
+          "interval": 1
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 8,
+        "stone": 5
       }
     },
     {
@@ -269,36 +559,87 @@
       "groups": [
         {
           "enemy": "raider",
-          "count": 26,
-          "side": "E",
+          "count": 20,
+          "side": "S",
           "delay": 0,
-          "interval": 0.6
+          "interval": 0.5
         },
         {
           "enemy": "torch-bearer",
-          "count": 7,
-          "side": "W",
+          "count": 12,
+          "side": "N",
           "delay": 3,
+          "interval": 0.9
+        },
+        {
+          "enemy": "slinger",
+          "count": 6,
+          "side": "W",
+          "delay": 5,
           "interval": 1.2
         },
         {
-          "enemy": "raider",
-          "count": 10,
-          "side": "W",
+          "enemy": "brute",
+          "count": 3,
+          "side": "E",
           "delay": 6,
-          "interval": 0.4
+          "interval": 3
         },
         {
-          "enemy": "trial-brute",
+          "enemy": "fire-priest",
           "count": 1,
-          "side": "S",
+          "side": "W",
           "delay": 4,
           "interval": 0
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 14,
+        "stone": 11
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "wolf-rider",
+          "count": 10,
+          "side": "N",
+          "delay": 0,
+          "interval": 0.5
+        },
+        {
+          "enemy": "brute",
+          "count": 6,
+          "side": "S",
+          "delay": 2,
+          "interval": 2.5
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 3,
+          "side": "E",
+          "delay": 4,
+          "interval": 3
+        },
+        {
+          "enemy": "slinger",
+          "count": 10,
+          "side": "W",
+          "delay": 5,
+          "interval": 0.9
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 10,
+          "side": "E",
+          "delay": 8,
+          "interval": 0.9
+        }
+      ],
+      "clearBonus": {
+        "wood": 9,
+        "stone": 5
       }
     },
     {
@@ -307,28 +648,93 @@
         {
           "enemy": "raider",
           "count": 28,
-          "side": "S",
+          "side": "W",
           "delay": 0,
+          "interval": 0.4
+        },
+        {
+          "enemy": "torch-bearer",
+          "count": 12,
+          "side": "S",
+          "delay": 3,
+          "interval": 0.8
+        },
+        {
+          "enemy": "slinger",
+          "count": 10,
+          "side": "N",
+          "delay": 5,
+          "interval": 0.9
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 8,
+          "side": "E",
+          "delay": 8,
+          "interval": 0.6
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 2,
+          "side": "N",
+          "delay": 6,
+          "interval": 4
+        }
+      ],
+      "clearBonus": {
+        "wood": 9,
+        "stone": 6
+      }
+    },
+    {
+      "kind": "normal",
+      "groups": [
+        {
+          "enemy": "brute",
+          "count": 8,
+          "side": "E",
+          "delay": 0,
+          "interval": 2
+        },
+        {
+          "enemy": "war-drummer",
+          "count": 4,
+          "side": "N",
+          "delay": 3,
+          "interval": 3
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 10,
+          "side": "S",
+          "delay": 5,
+          "interval": 0.6
+        },
+        {
+          "enemy": "wolf-rider",
+          "count": 6,
+          "side": "W",
+          "delay": 7,
           "interval": 0.6
         },
         {
           "enemy": "torch-bearer",
-          "count": 7,
+          "count": 12,
           "side": "N",
-          "delay": 3,
-          "interval": 1.2
+          "delay": 8,
+          "interval": 0.8
         },
         {
-          "enemy": "raider",
-          "count": 11,
-          "side": "N",
-          "delay": 6,
-          "interval": 0.4
+          "enemy": "slinger",
+          "count": 8,
+          "side": "S",
+          "delay": 10,
+          "interval": 1
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 9,
+        "stone": 6
       }
     },
     {
@@ -337,245 +743,49 @@
         {
           "enemy": "raider",
           "count": 30,
-          "side": "W",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 8,
-          "side": "E",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 12,
-          "side": "E",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 32,
           "side": "N",
           "delay": 0,
-          "interval": 0.6
+          "interval": 0.4
         },
         {
-          "enemy": "torch-bearer",
+          "enemy": "brute",
           "count": 8,
           "side": "S",
-          "delay": 3,
-          "interval": 1.2
+          "delay": 2,
+          "interval": 2
         },
         {
-          "enemy": "raider",
-          "count": 13,
-          "side": "S",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 34,
-          "side": "E",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 9,
-          "side": "W",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 14,
-          "side": "W",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "miniboss",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 36,
-          "side": "S",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 9,
-          "side": "N",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 15,
-          "side": "N",
-          "delay": 6,
-          "interval": 0.4
-        },
-        {
-          "enemy": "trial-brute",
-          "count": 1,
+          "enemy": "war-drummer",
+          "count": 4,
           "side": "W",
           "delay": 4,
-          "interval": 0
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 38,
-          "side": "W",
-          "delay": 0,
-          "interval": 0.6
+          "interval": 3
         },
         {
           "enemy": "torch-bearer",
+          "count": 14,
+          "side": "E",
+          "delay": 5,
+          "interval": 0.7
+        },
+        {
+          "enemy": "slinger",
+          "count": 10,
+          "side": "W",
+          "delay": 7,
+          "interval": 0.9
+        },
+        {
+          "enemy": "wolf-rider",
           "count": 10,
           "side": "E",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 16,
-          "side": "E",
-          "delay": 6,
-          "interval": 0.4
+          "delay": 10,
+          "interval": 0.5
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 40,
-          "side": "N",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 10,
-          "side": "S",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 17,
-          "side": "S",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 42,
-          "side": "E",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 11,
-          "side": "W",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 18,
-          "side": "W",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
-      }
-    },
-    {
-      "kind": "normal",
-      "groups": [
-        {
-          "enemy": "raider",
-          "count": 44,
-          "side": "S",
-          "delay": 0,
-          "interval": 0.6
-        },
-        {
-          "enemy": "torch-bearer",
-          "count": 11,
-          "side": "N",
-          "delay": 3,
-          "interval": 1.2
-        },
-        {
-          "enemy": "raider",
-          "count": 19,
-          "side": "N",
-          "delay": 6,
-          "interval": 0.4
-        }
-      ],
-      "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 10,
+        "stone": 6
       }
     },
     {
@@ -583,36 +793,36 @@
       "groups": [
         {
           "enemy": "raider",
-          "count": 46,
+          "count": 24,
           "side": "W",
           "delay": 0,
-          "interval": 0.6
+          "interval": 0.5
         },
         {
           "enemy": "torch-bearer",
-          "count": 12,
+          "count": 10,
           "side": "E",
-          "delay": 3,
+          "delay": 4,
+          "interval": 1
+        },
+        {
+          "enemy": "slinger",
+          "count": 6,
+          "side": "S",
+          "delay": 6,
           "interval": 1.2
         },
         {
-          "enemy": "raider",
-          "count": 20,
-          "side": "E",
-          "delay": 6,
-          "interval": 0.4
-        },
-        {
-          "enemy": "trial-brute",
+          "enemy": "varkul",
           "count": 1,
           "side": "N",
-          "delay": 4,
+          "delay": 6,
           "interval": 0
         }
       ],
       "clearBonus": {
-        "wood": 4,
-        "stone": 2
+        "wood": 16,
+        "stone": 12
       }
     }
   ]
