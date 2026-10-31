@@ -1,0 +1,40 @@
+@import 'tailwindcss';
+@import '@them/ui-tokens/tokens.css';
+
+/* Expose design tokens to Tailwind utilities (bg-surface, text-muted, p-md, rounded-md …). */
+@theme inline {
+  --color-bg: var(--them-color-bg);
+  --color-surface: var(--them-color-surface);
+  --color-surface-raised: var(--them-color-surface-raised);
+  --color-text: var(--them-color-text);
+  --color-muted: var(--them-color-text-muted);
+  --color-accent: var(--them-color-accent);
+  --color-danger: var(--them-color-danger);
+  --color-warning: var(--them-color-warning);
+  --color-success: var(--them-color-success);
+  --font-body: var(--them-font-body);
+  --font-display: var(--them-font-display);
+  --font-mono: var(--them-font-mono);
+  --spacing-xs: var(--them-space-xs);
+  --spacing-sm: var(--them-space-sm);
+  --spacing-md: var(--them-space-md);
+  --spacing-lg: var(--them-space-lg);
+  --spacing-xl: var(--them-space-xl);
+  --radius-sm: var(--them-radius-sm);
+  --radius-md: var(--them-radius-md);
+  --radius-lg: var(--them-radius-lg);
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--them-color-bg);
+  color: var(--them-color-text);
+  font-family: var(--them-font-body);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}

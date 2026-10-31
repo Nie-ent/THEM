@@ -1,0 +1,47 @@
+/*
+ * @them/ui-tokens — PLACEHOLDER STUB written by the Engineer (P1-01).
+ * The Designer (P1-05) replaces every value. Keep the `--them-` prefix.
+ */
+:root {
+  --them-color-bg: #1a1a1a;
+  --them-color-surface: #262626;
+  --them-color-surface-raised: #333333;
+  --them-color-text: #f2f2f2;
+  --them-color-text-muted: #a6a6a6;
+  --them-color-accent: #bfbfbf;
+  --them-color-danger: #d94c4c;
+  --them-color-warning: #d9a64c;
+  --them-color-success: #4cd97a;
+
+  --them-font-body: system-ui, 'Noto Sans Thai', sans-serif;
+  --them-font-display: system-ui, 'Noto Sans Thai', sans-serif;
+  --them-font-mono: ui-monospace, monospace;
+  --them-font-size-xs: 12px;
+  --them-font-size-sm: 14px;
+  --them-font-size-md: 16px;
+  --them-font-size-lg: 20px;
+  --them-font-size-xl: 28px;
+
+  --them-space-xs: 4px;
+  --them-space-sm: 8px;
+  --them-space-md: 12px;
+  --them-space-lg: 16px;
+  --them-space-xl: 24px;
+  --them-space-xxl: 32px;
+
+  --them-radius-sm: 4px;
+  --them-radius-md: 8px;
+  --them-radius-lg: 12px;
+  --them-radius-pill: 999px;
+
+  --them-z-stage: 0;
+  --them-z-hud: 10;
+  --them-z-overlay: 20;
+  --them-z-modal: 30;
+  --them-z-toast: 40;
+
+  --them-motion-fast: 120ms;
+  --them-motion-base: 200ms;
+  --them-motion-slow: 320ms;
+  --them-motion-easing: cubic-bezier(0.2, 0, 0, 1);
+}
