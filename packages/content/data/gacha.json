@@ -1,0 +1,20 @@
+{
+  "cost": { "currency": "gold", "single": 300, "ten": 2700 },
+  "rates": { "5": 0.015, "4": 0.1, "3": 0.285, "2": 0.3, "1": 0.3 },
+  "pity": { "softFrom": 60, "softStep": 0.06, "hard": 80, "guarantee4Every": 10 },
+  "duplicateShards": { "1": 2, "2": 5, "3": 10, "4": 25, "5": 60 },
+  "banners": [
+    {
+      "id": "standard",
+      "nameKey": "gacha.banner.standard.name",
+      "descKey": "gacha.banner.standard.desc",
+      "pool": {
+        "1": ["brann"],
+        "2": ["mira"],
+        "3": ["tova"],
+        "4": ["garrick"],
+        "5": ["seraphine"]
+      }
+    }
+  ]
+}

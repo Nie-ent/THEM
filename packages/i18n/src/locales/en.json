@@ -344,6 +344,14 @@
       }
     }
   },
+  "gacha": {
+    "banner": {
+      "standard": {
+        "name": "Standard Muster",
+        "desc": "Every hero can answer the call. Pity carries over to every banner."
+      }
+    }
+  },
   "enemy": {
     "raider": {
       "name": "Raider",
@@ -558,6 +566,19 @@
       "name": "Brann",
       "desc": "A hot-headed brawler who charges any enemy he sees, far beyond the base.",
       "personality": "Reckless"
+    },
+    "tova": {
+      "name": "Tova",
+      "desc": "A steady markswoman who holds her post and picks targets from afar."
+    },
+    "garrick": {
+      "name": "Garrick",
+      "desc": "A shield-breaker who throws himself at the thickest part of the horde.",
+      "personality": "Reckless"
+    },
+    "seraphine": {
+      "name": "Seraphine",
+      "desc": "A veteran archer of the old wars. Never leaves her post, never misses twice."
     }
   },
   "personality": {

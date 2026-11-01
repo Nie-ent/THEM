@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { checkClassesContent } from './classes';
 import { checkGearContent, withStartingGear } from './gear';
 import { checkHeroGrowthContent } from './heroes';
+import { checkGachaContent } from './gacha';
 import { checkTitlesContent } from './titles';
 import { checkTraitsContent } from './traits';
 import { rollId, type MetaEnv } from './env';
@@ -180,6 +181,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   out.push(...checkTitlesContent(content));
   out.push(...checkGearContent(content));
   out.push(...checkHeroGrowthContent(content));
+  out.push(...checkGachaContent(content));
   // Stat and trait mod keys must be core Mods keys, and trait card params must exist on their
   // cards: createRun rejects both (cheap, one run per source).
   const trial = (what: string, mods: Iterable<string>, cardParams: Record<string, Record<string, number>> = {}) => {

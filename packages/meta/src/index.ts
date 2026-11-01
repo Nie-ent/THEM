@@ -47,3 +47,6 @@ export {
   heroExpToNext, heroLevelCap, useExpBooks, starUpHero, limitBreakHero, heroGrowth, heroLoadout, heroesContributor,
   checkHeroGrowthContent,
 } from './heroes';
+export {
+  fiveStarChance, rollStar, grantHero, pull, checkGachaContent, type PityState, type PullResult, type Star,
+} from './gacha';

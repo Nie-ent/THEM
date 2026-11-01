@@ -33,7 +33,7 @@ describe('loadout → createRun', () => {
     expect(cfg.power).toBeUndefined();
     expect(cfg.loadout).toEqual({ mods: {} });
     // Same ids in the same order as core's default (order decides each hero's post).
-    expect(cfg.allyHeroes).toEqual(content.heroes.map((h) => h.id));
+    expect(cfg.allyHeroes).toEqual(content.heroes.filter((h) => h.defaultTeam).map((h) => h.id));
     const a = createRun({ worldId }, content, 11);
     const b = createRun(cfg, content, 11);
     for (let i = 0; i < 120; i++) { step(a, NO_INPUT); step(b, NO_INPUT); }

@@ -18,7 +18,8 @@ export class MetaError extends Error {
   constructor(
     readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free' | 'unknown-trait' | 'trait-locked' | 'not-enough-items' | 'class-locked'
       | 'unknown-title' | 'title-locked' | 'unknown-gear' | 'max-enhance'
-      | 'unknown-hero' | 'unknown-item' | 'hero-capped' | 'hero-not-capped',
+      | 'unknown-hero' | 'unknown-item' | 'hero-capped' | 'hero-not-capped'
+      | 'unknown-banner',
     message: string,
   ) {
     super(message);
