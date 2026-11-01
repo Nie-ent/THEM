@@ -240,3 +240,93 @@ P2 notes (do not block):
 - P2-9 P1-08 screenshots predate the new stage art; regenerate them with `screens.spec.ts` after M1/M2
   so the HUD review set shows real stage backgrounds.
 - P2-10 Hit flash uses `damageNormal` as a stand-in; designer to add `stage.hitFlash` token later.
+
+## Phase 2
+
+### P2-09 Camp spec (`docs/design/screens/camp.md`)
+
+| Date | Commit | Direction | Tokens | Phone portrait | Result | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| 2026-11-01 | c4f201f | ok | S1 | S4, S5 | CHANGES | S1–S6 |
+
+Structure is sound (one screen, rail on desktop / scrolling strip on phone, one loud thing per tab,
+meta-only rules, testids). The spec under-specifies the two screens where players can lose value.
+The designer owns these spec edits; the build items below already carry them.
+
+Must fix (spec text):
+
+1. **S1** `surface-sunken` is not a token. Use `--them-color-hud-track` for the EXP track.
+2. **S2** "CAMP" in the wireframes and an all-caps title break the direction (sentence case, Thai has
+   no case). Write "Camp" / "ค่าย".
+3. **S3** Gold drawn as "◆" collides with the Core HP diamond. Gold is a gilt circle glyph + the word.
+4. **S4 Enhance risk**: when a drop is possible the spec must require (a) the risk line in
+   `semantic-warning` with the warning icon, naming the result level ("On failure: 50% chance to drop
+   to +11"); (b) the Enhance button label states the state: "Enhance · may drop" or "Enhance · scroll
+   protects"; (c) the protection checkbox resets to off when the selected item changes and is disabled
+   with "No scrolls left" at 0; (d) a fail-drop result in `semantic-danger`.
+5. **S5 Summon**: rates sit next to (above on phone) the pull buttons, not below pity; column headers
+   say what they are ("Overall rate, guarantees included" / "Single pull"); the pity line states the
+   hard guarantee ("guaranteed at 80"); displayed rates must sum to 100% at shown precision.
+6. **S6 Crystal spends confirm**: trait reset (all / branch) and learning a keystone open the existing
+   confirm dialog naming the cost; phone branch selector is a 2×2 grid, not a 4-segment strip.
+
+### P2-10 Camp build
+
+| Screen | Date | Commit | Desktop th | Desktop en | Mobile th | Mobile en | Result | Notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Character | 2026-11-01 | c4f201f | ok | ok | ok | ok | PASS | N2, N3 |
+| Traits | 2026-11-01 | c4f201f | ok | ok | B2 | B2 | CHANGES | B2, B5, B6 |
+| Gear + enhance | 2026-11-01 | c4f201f | B1 | B1 | B1 | B1 | CHANGES | B1, B3 (enhance panel not in any shot) |
+| Heroes | 2026-11-01 | c4f201f | ok | ok | ok | ok | PASS | N3 |
+| Summon | 2026-11-01 | c4f201f | B1 | B1 | B1 | B1 | CHANGES | B1, B4 (judged from code) |
+| Titles | 2026-11-01 | c4f201f | ok | ok | B1 | B1 | CHANGES | B1 |
+| Results rewards | 2026-11-01 | c4f201f | B1 | B1 | B1 | B1 | CHANGES | B1 (judged from code) |
+
+**Verdict P2-10: CHANGES.** Tokens, layout, Trirong headings, rubric primaries and Thai wrapping are
+right; Character, Heroes and the desktop trait columns read well. Blocking items:
+
+Must fix:
+
+1. **B1 10 of 28 screenshots are corrupt** (`camp-summon-*` ×4, `camp-titles-mobile-*` ×2,
+   `results-rewards-*` ×4): the PNG signature lost its `\r` (CRLF→LF conversion), so they do not open.
+   Add a root `.gitattributes` with `*.png binary`, regenerate all P2-10 shots, and add
+   `camp-gear-enhance-{desktop,mobile}-{th,en}.png` with a +11 item selected, protection off, and a
+   second set with protection on.
+2. **B2 Trait branch selector clips on phones** ("Commander", "ผู้บัญชาการ" cut off).
+   `apps/game/src/ui/camp/TraitsTab.tsx`: below `md`, replace the `Segmented` with a 2×2 grid of
+   `aria-pressed` buttons (min-h-11, full label, active = `border-focus text-reward`).
+3. **B3 Enhance risk is not unmistakable.** `apps/game/src/ui/camp/GearTab.tsx`: (a) render
+   `ui.camp.gear.drop` in `text-semantic-warning` with `WarnIcon`, and change the key to name the level:
+   "On failure: {{p}} chance to drop to +{{to}}" / "ถ้าพลาด: มีโอกาส {{p}} ลดเหลือ +{{to}}"; (b) Enhance
+   label from new keys `ui.camp.gear.enhanceRisk` ("Enhance · may drop") / `enhanceProtected`
+   ("Enhance · scroll protects") whenever `dropChance > 0`; (c) `setProtect(false)` in the item
+   `onClick`, and `disabled={info.scrolls === 0}` on the checkbox with "No scrolls left" text;
+   (d) `fail-drop` result in `text-semantic-danger`.
+4. **B4 Summon rates clarity.** `SummonTab.tsx` + locales: `rateEffective` → "Overall rate
+   (guarantees included)" / "อัตรารวม (รวมการันตีแล้ว)"; `rateListed` → "Single pull" / "ต่อครั้ง";
+   `since5` add "· guaranteed at {{hard}}" / "· การันตีที่ครั้งที่ {{hard}}"; render the Rates section
+   before the pull buttons on phones (`order-first` below `md`) or put a "Rates" anchor link beside
+   them. Add a unit test that the displayed (1 dp) effective rates sum to 100.0% (today:
+   28.2 / 28.2 / 26.8 / 14.4 / 2.4, which is correct).
+5. **B5 Crystal spends without confirmation.** `TraitsTab.tsx`: "Reset all", "Reset branch" and
+   Learn on a keystone go through the confirm dialog from `PauseScreen.tsx` (extract it to `kit.tsx`)
+   with the cost in the title; default focus on Cancel.
+6. **B6 All caps.** `CampScreen.tsx` h1: remove `uppercase tracking-wide`; `TraitsTab.tsx` keystone
+   label: remove `uppercase` (keep the word and the danger edge).
+
+Nice to have:
+
+1. **N1** Phone tab strip: right-edge fade when it overflows and `scrollIntoView({inline:'nearest'})`
+   on the active tab.
+2. **N2** Unspent-point badges use rubric fill, which reads as an error; use a gilt outline chip
+   (`border-reward text-reward`).
+3. **N3** Disabled buttons without a reason ("Spend 0 points", War Chronicle ×10 with 5 left): hide
+   ×10 when count < 10; label Spend as disabled-with-hint "Choose points first".
+4. **N4** Direction: show a keystone's drawback in the Author annotation block used by card drawbacks
+   (pen + Charm "The Author's price" + warning line).
+5. **N5** Trait readability: group nodes under tier dividers ("Needs 3 points in this branch") instead
+   of repeating the requirement on every card; on phones this halves the scroll.
+6. **N6** Thai tab label "Trait" stays English (owner vocabulary from GDD §5); confirm with the owner.
+
+Font risks once Google Fonts load: Trirong "Lv 36" and section headings in Thai at leading-display;
+Plex Thai widths in the 2×2 branch grid and the summon table headers.
