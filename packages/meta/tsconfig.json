@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // Meta compiles @them/core from source (no build step), and core opts out of this flag for its
+    // typed-array hot loops (see packages/core/tsconfig.json). `strict` stays on.
+    "noUncheckedIndexedAccess": false,
+    "types": ["node"]
+  },
+  "include": ["src", "test"]
+}

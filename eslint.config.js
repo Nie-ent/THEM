@@ -50,6 +50,27 @@ export default tseslint.config(
       'no-restricted-imports': ['error', { patterns: ['phaser', 'react', 'react-dom', '@them/i18n'] }],
     },
   },
+  // Meta progression is pure too: time and randomness are injected (MetaEnv) so it can move server-side.
+  {
+    files: ['packages/meta/src/**/*.ts'],
+    languageOptions: { globals: {} },
+    rules: {
+      'no-restricted-properties': [
+        'error',
+        { object: 'Math', property: 'random', message: 'Use the injected RollSource (MetaEnv.rolls).' },
+        { object: 'Date', property: 'now', message: 'Use the injected clock (MetaEnv.now).' },
+        { object: 'performance', property: 'now', message: 'Use the injected clock (MetaEnv.now).' },
+      ],
+      'no-restricted-globals': [
+        'error',
+        { name: 'window', message: 'No DOM in meta; persistence goes through SaveService.' },
+        { name: 'document', message: 'No DOM in meta.' },
+        { name: 'localStorage', message: 'Use KeyValueSaveService with an injected store.' },
+        { name: 'Date', message: 'Use the injected clock (MetaEnv.now).' },
+      ],
+      'no-restricted-imports': ['error', { patterns: ['phaser', 'react', 'react-dom', '@them/i18n', '@them/game'] }],
+    },
+  },
   {
     files: ['apps/game/src/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks },
