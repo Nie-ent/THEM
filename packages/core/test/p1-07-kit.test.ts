@@ -41,7 +41,7 @@ describe('P1-07 content resolves in the registries', () => {
     expect(content.cards.filter((c) => !c.exclusive)).toHaveLength(12);
     expect(content.cards.filter((c) => c.drawbackKey).length).toBeGreaterThanOrEqual(4);
     expect(content.buildings.map((b) => b.id).sort()).toEqual(['archer-tower-wood', 'fire-pit-trap', 'stone-wall', 'wood-wall']);
-    expect(content.heroes.map((h) => h.stars).sort()).toEqual([1, 2]);
+    expect(content.heroes.filter((h) => h.defaultTeam).map((h) => h.stars).sort()).toEqual([1, 2]);
   });
 
   it('stat-mods cards apply (and drawbacks bite)', () => {

@@ -26,5 +26,50 @@
     "weapon": { "damage": 14, "cooldown": 0.8, "range": 8 },
     "params": { "chaseRange": 360, "homeStop": 8 },
     "render": { "shape": "chevron" }
+  },
+  {
+    "id": "tova",
+    "nameKey": "hero.tova.name",
+    "descKey": "hero.tova.desc",
+    "personalityKey": "personality.cautious",
+    "stars": 3,
+    "defaultTeam": false,
+    "hp": 160,
+    "speed": 125,
+    "radius": 12,
+    "personality": "cautious",
+    "weapon": { "damage": 14, "cooldown": 0.6, "range": 260, "projectileSpeed": 560 },
+    "params": { "leash": 40 },
+    "render": { "shape": "hexagon" }
+  },
+  {
+    "id": "garrick",
+    "nameKey": "hero.garrick.name",
+    "descKey": "hero.garrick.desc",
+    "personalityKey": "hero.garrick.personality",
+    "stars": 4,
+    "defaultTeam": false,
+    "hp": 320,
+    "speed": 115,
+    "radius": 14,
+    "personality": "reckless",
+    "weapon": { "damage": 20, "cooldown": 0.75, "range": 8 },
+    "params": { "chaseRange": 380, "homeStop": 8 },
+    "render": { "shape": "octagon" }
+  },
+  {
+    "id": "seraphine",
+    "nameKey": "hero.seraphine.name",
+    "descKey": "hero.seraphine.desc",
+    "personalityKey": "personality.cautious",
+    "stars": 5,
+    "defaultTeam": false,
+    "hp": 260,
+    "speed": 125,
+    "radius": 13,
+    "personality": "cautious",
+    "weapon": { "damage": 26, "cooldown": 0.55, "range": 280, "projectileSpeed": 600 },
+    "params": { "leash": 50 },
+    "render": { "shape": "circle-ticks" }
   }
 ]

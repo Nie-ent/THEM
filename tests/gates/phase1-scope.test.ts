@@ -60,9 +60,11 @@ describe('PHASE1 scope (QA gate)', () => {
   });
 
   it('2 AI heroes: a 1-star and a 2-star with different personalities', () => {
-    expect(content.heroes.length).toBe(2);
-    expect(content.heroes.map((h) => h.stars).sort()).toEqual([1, 2]);
-    expect(new Set(content.heroes.map((h) => h.personality)).size).toBe(2);
+    // Phase 2 adds gacha heroes (defaultTeam: false); the default run team stays the Phase 1 pair.
+    const team = content.heroes.filter((h) => h.defaultTeam);
+    expect(team.length).toBe(2);
+    expect(team.map((h) => h.stars).sort()).toEqual([1, 2]);
+    expect(new Set(team.map((h) => h.personality)).size).toBe(2);
   });
 
   it('GDD §12 scoring constants', () => {

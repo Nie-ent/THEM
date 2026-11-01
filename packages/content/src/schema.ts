@@ -206,6 +206,11 @@ export const AllyHeroDef = z.object({
   /** Personality word shown on the hero chip. */
   personalityKey: I18nKey,
   stars: z.number().int().min(1).max(5),
+  /**
+   * In the default team of a run created without `allyHeroes` (Phase 1 runs, balance bot, e2e).
+   * Heroes added later (gacha, P2-08) set false so bare runs keep playing exactly as before.
+   */
+  defaultTeam: z.boolean().default(true),
   hp: z.number().positive(),
   speed: z.number().positive(),
   radius: z.number().positive(),
@@ -611,6 +616,40 @@ export const HeroGrowthDef = z.object({
 export type HeroGrowthDef = z.infer<typeof HeroGrowthDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* Gacha (GDD §8, §12; P2-08) — in-game currency only in Phase 2                               */
+/* ------------------------------------------------------------------------------------------ */
+
+const StarKey = z.enum(['1', '2', '3', '4', '5']);
+
+export const GachaDef = z.object({
+  /** Price per pull and per 10-pull, in an in-game currency. */
+  cost: z.object({ currency: Id, single: z.number().int().positive(), ten: z.number().int().positive() }),
+  /** Base rate per star (shown in the UI as-is, GDD §8). Must sum to 1. */
+  rates: z.record(StarKey, z.number().min(0).max(1)),
+  /**
+   * 5★ pity, counted across banners: from pull `softFrom` (since the last 5★) the 5★ chance is
+   * base + softStep × (n − softFrom + 1); pull `hard` is a sure 5★. Every `guarantee4Every`-th pull
+   * without a 4★ or better is a sure 4★ (GDD §12: 10-pull guarantee).
+   */
+  pity: z.object({
+    softFrom: z.number().int().positive(),
+    softStep: z.number().min(0).max(1),
+    hard: z.number().int().positive(),
+    guarantee4Every: z.number().int().positive(),
+  }),
+  /** Star shards for a hero already owned, by its stars. */
+  duplicateShards: z.record(StarKey, z.number().int().nonnegative()),
+  banners: z.array(z.object({
+    id: Id,
+    nameKey: I18nKey,
+    descKey: I18nKey,
+    /** Hero ids by star; one is chosen uniformly once the star is rolled. */
+    pool: z.record(StarKey, z.array(Id).min(1)),
+  })).min(1),
+});
+export type GachaDef = z.infer<typeof GachaDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
@@ -621,6 +660,7 @@ export const ContentBundle = z.object({
   titles: TitlesDef,
   gear: GearDef,
   heroGrowth: HeroGrowthDef,
+  gacha: GachaDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

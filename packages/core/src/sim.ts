@@ -134,7 +134,7 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     difficulty: config.difficulty ?? 'normal',
     hardcoreRules: config.hardcoreRules ?? 0,
     power: config.power ?? worldDef.recommendedPower,
-    allyHeroes: config.allyHeroes ?? baseContent.heroes.map((h) => h.id),
+    allyHeroes: config.allyHeroes ?? baseContent.heroes.filter((h) => h.defaultTeam).map((h) => h.id),
     loadout: {
       mods: { ...lo?.mods },
       ...(lo?.cardParams ? { cardParams: Object.fromEntries(Object.entries(lo.cardParams).map(([k, v]) => [k, { ...v }])) } : {}),
