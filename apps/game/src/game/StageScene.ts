@@ -116,16 +116,29 @@ export class StageScene extends Phaser.Scene {
     kb.on('keydown-P', () => this.session.command({ pause: true }));
     kb.addCapture('SPACE,UP,DOWN,LEFT,RIGHT');
 
-    this.session.screenToWorld = (x, y) => {
+    const toWorld = (x: number, y: number) => {
       const w = this.cameras.main.getWorldPoint(x, y);
       return { x: w.x, y: w.y };
     };
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => { this.session.screenToWorld = null; });
+    this.session.screenToWorld = toWorld;
     this.input.on('pointerdown', (p: Phaser.Input.Pointer) => this.onPointer(p));
     this.input.mouse?.disableContextMenu();
 
     this.listen();
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.offBridge.forEach((f) => f()));
+    // Unhook from the session when the scene stops OR the whole game is destroyed (GameScreen
+    // unmount, React StrictMode double mount in dev). `game.destroy()` emits DESTROY but not
+    // SHUTDOWN; a leaked listener then runs on a dead scene and the first hero hit throws
+    // (cameras.main is gone), which stops the game loop.
+    let detached = false;
+    const detach = () => {
+      if (detached) return;
+      detached = true;
+      this.offBridge.forEach((off) => off());
+      this.offBridge.length = 0;
+      if (this.session.screenToWorld === toWorld) this.session.screenToWorld = null;
+    };
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, detach);
+    this.events.once(Phaser.Scenes.Events.DESTROY, detach);
 
     const hero = v.entities;
     this.camX = hero.x[v.hero]!;
