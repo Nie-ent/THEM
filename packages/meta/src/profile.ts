@@ -10,6 +10,7 @@
 import type { ContentBundle, Grade } from '@them/content';
 import { createRun } from '@them/core';
 import { z } from 'zod';
+import { checkTraitsContent } from './traits';
 import { rollId, type MetaEnv } from './env';
 
 const Count = z.number().int().nonnegative();
@@ -166,13 +167,19 @@ export function checkMetaContent(content: ContentBundle): string[] {
   const g = m.globalLevel;
   if (g.expToNext.length !== g.cap - 1) out.push(`meta.globalLevel.expToNext: ${g.expToNext.length} entries, cap ${g.cap} needs ${g.cap - 1}`);
   for (const k of Object.keys(m.statCaps)) if (!(m.statCaps[k]! >= 0)) out.push(`meta.statCaps.${k}: must be ≥ 0`);
-  // Stat mod keys must be core Mods keys: createRun rejects unknown loadout keys (cheap, one run).
-  const keys = new Set<string>();
-  for (const id of STAT_IDS) for (const k of Object.keys(m.stats[id])) keys.add(k);
-  try {
-    createRun({ worldId: content.worlds[0]!.id, loadout: { mods: Object.fromEntries([...keys].map((k) => [k, 0])) } }, content, 1);
-  } catch (e) {
-    out.push(`meta.stats: ${(e as Error).message}`);
-  }
+  out.push(...checkTraitsContent(content));
+  // Stat and trait mod keys must be core Mods keys, and trait card params must exist on their
+  // cards: createRun rejects both (cheap, one run per source).
+  const trial = (what: string, mods: Iterable<string>, cardParams: Record<string, Record<string, number>> = {}) => {
+    try {
+      createRun({ worldId: content.worlds[0]!.id, loadout: { mods: Object.fromEntries([...mods].map((k) => [k, 0])), cardParams } }, content, 1);
+    } catch (e) {
+      out.push(`${what}: ${(e as Error).message}`);
+    }
+  };
+  const statKeys = new Set<string>();
+  for (const id of STAT_IDS) for (const k of Object.keys(m.stats[id])) statKeys.add(k);
+  trial('meta.stats', statKeys);
+  for (const d of content.traits.nodes) trial(`traits.${d.id}`, Object.keys(d.mods), d.cardParams);
   return out;
 }

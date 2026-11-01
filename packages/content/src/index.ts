@@ -12,6 +12,7 @@ import cards from '../data/cards.json' with { type: 'json' };
 import enemies from '../data/enemies.json' with { type: 'json' };
 import heroes from '../data/heroes.json' with { type: 'json' };
 import meta from '../data/meta.json' with { type: 'json' };
+import traits from '../data/traits.json' with { type: 'json' };
 import garroth from '../data/worlds/garroth.json' with { type: 'json' };
 import { ContentBundle, type ContentBundleInput } from './schema';
 
@@ -24,6 +25,7 @@ export const raw: Record<keyof ContentBundleInput, unknown> = {
   version: CONTENT_VERSION,
   balance,
   meta,
+  traits,
   worlds: [garroth],
   enemies,
   bosses,

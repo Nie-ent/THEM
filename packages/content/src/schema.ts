@@ -382,8 +382,59 @@ export const MetaDef = z.object({
   }),
   /** Max absolute value of each stat-derived mod (e.g. cooldownMult -0.3 = at most 30% faster). */
   statCaps: z.record(z.string(), z.number()).default({}),
+  /** Stackable items the profile can hold (`profile.items`): respec crystals, EXP books, shards … */
+  items: z.array(z.object({ id: Id, nameKey: I18nKey })).default([]),
 });
 export type MetaDef = z.infer<typeof MetaDef>;
+
+/* ------------------------------------------------------------------------------------------ */
+/* Trait Tree (GDD §5, P2-03)                                                                  */
+/* ------------------------------------------------------------------------------------------ */
+
+export const TraitBranchDef = z.object({ id: Id, nameKey: I18nKey, descKey: I18nKey });
+export type TraitBranchDef = z.infer<typeof TraitBranchDef>;
+
+export const TraitNodeDef = z.object({
+  id: Id,
+  /** A branch id, or "hybrid" for nodes unlocked by two branches. */
+  branch: Id,
+  /** minor = numbers; card = changes a skill card; keystone = big trade-off (limited); hybrid = two-branch node. */
+  kind: z.enum(['minor', 'card', 'keystone', 'hybrid']),
+  nameKey: I18nKey,
+  descKey: I18nKey,
+  maxRank: z.number().int().positive(),
+  /** Trait points per rank. */
+  cost: z.number().int().positive(),
+  /** Points already spent in this node's branch (other nodes) before the first rank. */
+  requiresBranchPoints: z.number().int().nonnegative().default(0),
+  /** Hybrid nodes: points needed in each listed branch. */
+  requiresBranches: z.record(Id, z.number().int().positive()).default({}),
+  /** Node ids that need at least one rank first. */
+  requiresNodes: z.array(Id).default([]),
+  /** Run mods per rank (stat-mods convention). */
+  mods: z.record(z.string(), z.number()).default({}),
+  /** Card param deltas per rank: `{ cardId: { param: delta } }`. */
+  cardParams: z.record(Id, z.record(z.string(), z.number())).default({}),
+  /** Card draft weight multipliers (not per rank). */
+  cardWeights: z.record(Id, z.number().nonnegative()).default({}),
+  /** Keystone "lone wolf": no AI heroes are brought into runs. */
+  noAllies: z.boolean().default(false),
+});
+export type TraitNodeDef = z.infer<typeof TraitNodeDef>;
+
+export const TraitsDef = z.object({
+  branches: z.array(TraitBranchDef).min(1),
+  nodes: z.array(TraitNodeDef).min(1),
+  limits: z.object({ keystones: z.number().int().positive() }),
+  /** GDD §5: free reset until the first class; after that a full or one-branch reset costs items. */
+  respec: z.object({
+    freeUntilLevel: z.number().int().nonnegative(),
+    itemId: Id,
+    fullCost: z.number().int().nonnegative(),
+    branchCost: z.number().int().nonnegative(),
+  }),
+});
+export type TraitsDef = z.infer<typeof TraitsDef>;
 
 /* ------------------------------------------------------------------------------------------ */
 
@@ -391,6 +442,7 @@ export const ContentBundle = z.object({
   version: z.string(),
   balance: BalanceDef,
   meta: MetaDef,
+  traits: TraitsDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

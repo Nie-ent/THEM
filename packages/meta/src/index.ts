@@ -26,3 +26,7 @@ export {
   MetaError, expToNext, runExpFor, grantExp, allocateStats, resetStats, canResetStatsFree, statMods, statsContributor,
   type ExpResult,
 } from './progression';
+export {
+  pointsInBranch, keystonesTaken, traitBlock, allocateTrait, traitResetCost, resetTraits, traitLoadout, traitsContributor,
+  checkTraitsContent, type TraitBlock,
+} from './traits';

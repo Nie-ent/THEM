@@ -17,6 +17,125 @@
       "name": "Gold"
     }
   },
+  "item": {
+    "time-crystal": {
+      "name": "Rewind Crystal"
+    }
+  },
+  "trait": {
+    "branch": {
+      "vanguard": {
+        "name": "Vanguard",
+        "desc": "Close range and staying power. Stronger in the thick of the horde."
+      },
+      "arcanist": {
+        "name": "Arcanist",
+        "desc": "Wide spells and fire. Faster casting, hotter flames."
+      },
+      "hunter": {
+        "name": "Hunter",
+        "desc": "Range, critical hits and movement."
+      },
+      "commander": {
+        "name": "Commander",
+        "desc": "Towers, traps and AI heroes do the fighting."
+      }
+    },
+    "node": {
+      "vg-thick-skin": {
+        "name": "Thick Skin",
+        "desc": "+3% max HP per rank."
+      },
+      "vg-iron-will": {
+        "name": "Iron Will",
+        "desc": "+2% armour per rank."
+      },
+      "vg-second-wind": {
+        "name": "Second Wind",
+        "desc": "+0.3 HP regeneration per second per rank."
+      },
+      "vg-hardened-hide": {
+        "name": "Hardened Hide",
+        "desc": "Tough Hide card: +0.3 regeneration and +2% armour per rank."
+      },
+      "vg-juggernaut": {
+        "name": "Juggernaut",
+        "desc": "Keystone. +50% max HP and +10% armour, but 20% slower."
+      },
+      "ar-focus": {
+        "name": "Focus",
+        "desc": "2% shorter weapon cooldown per rank."
+      },
+      "ar-insight": {
+        "name": "Insight",
+        "desc": "+4% in-stage EXP per rank."
+      },
+      "ar-kindling": {
+        "name": "Kindling",
+        "desc": "Pitch Arrows card: +5% bonus damage to burning enemies per rank."
+      },
+      "ar-ember-mastery": {
+        "name": "Ember Mastery",
+        "desc": "Ember Ring card: +10 radius and +2 damage per rank."
+      },
+      "ar-glass-cannon": {
+        "name": "Glass Cannon",
+        "desc": "Keystone. +80% damage, but −50% max HP."
+      },
+      "hu-keen-eye": {
+        "name": "Keen Eye",
+        "desc": "+2% critical chance per rank."
+      },
+      "hu-fleet": {
+        "name": "Fleet Foot",
+        "desc": "+3% move speed per rank."
+      },
+      "hu-long-shot": {
+        "name": "Long Shot",
+        "desc": "+4% weapon range per rank."
+      },
+      "hu-deadeye": {
+        "name": "Deadeye",
+        "desc": "+10% critical damage per rank."
+      },
+      "hu-steady-split": {
+        "name": "Steady Split",
+        "desc": "Split Shot card: its damage penalty is 5 points smaller per rank."
+      },
+      "hu-lone-wolf": {
+        "name": "Lone Wolf",
+        "desc": "Keystone. No AI heroes join your runs, but +40% damage and max HP, +15% speed, +10% critical chance."
+      },
+      "cm-masonry": {
+        "name": "Masonry",
+        "desc": "+4% tower and trap damage per rank."
+      },
+      "cm-drill": {
+        "name": "Drill",
+        "desc": "+5% AI hero damage per rank."
+      },
+      "cm-front-line": {
+        "name": "Front Line",
+        "desc": "Iron Vanguard card: its tower penalty is 10 points smaller per rank."
+      },
+      "cm-fortress-lord": {
+        "name": "Fortress Lord",
+        "desc": "Keystone. Towers and AI heroes deal double damage, but your hero deals only a quarter."
+      },
+      "hy-spellblade": {
+        "name": "Spellblade",
+        "desc": "Vanguard + Arcanist. +10% damage and max HP; Ember Ring +3 damage."
+      },
+      "hy-bloodhunter": {
+        "name": "Blood Hunter",
+        "desc": "Vanguard + Hunter. +3% critical chance; Blood Price heals 2 points more."
+      },
+      "hy-warden": {
+        "name": "Warden",
+        "desc": "Hunter + Commander. +8% weapon range and +10% tower damage."
+      }
+    }
+  },
   "enemy": {
     "raider": {
       "name": "Raider",

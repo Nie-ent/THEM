@@ -182,12 +182,13 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branch `engineer/P2-01-meta` → `engineer/P2-02-levels-stats`, not merged to main)
+### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits`, stacked, not merged to main)
 
 | Ticket | Status |
 | --- | --- |
 | P2-01 | Engineer done, gates green; awaiting QA. `packages/meta` + `apps/game/src/game/profile.ts` |
 | P2-02 | Engineer done, gates green; awaiting QA. `packages/meta/src/progression.ts`, numbers in `content/data/meta.json` |
+| P2-03 | Engineer + content done, gates green; awaiting QA. `content/data/traits.json` (4 branches, 23 nodes), `packages/meta/src/traits.ts`; core `Loadout.cardParams` / `cardWeights` |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
@@ -200,6 +201,15 @@ Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.js
 Open balance question: player **power** is not fed to the difficulty limiter yet. Stats already act as
 direct modifiers; feeding power too would count them twice. Decide how account growth meets the limiter
 (GDD §3) before a second world exists. No UI yet to spend stat points (P2-09/P2-10).
+
+Trait Tree (P2-03) notes, for the owner and the designer:
+- Keystones: one at a time (`limits.keystones`), 10 branch points + 3 trait points each. Fortress Lord is
+  approximated as hero damage −75% (not 0) with structures and AI heroes ×2; a real "hero cannot attack"
+  needs a core flag.
+- Reset: free to Lv 10, then 2 Rewind Crystals (full) or 1 (one branch, also refunds hybrids that need it).
+  Rewind Crystals have no source yet (shop, events and Raid come later); "free reset after a balance patch"
+  (GDD §5) is not implemented and needs a save-schema change when it is.
+- Trait points: 1 per Global Level → 49 at Lv 50; one full branch with its keystone costs about 16.
 
 ---
 

@@ -15,7 +15,10 @@ import type { LoadoutContributor } from './loadout';
 import { STAT_IDS, type Profile, type StatId } from './profile';
 
 export class MetaError extends Error {
-  constructor(readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free', message: string) {
+  constructor(
+    readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free' | 'unknown-trait' | 'trait-locked' | 'not-enough-items',
+    message: string,
+  ) {
     super(message);
     this.name = 'MetaError';
   }
