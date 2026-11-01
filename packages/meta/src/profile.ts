@@ -11,6 +11,7 @@ import type { ContentBundle, Grade } from '@them/content';
 import { createRun } from '@them/core';
 import { z } from 'zod';
 import { checkClassesContent } from './classes';
+import { checkTitlesContent } from './titles';
 import { checkTraitsContent } from './traits';
 import { rollId, type MetaEnv } from './env';
 
@@ -93,7 +94,8 @@ export const Profile = z.object({
 
   /** Per world id. */
   worlds: z.record(z.string(), WorldProgress),
-  totals: z.object({ runs: Count, wins: Count }),
+  /** Lifetime counters. `kills` since save v2 (P2-05; older saves start at 0). */
+  totals: z.object({ runs: Count, wins: Count, kills: Count }),
 
   /** Ids of the most recent rewarded runs (newest last, at most REWARDED_RUNS_KEPT). */
   rewardedRuns: z.array(z.string()).max(REWARDED_RUNS_KEPT),
@@ -128,7 +130,7 @@ export function newProfile(content: ContentBundle, env: MetaEnv): Profile {
     items: {},
     gacha: { pullsSince5: 0, pullsSince4: 0, totalPulls: 0 },
     worlds: {},
-    totals: { runs: 0, wins: 0 },
+    totals: { runs: 0, wins: 0, kills: 0 },
     rewardedRuns: [],
   };
 }
@@ -170,6 +172,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   for (const k of Object.keys(m.statCaps)) if (!(m.statCaps[k]! >= 0)) out.push(`meta.statCaps.${k}: must be ≥ 0`);
   out.push(...checkTraitsContent(content));
   out.push(...checkClassesContent(content));
+  out.push(...checkTitlesContent(content));
   // Stat and trait mod keys must be core Mods keys, and trait card params must exist on their
   // cards: createRun rejects both (cheap, one run per source).
   const trial = (what: string, mods: Iterable<string>, cardParams: Record<string, Record<string, number>> = {}) => {
@@ -184,5 +187,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   trial('meta.stats', statKeys);
   for (const d of content.traits.nodes) trial(`traits.${d.id}`, Object.keys(d.mods), d.cardParams);
   for (const c of content.classes.classes) trial(`classes.${c.id}`, Object.keys(c.mods));
+  for (const t of content.titles.titles) trial(`titles.${t.id}`, Object.keys(t.mods));
+  content.titles.collection.forEach((tier, i) => trial(`titles.collection[${i}]`, Object.keys(tier.mods)));
   return out;
 }

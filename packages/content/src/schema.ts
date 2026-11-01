@@ -478,6 +478,55 @@ export const ClassesDef = z.object({
 export type ClassesDef = z.infer<typeof ClassesDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* Titles (GDD §7, P2-05)                                                                      */
+/* ------------------------------------------------------------------------------------------ */
+
+const DifficultyId = z.enum(['normal', 'hard', 'nightmare']);
+
+/**
+ * Achievement conditions. Run conditions are checked when a run is recorded (`worldId` /
+ * `difficulty` narrow them); profile conditions are checked any time the profile changes.
+ */
+export const TitleCondition = z.discriminatedUnion('type', [
+  /** Win the world (any difficulty unless given). */
+  z.object({ type: z.literal('worldCleared'), worldId: Id.optional(), difficulty: DifficultyId.optional() }),
+  /** Win with this grade or better. */
+  z.object({ type: z.literal('runGrade'), grade: z.enum(['S', 'A', 'B', 'C']), worldId: Id.optional() }),
+  /** Win taking at most this mean fraction of hero HP per wave (0 = never hit). */
+  z.object({ type: z.literal('flawlessWin'), maxHeroDamageFrac: z.number().min(0).max(1), worldId: Id.optional() }),
+  /** Win with no AI heroes in the run. */
+  z.object({ type: z.literal('soloWin'), worldId: Id.optional() }),
+  /** Win with the Core at or above this HP fraction. */
+  z.object({ type: z.literal('coreIntactWin'), minCoreHpFrac: z.number().min(0).max(1), worldId: Id.optional() }),
+  z.object({ type: z.literal('totalRuns'), min: z.number().int().positive() }),
+  z.object({ type: z.literal('totalWins'), min: z.number().int().positive() }),
+  z.object({ type: z.literal('totalKills'), min: z.number().int().positive() }),
+  z.object({ type: z.literal('globalLevel'), min: z.number().int().positive() }),
+  z.object({ type: z.literal('classTier'), min: z.number().int().positive() }),
+]);
+export type TitleCondition = z.infer<typeof TitleCondition>;
+
+export const TitleDef = z.object({
+  id: Id,
+  nameKey: I18nKey,
+  /** How to earn it (shown on locked titles too). */
+  descKey: I18nKey,
+  condition: TitleCondition,
+  /** Bonus while this is the equipped (main) title. Off in ranked. */
+  mods: z.record(z.string(), z.number()).default({}),
+  /** Paid / event titles: display only, must have no mods (GDD §7, §11). */
+  cosmetic: z.boolean().default(false),
+});
+export type TitleDef = z.infer<typeof TitleDef>;
+
+export const TitlesDef = z.object({
+  /** Permanent account bonus by number of titles unlocked (cosmetic ones do not count). Tiers stack. */
+  collection: z.array(z.object({ count: z.number().int().positive(), mods: z.record(z.string(), z.number()) })).default([]),
+  titles: z.array(TitleDef).min(1),
+});
+export type TitlesDef = z.infer<typeof TitlesDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
@@ -485,6 +534,7 @@ export const ContentBundle = z.object({
   meta: MetaDef,
   traits: TraitsDef,
   classes: ClassesDef,
+  titles: TitlesDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

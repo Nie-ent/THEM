@@ -16,6 +16,7 @@ import type { ContentBundle, Grade } from '@them/content';
 import { score as scoreOf, view, type Difficulty, type Run, type ScoreBreakdown } from '@them/core';
 import { REWARDED_RUNS_KEPT, betterGrade, type Profile, type WorldProgress } from './profile';
 import { grantExp, runExpFor } from './progression';
+import { unlockTitles } from './titles';
 
 export interface RunOutcome {
   runId: string;
@@ -25,6 +26,17 @@ export interface RunOutcome {
   score: ScoreBreakdown;
   wavesCleared: number;
   waveCount: number;
+  /** Run facts for achievements (titles). Absent = run conditions that need them do not match. */
+  facts?: RunFacts;
+}
+
+export interface RunFacts {
+  /** Mean fraction of hero max HP lost per wave (the score's hero-damage input), 0..1. */
+  heroDamageFrac: number;
+  /** Core HP left at the end, 0..1. */
+  coreHpFrac: number;
+  /** AI heroes brought into the run. */
+  allies: number;
 }
 
 /** Reads the outcome of an ended run. Throws if the run has not ended. */
@@ -40,6 +52,11 @@ export function outcomeFromRun(run: Run, runId: string): RunOutcome {
     // waveIndex is the 0-based wave in progress (or about to start in prep) = waves fully cleared.
     wavesCleared: v.result === 'win' ? v.waveCount : run.waveIndex,
     waveCount: v.waveCount,
+    facts: {
+      heroDamageFrac: run.wavesScored > 0 ? run.heroDamageFracSum / run.wavesScored : 0,
+      coreHpFrac: Math.max(0, run.w.hp[run.core]!) / run.w.maxHp[run.core]!,
+      allies: run.allies.length,
+    },
   };
 }
 
@@ -76,12 +93,14 @@ export interface ApplyResult {
   applied: boolean;
   /** Global levels gained from this run's EXP. */
   levelsGained: number;
+  /** Titles unlocked by this run (P2-05). */
+  newTitles: string[];
 }
 
 /** Pure: returns a new profile with rewards (currencies, account EXP) and run stats applied. */
 export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: ContentBundle, now: number): ApplyResult {
   const rewards = computeRunRewards(outcome, content, profile.level);
-  if (profile.rewardedRuns.includes(outcome.runId)) return { profile, rewards, applied: false, levelsGained: 0 };
+  if (profile.rewardedRuns.includes(outcome.runId)) return { profile, rewards, applied: false, levelsGained: 0, newTitles: [] };
 
   const leveled = grantExp(profile, content, rewards.exp);
   const p = leveled.profile === profile ? structuredClone(profile) : leveled.profile;
@@ -90,6 +109,8 @@ export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: 
   const won = outcome.result === 'win';
   p.totals.runs++;
   if (won) p.totals.wins++;
+  const k = outcome.score.kills;
+  p.totals.kills += k.normal + k.elite + k.miniboss + k.boss;
   const prev: WorldProgress = p.worlds[outcome.worldId] ?? { cleared: false, runs: 0, wins: 0, bestScore: 0, bestGrade: null };
   p.worlds[outcome.worldId] = {
     cleared: prev.cleared || won,
@@ -101,5 +122,6 @@ export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: 
 
   p.rewardedRuns = [...p.rewardedRuns, outcome.runId].slice(-REWARDED_RUNS_KEPT);
   p.updatedAt = Math.max(p.updatedAt, now);
-  return { profile: p, rewards, applied: true, levelsGained: leveled.levelsGained };
+  const titled = unlockTitles(p, content, outcome);
+  return { profile: titled.profile, rewards, applied: true, levelsGained: leveled.levelsGained, newTitles: titled.unlocked };
 }

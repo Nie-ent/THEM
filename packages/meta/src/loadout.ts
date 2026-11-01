@@ -3,7 +3,7 @@
  *
  * Each meta system contributes modifiers through a `LoadoutContributor`. A new profile (no stats,
  * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
- * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles, P2-06 gear, P2-07 heroes.
+ * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear, P2-07 heroes.
  *
  * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
  * so also raising power would count them twice. How growth meets the limiter is an open balance
@@ -18,6 +18,7 @@ import type { Profile } from './profile';
 import { statsContributor } from './progression';
 import { traitsContributor } from './traits';
 import { classContributor } from './classes';
+import { titlesContributor } from './titles';
 
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
@@ -34,13 +35,17 @@ export interface LoadoutPart {
   unlockCards?: string[];
 }
 
-export type LoadoutContributor = (profile: Profile, content: ContentBundle) => LoadoutPart;
+/** `ranked`: ranked mode (GDD §7: title bonuses off; later, a normalised loadout). */
+export interface LoadoutContext { ranked: boolean }
+
+export type LoadoutContributor = (profile: Profile, content: ContentBundle, ctx?: LoadoutContext) => LoadoutPart;
 
 /** Registered contributors, in a fixed order. Phase 2 tickets append here. */
 export const CONTRIBUTORS: readonly LoadoutContributor[] = [
   statsContributor, // P2-02
   traitsContributor, // P2-03
   classContributor, // P2-04
+  titlesContributor, // P2-05
 ];
 
 export interface BuiltLoadout {
@@ -50,7 +55,12 @@ export interface BuiltLoadout {
   noAllies: boolean;
 }
 
-export function buildLoadout(profile: Profile, content: ContentBundle, contributors: readonly LoadoutContributor[] = CONTRIBUTORS): BuiltLoadout {
+export function buildLoadout(
+  profile: Profile,
+  content: ContentBundle,
+  contributors: readonly LoadoutContributor[] = CONTRIBUTORS,
+  ctx: LoadoutContext = { ranked: false },
+): BuiltLoadout {
   const mods: Partial<Record<keyof Mods, number>> = {};
   const cardParams: Record<string, Record<string, number>> = {};
   const cardWeights: Record<string, number> = {};
@@ -58,7 +68,7 @@ export function buildLoadout(profile: Profile, content: ContentBundle, contribut
   let noAllies = false;
   const unlock = new Set<string>();
   for (const c of contributors) {
-    const part = c(profile, content);
+    const part = c(profile, content, ctx);
     for (const [k, v] of Object.entries(part.mods ?? {}) as [keyof Mods, number][]) {
       mods[k] = (mods[k] ?? 0) + v;
     }
@@ -95,6 +105,8 @@ export interface RunRequest {
   worldId: string;
   difficulty?: Difficulty;
   hardcoreRules?: number;
+  /** Ranked run: title bonuses off (GDD §7). */
+  ranked?: boolean;
 }
 
 /** Everything `createRun` needs from the profile. */
@@ -105,7 +117,7 @@ export function buildRunConfig(
   contributors: readonly LoadoutContributor[] = CONTRIBUTORS,
 ): RunConfig {
   if (!content.worlds.some((w) => w.id === req.worldId)) throw new Error(`buildRunConfig: unknown world "${req.worldId}"`);
-  const { loadout, power, noAllies } = buildLoadout(profile, content, contributors);
+  const { loadout, power, noAllies } = buildLoadout(profile, content, contributors, { ranked: req.ranked ?? false });
   const config: RunConfig = { worldId: req.worldId, allyHeroes: noAllies ? [] : teamFor(profile, content), loadout };
   if (req.difficulty !== undefined) config.difficulty = req.difficulty;
   if (req.hardcoreRules !== undefined) config.hardcoreRules = req.hardcoreRules;

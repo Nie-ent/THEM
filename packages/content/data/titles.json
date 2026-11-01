@@ -1,0 +1,39 @@
+{
+  "collection": [
+    { "count": 3, "mods": { "maxHpMult": 0.02 } },
+    { "count": 6, "mods": { "damageMult": 0.03 } },
+    { "count": 9, "mods": { "speedMult": 0.02, "critChance": 0.01 } }
+  ],
+  "titles": [
+    { "id": "garroth-victor", "nameKey": "title.garroth-victor.name", "descKey": "title.garroth-victor.desc",
+      "condition": { "type": "worldCleared", "worldId": "garroth" },
+      "mods": { "damageMult": 0.03 } },
+    { "id": "unscarred", "nameKey": "title.unscarred.name", "descKey": "title.unscarred.desc",
+      "condition": { "type": "flawlessWin", "maxHeroDamageFrac": 0.05 },
+      "mods": { "speedMult": 0.05 } },
+    { "id": "spotless", "nameKey": "title.spotless.name", "descKey": "title.spotless.desc",
+      "condition": { "type": "runGrade", "grade": "S" },
+      "mods": { "critChance": 0.03 } },
+    { "id": "lone-survivor", "nameKey": "title.lone-survivor.name", "descKey": "title.lone-survivor.desc",
+      "condition": { "type": "soloWin" },
+      "mods": { "damageMult": 0.05 } },
+    { "id": "unbroken-wall", "nameKey": "title.unbroken-wall.name", "descKey": "title.unbroken-wall.desc",
+      "condition": { "type": "coreIntactWin", "minCoreHpFrac": 1 },
+      "mods": { "maxHpMult": 0.05 } },
+    { "id": "hardened", "nameKey": "title.hardened.name", "descKey": "title.hardened.desc",
+      "condition": { "type": "totalRuns", "min": 100 },
+      "mods": { "armorAdd": 0.02 } },
+    { "id": "thousand-fallen", "nameKey": "title.thousand-fallen.name", "descKey": "title.thousand-fallen.desc",
+      "condition": { "type": "totalKills", "min": 10000 },
+      "mods": { "damageMult": 0.04 } },
+    { "id": "no-longer-apprentice", "nameKey": "title.no-longer-apprentice.name", "descKey": "title.no-longer-apprentice.desc",
+      "condition": { "type": "classTier", "min": 1 },
+      "mods": { "xpMult": 0.05 } },
+    { "id": "veteran", "nameKey": "title.veteran.name", "descKey": "title.veteran.desc",
+      "condition": { "type": "globalLevel", "min": 35 },
+      "mods": { "maxHpMult": 0.04 } },
+    { "id": "nightmare-walker", "nameKey": "title.nightmare-walker.name", "descKey": "title.nightmare-walker.desc",
+      "condition": { "type": "worldCleared", "difficulty": "nightmare" },
+      "mods": { "damageMult": 0.06 } }
+  ]
+}

@@ -9,8 +9,9 @@
  * Never edit or remove a shipped migration: players may still hold saves at any old version.
  *
  * v1 (Phase 2, P2-01): first versioned save.
+ * v2 (P2-05): `totals.kills` (lifetime kills, for titles). v1 saves start it at 0.
  */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export interface Migration {
   /** Version the migration reads. It produces version `from + 1`. */
@@ -18,7 +19,19 @@ export interface Migration {
   up(profile: unknown): unknown;
 }
 
-export const MIGRATIONS: readonly Migration[] = [];
+/** Shallow object guard for migrations: never throw on odd data, let the schema reject it. */
+const obj = (v: unknown): Record<string, unknown> => (v !== null && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {});
+
+export const MIGRATIONS: readonly Migration[] = [
+  {
+    from: 1,
+    up(profile) {
+      const p = obj(profile);
+      const totals = obj(p.totals);
+      return { ...p, totals: { ...totals, kills: typeof totals.kills === 'number' ? totals.kills : 0 } };
+    },
+  },
+];
 
 /**
  * Runs `migrations` from `version` up to `target`. Throws if a step is missing or duplicated.

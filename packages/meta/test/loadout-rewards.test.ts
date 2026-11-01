@@ -89,7 +89,7 @@ describe('run rewards (grade reward %)', () => {
     const r = applyRunOutcome(p, outcome({ grade: 'S' }), content, 2_000_000_000_000);
     expect(r.applied).toBe(true);
     expect(r.profile.currencies.gold).toBe(Math.floor(baseGold * 1.2));
-    expect(r.profile.totals).toEqual({ runs: 1, wins: 1 });
+    expect(r.profile.totals).toEqual({ runs: 1, wins: 1, kills: 0 });
     expect(r.profile.worlds[worldId]).toEqual({ cleared: true, runs: 1, wins: 1, bestScore: 1000, bestGrade: 'S' });
     expect(r.profile.updatedAt).toBe(2_000_000_000_000);
     expect(p.currencies.gold).toBe(0);

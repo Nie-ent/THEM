@@ -18,10 +18,12 @@ export {
   type DecodeResult, type CodecOptions, type LoadResult, type SaveService, type KeyValueStore, type KeyValueSaveOptions,
 } from './save';
 export {
-  CONTRIBUTORS, buildLoadout, buildRunConfig, teamFor,
+  CONTRIBUTORS, buildLoadout, buildRunConfig, teamFor, type LoadoutContext,
   type LoadoutPart, type LoadoutContributor, type BuiltLoadout, type RunRequest,
 } from './loadout';
-export { outcomeFromRun, computeRunRewards, applyRunOutcome, type RunOutcome, type RunRewards, type ApplyResult } from './rewards';
+export {
+  outcomeFromRun, computeRunRewards, applyRunOutcome, type RunOutcome, type RunFacts, type RunRewards, type ApplyResult,
+} from './rewards';
 export {
   MetaError, expToNext, runExpFor, grantExp, allocateStats, resetStats, canResetStatsFree, statMods, statsContributor,
   type ExpResult,
@@ -34,3 +36,6 @@ export {
   classDef, classChain, tierLevel, classChangeCost, classBlock, setClass, classLoadout, classContributor, checkClassesContent,
   type ClassBlock,
 } from './classes';
+export {
+  titleEarned, unlockTitles, equipTitle, countedTitles, titleLoadout, titlesContributor, checkTitlesContent,
+} from './titles';

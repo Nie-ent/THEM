@@ -237,6 +237,48 @@
       "desc": "Marshal path. +20% AI hero damage. Unlocks Battle Standard."
     }
   },
+  "title": {
+    "garroth-victor": {
+      "name": "Victor of Garroth",
+      "desc": "Win Garroth Bloodfields. Equipped: +3% damage."
+    },
+    "unscarred": {
+      "name": "The Unscarred",
+      "desc": "Win a world while losing at most 5% of your HP per wave. Equipped: +5% move speed."
+    },
+    "spotless": {
+      "name": "Spotless",
+      "desc": "Win a world with grade S. Equipped: +3% critical chance."
+    },
+    "lone-survivor": {
+      "name": "Lone Survivor",
+      "desc": "Win a world with no AI heroes. Equipped: +5% damage."
+    },
+    "unbroken-wall": {
+      "name": "Unbroken Wall",
+      "desc": "Win a world with the Core at full HP. Equipped: +5% max HP."
+    },
+    "hardened": {
+      "name": "Hardened",
+      "desc": "Play 100 runs. Equipped: +2% armour."
+    },
+    "thousand-fallen": {
+      "name": "Ten Thousand Fallen",
+      "desc": "Defeat 10,000 enemies in total. Equipped: +4% damage."
+    },
+    "no-longer-apprentice": {
+      "name": "No Longer an Apprentice",
+      "desc": "Choose your first class. Equipped: +5% in-stage EXP."
+    },
+    "veteran": {
+      "name": "Veteran",
+      "desc": "Reach Global Level 35. Equipped: +4% max HP."
+    },
+    "nightmare-walker": {
+      "name": "Nightmare Walker",
+      "desc": "Win any world on Nightmare. Equipped: +6% damage."
+    }
+  },
   "enemy": {
     "raider": {
       "name": "Raider",

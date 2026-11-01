@@ -16,7 +16,8 @@ import { STAT_IDS, type Profile, type StatId } from './profile';
 
 export class MetaError extends Error {
   constructor(
-    readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free' | 'unknown-trait' | 'trait-locked' | 'not-enough-items' | 'class-locked',
+    readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free' | 'unknown-trait' | 'trait-locked' | 'not-enough-items' | 'class-locked'
+      | 'unknown-title' | 'title-locked',
     message: string,
   ) {
     super(message);

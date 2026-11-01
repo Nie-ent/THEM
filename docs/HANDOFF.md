@@ -182,7 +182,7 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes`, stacked, not merged to main)
+### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles`, stacked, not merged to main)
 
 | Ticket | Status |
 | --- | --- |
@@ -190,6 +190,7 @@ injectable RNG module so they can move server-side.
 | P2-02 | Engineer done, gates green; awaiting QA. `packages/meta/src/progression.ts`, numbers in `content/data/meta.json` |
 | P2-03 | Engineer + content done, gates green; awaiting QA. `content/data/traits.json` (4 branches, 23 nodes), `packages/meta/src/traits.ts`; core `Loadout.cardParams` / `cardWeights` |
 | P2-04 | Engineer + content done, gates green; awaiting QA. `content/data/classes.json` (4 tier-1, 8 tier-2), 12 exclusive class cards, 12 class trait nodes, `packages/meta/src/classes.ts`; core `CardDef.exclusive` + `Loadout.unlockCards`. QA: `tests/gates/phase1-scope` now counts the shared pool (still 12) |
+| P2-05 | Engineer + content done, gates green; awaiting QA. `content/data/titles.json` (10 titles, 3 collection tiers), `packages/meta/src/titles.ts`. **Save v2** (`totals.kills`): first real migration, tested against a real v1 save in `packages/meta/test/fixtures/save-v1.json` |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
@@ -218,6 +219,15 @@ Classes (P2-04) notes:
 - First pick and promotion are free; other changes cost 1 Class Seal (no source yet, like Rewind Crystals).
 - Exclusive cards must stay at the end of cards.json (gate-checked) so bare runs roll as before.
 - Secret classes (GDD §6) need the story/quest systems; not started.
+
+Titles (P2-05) notes:
+- Conditions are data (`worldCleared`, `runGrade`, `flawlessWin`, `soloWin`, `coreIntactWin`, lifetime runs / wins /
+  kills, Global Level, class tier). Run conditions need `RunOutcome.facts`, filled by `outcomeFromRun`.
+- "The Unscarred" (GDD: beat the world boss without being hit) is approximated as winning with at most 5%
+  hero HP lost per wave; exact "never hit by the boss" needs a per-boss hit counter in core.
+- UI actions that change the profile (class pick, etc.) must call `unlockTitles` afterwards; runs do it already.
+- Ranked: `RunRequest.ranked` turns title bonuses off; the other ranked rules (normalised loadout) come later.
+- Tower / Raid / season / discoverer titles from GDD §7 wait for those modes.
 
 ---
 
