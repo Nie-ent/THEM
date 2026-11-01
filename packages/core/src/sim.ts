@@ -139,12 +139,18 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
       mods: { ...lo?.mods },
       ...(lo?.cardParams ? { cardParams: Object.fromEntries(Object.entries(lo.cardParams).map(([k, v]) => [k, { ...v }])) } : {}),
       ...(lo?.cardWeights ? { cardWeights: { ...lo.cardWeights } } : {}),
+      ...(lo?.unlockCards ? { unlockCards: [...lo.unlockCards].sort() } : {}),
     },
   };
   const known = baseMods();
   for (const [k, v] of Object.entries(full.loadout.mods ?? {})) {
     if (!(k in known)) throw new Error(`createRun: unknown loadout mod "${k}"`);
     if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error(`createRun: loadout mod "${k}" is not a finite number`);
+  }
+  for (const id of full.loadout.unlockCards ?? []) {
+    const c = baseContent.cards.find((x) => x.id === id);
+    if (!c) throw new Error(`createRun: loadout unlocks unknown card "${id}"`);
+    if (!c.exclusive) throw new Error(`createRun: loadout unlocks card "${id}", which is not exclusive`);
   }
   // Card changes from the loadout live in the run's own copy of content.
   const content = patchCards(baseContent, full.loadout);
@@ -439,7 +445,8 @@ function xpToNext(run: Run): number {
 function rollOffer(run: Run): CardOption[] {
   const cards = run.idx.cards;
   const owned = new Map(run.cards.map((c) => [c.id, c.level]));
-  const weights = cards.map((c) => ((owned.get(c.id) ?? 0) >= c.maxLevel ? 0 : c.weight));
+  const unlocked = run.config.loadout.unlockCards;
+  const weights = cards.map((c) => ((owned.get(c.id) ?? 0) >= c.maxLevel || (c.exclusive && !unlocked?.includes(c.id)) ? 0 : c.weight));
   const out: CardOption[] = [];
   for (let n = 0; n < run.balance.cardChoices; n++) {
     const i = run.cardRng.weighted(weights);

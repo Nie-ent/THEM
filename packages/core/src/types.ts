@@ -47,6 +47,8 @@ export interface Loadout {
   cardParams?: Record<string, Record<string, number>>;
   /** Draft weight multipliers per card id (class card pools): 0 removes a card from offers. */
   cardWeights?: Record<string, number>;
+  /** Exclusive (class) card ids this run may be offered. Other exclusive cards are never offered. */
+  unlockCards?: string[];
 }
 
 /** One build command. `cell` = row * cols + col of the build grid. */

@@ -69,7 +69,9 @@ export class Rng {
       r -= weights[i] as number;
       if (r < 0) return i;
     }
-    return weights.length - 1;
+    // Float rounding left r ≥ 0: take the last entry that can be chosen (never a zero-weight one).
+    for (let i = weights.length - 1; i >= 0; i--) if ((weights[i] as number) > 0) return i;
+    return -1;
   }
 
   /** Derive an independent stream (used to give spawns, cards and combat their own streams). */

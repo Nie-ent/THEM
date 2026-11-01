@@ -37,7 +37,8 @@ describe('P1-07 content resolves in the registries', () => {
   });
 
   it('ships 12 cards (at least 4 with a drawback), 4 buildings and 2 AI heroes (1 star and 2 star)', () => {
-    expect(content.cards).toHaveLength(12);
+    // Shared pool; class cards (P2-04, exclusive) are offered only with a class.
+    expect(content.cards.filter((c) => !c.exclusive)).toHaveLength(12);
     expect(content.cards.filter((c) => c.drawbackKey).length).toBeGreaterThanOrEqual(4);
     expect(content.buildings.map((b) => b.id).sort()).toEqual(['archer-tower-wood', 'fire-pit-trap', 'stone-wall', 'wood-wall']);
     expect(content.heroes.map((h) => h.stars).sort()).toEqual([1, 2]);
