@@ -182,7 +182,11 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles` → `P2-06-gear` → `P2-07-heroes`, stacked, not merged to main)
+### Phase 2 progress (all 11 tickets built; stacked branches ending at `laborer/P2-10-camp`, not merged to main)
+
+Branch chain: `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles` →
+`P2-06-gear` → `P2-07-heroes` → `engineer/P2-08-gacha` → `qa/P2-11-gates` → `designer/P2-09-specs` → `laborer/P2-10-camp`.
+The last branch contains everything. Game version `0.2.0-dev` until QA and the Designer sign off.
 
 | Ticket | Status |
 | --- | --- |
@@ -193,6 +197,10 @@ injectable RNG module so they can move server-side.
 | P2-05 | Engineer + content done, gates green; awaiting QA. `content/data/titles.json` (10 titles, 3 collection tiers), `packages/meta/src/titles.ts`. **Save v2** (`totals.kills`): first real migration, tested against a real v1 save in `packages/meta/test/fixtures/save-v1.json` |
 | P2-06 | Engineer + content done, gates green; awaiting QA. `content/data/gear.json` (3 slots, 8 items, 1 set, enhancement steps), `packages/meta/src/gear.ts`; worlds pay enhancement stones (`rewardItems`) |
 | P2-07 | Engineer + content done, gates green; awaiting QA. `content/data/hero-growth.json`, `packages/meta/src/heroes.ts`; core `Loadout.allyMods`. **Save v3** (`heroes.owned[].limitBreaks`), tested on a real v2 save (`fixtures/save-v2.json`) |
+| P2-08 | Engineer + content done, gates green; awaiting QA. `content/data/gacha.json`, `packages/meta/src/gacha.ts`; 3 placeholder gacha heroes (Tova 3★, Garrick 4★, Seraphine 5★) with `defaultTeam: false` |
+| P2-09 | Spec written: `docs/design/screens/camp.md` (one Camp screen, six tabs, results rewards). **Designer review pending** |
+| P2-10 | Built: `apps/game/src/ui/camp/*`, menu Camp button, results rewards. e2e `tests/e2e/camp.spec.ts`; screenshots `docs/design/screenshots/P2-10/` (all tabs, both viewports, th + en). **Designer review pending** |
+| P2-11 | Gate `tests/gates/phase2-sims.test.ts`, report `docs/qa/phase2-sims.md` (finding QA-P2-11-001: effective 4★ share 14.4%; the Summon tab shows listed and real shares) |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
