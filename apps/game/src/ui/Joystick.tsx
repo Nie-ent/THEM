@@ -1,8 +1,12 @@
 /**
  * Floating virtual joystick (readability §9): appears where the thumb lands in the lower 45% of
  * the screen, base 128 px, knob 56 px, dead zone 12%. Touch only; mouse uses the keyboard.
+ *
+ * The zone sits over the stage, so it only takes pointer events while the player is using touch.
+ * Otherwise it is click-through: with a mouse it would swallow every click in the lower 45% of the
+ * screen, e.g. placing a building below the Core on desktop.
  */
-import { useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { tokens } from '@them/ui-tokens';
 import { JOYSTICK_SIZES, useSettings } from './settings';
 import type { InputState } from '../game/input';
@@ -14,8 +18,32 @@ const DEAD = 0.12;
 const TAP_MOVE = 10;
 const TAP_MS = 400;
 
+/**
+ * True while touch is the active input: from the start on touch-first devices (no hover), then
+ * switched by the type of each press, so a touch laptop works with both finger and mouse.
+ */
+function useTouchInput(): boolean {
+  const [touch, setTouch] = useState(() => {
+    try {
+      return window.matchMedia('(hover: none)').matches;
+    } catch {
+      return false;
+    }
+  });
+  useEffect(() => {
+    const onDown = (e: globalThis.PointerEvent) => {
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') setTouch(true);
+      else if (e.pointerType === 'mouse') setTouch(false);
+    };
+    window.addEventListener('pointerdown', onDown, true);
+    return () => window.removeEventListener('pointerdown', onDown, true);
+  }, []);
+  return touch;
+}
+
 export function Joystick({ input, enabled, onTap }: { input: InputState; enabled: boolean; onTap?: (x: number, y: number) => void }) {
   const settings = useSettings();
+  const touch = useTouchInput();
   const BASE = JOYSTICK_SIZES[settings.joystickSize];
   const tapStart = useRef<{ id: number; x: number; y: number; t: number } | null>(null);
   const [stick, setStick] = useState<{ x: number; y: number; kx: number; ky: number } | null>(null);
@@ -64,7 +92,7 @@ export function Joystick({ input, enabled, onTap }: { input: InputState; enabled
     <div
       data-testid="joystick-zone"
       className={`absolute bottom-0 h-[45%] touch-none ${settings.joystickSide === 'left' ? 'left-0 w-1/2' : settings.joystickSide === 'right' ? 'right-0 w-1/2' : 'inset-x-0'}`}
-      style={{ zIndex: tokens.z.joystick, pointerEvents: enabled ? 'auto' : 'none' }}
+      style={{ zIndex: tokens.z.joystick, pointerEvents: enabled && touch ? 'auto' : 'none' }}
       onPointerDown={down}
       onPointerMove={move}
       onPointerUp={up}
