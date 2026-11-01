@@ -42,6 +42,9 @@
     "burnDps": 12,
     "burnSeconds": 6
   },
+  "rewards": {
+    "gold": 100
+  },
   "waves": [
     {
       "kind": "normal",

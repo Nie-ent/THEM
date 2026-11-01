@@ -1,0 +1,14 @@
+{
+  "currencies": [
+    { "id": "gold", "nameKey": "currency.gold.name" }
+  ],
+  "maxTeamSize": 4,
+  "startingProfile": {
+    "currencies": { "gold": 0 },
+    "heroes": ["mira", "brann"],
+    "team": ["mira", "brann"]
+  },
+  "runRewards": {
+    "lossScalesByWavesCleared": true
+  }
+}

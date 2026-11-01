@@ -279,6 +279,11 @@ export const WorldDef = z.object({
     burnSeconds: z.number().nonnegative().default(0),
   }).default({ burnDps: 0, burnSeconds: 0 }),
   waves: z.array(WaveDef).min(1),
+  /**
+   * Base rewards for clearing the world at 100% (grade A). Scaled by the grade's `rewardPct`
+   * (`@them/meta`). Keys are currency ids from `meta.currencies`.
+   */
+  rewards: z.record(Id, z.number().int().nonnegative()).default({}),
 });
 export type WorldDef = z.infer<typeof WorldDef>;
 
@@ -322,10 +327,41 @@ export const BalanceDef = z.object({
 export type BalanceDef = z.infer<typeof BalanceDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* Meta progression (Phase 2, `@them/meta`)                                                   */
+/* ------------------------------------------------------------------------------------------ */
+
+export const CurrencyDef = z.object({ id: Id, nameKey: I18nKey });
+export type CurrencyDef = z.infer<typeof CurrencyDef>;
+
+export const MetaDef = z.object({
+  /** Currencies the profile tracks. Premium currency is added here when the owner decides. */
+  currencies: z.array(CurrencyDef).min(1),
+  /** Max AI heroes brought into a run. */
+  maxTeamSize: z.number().int().positive(),
+  /** What a brand-new profile starts with. */
+  startingProfile: z.object({
+    currencies: z.record(Id, z.number().int().nonnegative()).default({}),
+    /** Hero ids owned from the start (content `heroes[].id`), each at its content star rating. */
+    heroes: z.array(Id).default([]),
+    /** Hero ids brought into runs; must be owned. */
+    team: z.array(Id).default([]),
+  }),
+  runRewards: z.object({
+    /**
+     * GDD §3: a lost run still pays part of the reward by waves cleared. When true, a loss pays
+     * `rewardPct` (always the lowest band) × wavesCleared / waveCount.
+     */
+    lossScalesByWavesCleared: z.boolean(),
+  }),
+});
+export type MetaDef = z.infer<typeof MetaDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
   balance: BalanceDef,
+  meta: MetaDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

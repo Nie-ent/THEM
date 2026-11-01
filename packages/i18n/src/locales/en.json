@@ -12,6 +12,11 @@
       "intro": "This field once held grain. Now it holds only smoke and the sound of drums."
     }
   },
+  "currency": {
+    "gold": {
+      "name": "Gold"
+    }
+  },
   "enemy": {
     "raider": {
       "name": "Raider",
