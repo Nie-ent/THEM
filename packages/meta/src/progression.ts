@@ -19,7 +19,7 @@ export class MetaError extends Error {
     readonly code: 'not-enough-points' | 'bad-amount' | 'respec-not-free' | 'unknown-trait' | 'trait-locked' | 'not-enough-items' | 'class-locked'
       | 'unknown-title' | 'title-locked' | 'unknown-gear' | 'max-enhance'
       | 'unknown-hero' | 'unknown-item' | 'hero-capped' | 'hero-not-capped'
-      | 'unknown-banner',
+      | 'unknown-banner' | 'team-full',
     message: string,
   ) {
     super(message);

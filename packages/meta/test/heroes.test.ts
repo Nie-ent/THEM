@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { content } from '@them/content';
 import { createRun } from '@them/core';
 import {
-  checkHeroGrowthContent, heroExpToNext, heroGrowth, heroLevelCap, heroLoadout, limitBreakHero, starUpHero, useExpBooks,
+  checkHeroGrowthContent, heroExpToNext, heroGrowth, heroLevelCap, heroLoadout, limitBreakHero, starUpHero, toggleTeamHero, useExpBooks,
 } from '../src/heroes';
 import { buildRunConfig } from '../src/loadout';
 import { SAVE_VERSION } from '../src/migrations';
@@ -93,6 +93,19 @@ describe('stars and limit breaks', () => {
     p = limitBreakHero(p, content, 'brann');
     p = withHero(p, 'brann', { level: 30 });
     expect(() => limitBreakHero(p, content, 'brann')).toThrow(/no limit break left/);
+  });
+});
+
+describe('team', () => {
+  it('toggles heroes in and out, respecting the team size', () => {
+    let p = freshProfile();
+    p = toggleTeamHero(p, content, 'mira');
+    expect(p.heroes.team).toEqual(['brann']);
+    p = toggleTeamHero(p, content, 'mira');
+    expect(p.heroes.team).toEqual(['brann', 'mira']);
+    const full = { ...p, heroes: { ...p.heroes, team: ['a', 'b', 'c', 'd'] } };
+    expect(() => toggleTeamHero(full, content, 'mira')).toThrow(/team already has/);
+    expect(() => toggleTeamHero(p, content, 'ghost')).toThrow(/not owned/);
   });
 });
 

@@ -105,6 +105,19 @@ export function limitBreakHero(profile: Profile, content: ContentBundle, heroId:
   return p;
 }
 
+/** Add an owned hero to the team (end of the order) or take it out. Throws when the team is full. */
+export function toggleTeamHero(profile: Profile, content: ContentBundle, heroId: string): Profile {
+  instance(profile, heroId);
+  const p = structuredClone(profile);
+  if (p.heroes.team.includes(heroId)) {
+    p.heroes.team = p.heroes.team.filter((id) => id !== heroId);
+    return p;
+  }
+  if (p.heroes.team.length >= content.meta.maxTeamSize) throw new MetaError('team-full', `toggleTeamHero: team already has ${content.meta.maxTeamSize}`);
+  p.heroes.team.push(heroId);
+  return p;
+}
+
 /** Growth fractions for one hero (level, stars). `ranked`: level normalised to rankedLevel. */
 export function heroGrowth(content: ContentBundle, h: HeroInstance, ranked = false): { hpMult: number; damageMult: number } {
   const g = content.heroGrowth;

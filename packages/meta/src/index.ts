@@ -44,7 +44,7 @@ export {
   checkGearContent, type EnhanceInfo, type EnhanceOutcome,
 } from './gear';
 export {
-  heroExpToNext, heroLevelCap, useExpBooks, starUpHero, limitBreakHero, heroGrowth, heroLoadout, heroesContributor,
+  heroExpToNext, heroLevelCap, useExpBooks, toggleTeamHero, starUpHero, limitBreakHero, heroGrowth, heroLoadout, heroesContributor,
   checkHeroGrowthContent,
 } from './heroes';
 export {
