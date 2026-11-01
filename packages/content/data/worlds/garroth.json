@@ -45,6 +45,9 @@
   "rewards": {
     "gold": 100
   },
+  "rewardItems": {
+    "enhance-stone": 3
+  },
   "waves": [
     {
       "kind": "normal",

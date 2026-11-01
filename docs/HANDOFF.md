@@ -182,7 +182,7 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles`, stacked, not merged to main)
+### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles` → `P2-06-gear`, stacked, not merged to main)
 
 | Ticket | Status |
 | --- | --- |
@@ -191,6 +191,7 @@ injectable RNG module so they can move server-side.
 | P2-03 | Engineer + content done, gates green; awaiting QA. `content/data/traits.json` (4 branches, 23 nodes), `packages/meta/src/traits.ts`; core `Loadout.cardParams` / `cardWeights` |
 | P2-04 | Engineer + content done, gates green; awaiting QA. `content/data/classes.json` (4 tier-1, 8 tier-2), 12 exclusive class cards, 12 class trait nodes, `packages/meta/src/classes.ts`; core `CardDef.exclusive` + `Loadout.unlockCards`. QA: `tests/gates/phase1-scope` now counts the shared pool (still 12) |
 | P2-05 | Engineer + content done, gates green; awaiting QA. `content/data/titles.json` (10 titles, 3 collection tiers), `packages/meta/src/titles.ts`. **Save v2** (`totals.kills`): first real migration, tested against a real v1 save in `packages/meta/test/fixtures/save-v1.json` |
+| P2-06 | Engineer + content done, gates green; awaiting QA. `content/data/gear.json` (3 slots, 8 items, 1 set, enhancement steps), `packages/meta/src/gear.ts`; worlds pay enhancement stones (`rewardItems`) |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
@@ -228,6 +229,16 @@ Titles (P2-05) notes:
 - UI actions that change the profile (class pick, etc.) must call `unlockTitles` afterwards; runs do it already.
 - Ranked: `RunRequest.ranked` turns title bonuses off; the other ranked rules (normalised loadout) come later.
 - Tower / Raid / season / discoverer titles from GDD §7 wait for those modes.
+
+Gear (P2-06) notes:
+- Enhancement follows GDD §12 exactly: +10 → +15 expects 40.3 attempts without scrolls and 14.5 with (tests
+  check both the exact value and a seeded simulation of `enhanceGear`). Stone and gold costs per step are
+  placeholders in `gear.json`.
+- New profiles wear a +0 Worn Blade and Padded Vest (no base mods, so they play like Phase 1). Profiles
+  created before P2-06 keep empty slots.
+- Only enhancement stones have a source (3 per Garroth clear at grade A). Gear drops, the wandering
+  merchant, and protection scrolls (with the 5-per-week paid limit) come with those systems.
+- Weapon styles (sword arc, bow, spell burst) are still the Phase 1 bolt; gear only changes numbers.
 
 ---
 

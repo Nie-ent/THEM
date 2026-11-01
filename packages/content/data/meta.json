@@ -27,7 +27,9 @@
   "runExp": { "base": 50, "perLevel": 20 },
   "items": [
     { "id": "time-crystal", "nameKey": "item.time-crystal.name" },
-    { "id": "class-seal", "nameKey": "item.class-seal.name" }
+    { "id": "class-seal", "nameKey": "item.class-seal.name" },
+    { "id": "enhance-stone", "nameKey": "item.enhance-stone.name" },
+    { "id": "protection-scroll", "nameKey": "item.protection-scroll.name" }
   ],
   "stats": {
     "strength": { "damageMult": 0.01 },

@@ -117,8 +117,11 @@ describe('equipping and bonuses', () => {
     expect(l.mods).toEqual({ damageMult: 0.08, maxHpMult: 0.02 });
     const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
     expect(run.mods.damageMult).toBeCloseTo(1.08, 9);
+    // Ranked: no title bonus at all (gear is normalised separately, so compare with a title-less profile).
     const ranked = buildRunConfig(p, content, { worldId, ranked: true });
-    expect(ranked.loadout).toEqual({ mods: {} });
+    const plain = buildRunConfig({ ...p, titles: { unlocked: [], equipped: null } }, content, { worldId, ranked: true });
+    expect(ranked.loadout).toEqual(plain.loadout);
+    expect(titleLoadout(p, content, true)).toEqual({ mods: {} });
   });
 });
 

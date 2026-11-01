@@ -3,7 +3,7 @@
  *
  * Each meta system contributes modifiers through a `LoadoutContributor`. A new profile (no stats,
  * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
- * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear, P2-07 heroes.
+ * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear (done), P2-07 heroes.
  *
  * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
  * so also raising power would count them twice. How growth meets the limiter is an open balance
@@ -19,6 +19,7 @@ import { statsContributor } from './progression';
 import { traitsContributor } from './traits';
 import { classContributor } from './classes';
 import { titlesContributor } from './titles';
+import { gearContributor } from './gear';
 
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
@@ -46,6 +47,7 @@ export const CONTRIBUTORS: readonly LoadoutContributor[] = [
   traitsContributor, // P2-03
   classContributor, // P2-04
   titlesContributor, // P2-05
+  gearContributor, // P2-06
 ];
 
 export interface BuiltLoadout {

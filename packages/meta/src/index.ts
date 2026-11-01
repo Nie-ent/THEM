@@ -39,3 +39,7 @@ export {
 export {
   titleEarned, unlockTitles, equipTitle, countedTitles, titleLoadout, titlesContributor, checkTitlesContent,
 } from './titles';
+export {
+  gearDef, grantGear, equipGear, unequipSlot, enhanceInfo, enhanceGear, gearLoadout, gearContributor, withStartingGear,
+  checkGearContent, type EnhanceInfo, type EnhanceOutcome,
+} from './gear';

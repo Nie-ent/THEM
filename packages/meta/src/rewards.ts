@@ -65,6 +65,8 @@ export interface RunRewards {
   factor: number;
   grade: Grade;
   currencies: Record<string, number>;
+  /** Items (e.g. enhancement stones, P2-06), scaled like currencies. */
+  items: Record<string, number>;
   /** Account EXP (P2-02). */
   exp: number;
 }
@@ -83,7 +85,9 @@ export function computeRunRewards(outcome: RunOutcome, content: ContentBundle, l
     // Round the factor product to 1e-9 first so 100 × 0.6 does not floor to 59 on float error.
     currencies[id] = Math.floor(Math.round(world.rewards[id]! * factor * 1e9) / 1e9);
   }
-  return { factor, grade: outcome.score.grade, currencies, exp: runExpFor(content, level, factor) };
+  const items: Record<string, number> = {};
+  for (const id of Object.keys(world.rewardItems).sort()) items[id] = Math.floor(Math.round(world.rewardItems[id]! * factor * 1e9) / 1e9);
+  return { factor, grade: outcome.score.grade, currencies, items, exp: runExpFor(content, level, factor) };
 }
 
 export interface ApplyResult {
@@ -105,6 +109,7 @@ export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: 
   const leveled = grantExp(profile, content, rewards.exp);
   const p = leveled.profile === profile ? structuredClone(profile) : leveled.profile;
   for (const [id, amount] of Object.entries(rewards.currencies)) p.currencies[id] = (p.currencies[id] ?? 0) + amount;
+  for (const [id, amount] of Object.entries(rewards.items)) if (amount > 0) p.items[id] = (p.items[id] ?? 0) + amount;
 
   const won = outcome.result === 'win';
   p.totals.runs++;

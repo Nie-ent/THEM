@@ -1,0 +1,57 @@
+{
+  "slots": [
+    { "id": "weapon", "nameKey": "gear.slot.weapon" },
+    { "id": "armor", "nameKey": "gear.slot.armor" },
+    { "id": "accessory", "nameKey": "gear.slot.accessory" }
+  ],
+  "starting": ["worn-blade", "padded-vest"],
+  "items": [
+    { "id": "worn-blade", "slot": "weapon", "rarity": "common", "nameKey": "gear.item.worn-blade.name", "descKey": "gear.item.worn-blade.desc",
+      "mods": {}, "perEnhance": { "damageMult": 0.02 } },
+    { "id": "hunter-bow", "slot": "weapon", "rarity": "rare", "nameKey": "gear.item.hunter-bow.name", "descKey": "gear.item.hunter-bow.desc",
+      "mods": { "rangeMult": 0.1, "critChance": 0.03 }, "perEnhance": { "damageMult": 0.01, "critChance": 0.004 } },
+    { "id": "ember-staff", "slot": "weapon", "rarity": "rare", "nameKey": "gear.item.ember-staff.name", "descKey": "gear.item.ember-staff.desc",
+      "mods": { "cooldownMult": -0.05 }, "perEnhance": { "damageMult": 0.01, "cooldownMult": -0.005 } },
+    { "id": "warlord-axe", "slot": "weapon", "rarity": "epic", "set": "garroth-warlord", "nameKey": "gear.item.warlord-axe.name", "descKey": "gear.item.warlord-axe.desc",
+      "mods": { "damageMult": 0.1 }, "perEnhance": { "damageMult": 0.02 } },
+    { "id": "padded-vest", "slot": "armor", "rarity": "common", "nameKey": "gear.item.padded-vest.name", "descKey": "gear.item.padded-vest.desc",
+      "mods": {}, "perEnhance": { "maxHpMult": 0.02 } },
+    { "id": "warlord-plate", "slot": "armor", "rarity": "epic", "set": "garroth-warlord", "nameKey": "gear.item.warlord-plate.name", "descKey": "gear.item.warlord-plate.desc",
+      "mods": { "maxHpMult": 0.1, "armorAdd": 0.03 }, "perEnhance": { "maxHpMult": 0.015, "armorAdd": 0.003 } },
+    { "id": "traveler-charm", "slot": "accessory", "rarity": "common", "nameKey": "gear.item.traveler-charm.name", "descKey": "gear.item.traveler-charm.desc",
+      "mods": { "pickupRadiusMult": 0.2 }, "perEnhance": { "xpMult": 0.005 } },
+    { "id": "warlord-signet", "slot": "accessory", "rarity": "epic", "set": "garroth-warlord", "nameKey": "gear.item.warlord-signet.name", "descKey": "gear.item.warlord-signet.desc",
+      "mods": { "damageMult": 0.05 }, "perEnhance": { "damageMult": 0.01 } }
+  ],
+  "sets": [
+    { "id": "garroth-warlord", "nameKey": "gear.set.garroth-warlord.name", "descKey": "gear.set.garroth-warlord.desc",
+      "bonuses": [
+        { "pieces": 2, "mods": { "damageMult": 0.05 } },
+        { "pieces": 3, "mods": { "maxHpMult": 0.1, "armorAdd": 0.03 } }
+      ] }
+  ],
+  "enhance": {
+    "maxLevel": 15,
+    "stoneItemId": "enhance-stone",
+    "protectItemId": "protection-scroll",
+    "goldCurrency": "gold",
+    "rankedLevel": 10,
+    "steps": [
+      { "chance": 1, "dropChance": 0, "stones": 1, "gold": 50 },
+      { "chance": 1, "dropChance": 0, "stones": 1, "gold": 60 },
+      { "chance": 1, "dropChance": 0, "stones": 1, "gold": 70 },
+      { "chance": 1, "dropChance": 0, "stones": 2, "gold": 85 },
+      { "chance": 1, "dropChance": 0, "stones": 2, "gold": 100 },
+      { "chance": 1, "dropChance": 0, "stones": 2, "gold": 120 },
+      { "chance": 1, "dropChance": 0, "stones": 3, "gold": 140 },
+      { "chance": 1, "dropChance": 0, "stones": 3, "gold": 165 },
+      { "chance": 1, "dropChance": 0, "stones": 3, "gold": 190 },
+      { "chance": 1, "dropChance": 0, "stones": 4, "gold": 220 },
+      { "chance": 0.6, "dropChance": 0, "stones": 5, "gold": 300 },
+      { "chance": 0.5, "dropChance": 0.5, "stones": 6, "gold": 400 },
+      { "chance": 0.4, "dropChance": 0.5, "stones": 7, "gold": 500 },
+      { "chance": 0.3, "dropChance": 0.5, "stones": 8, "gold": 650 },
+      { "chance": 0.2, "dropChance": 0.5, "stones": 10, "gold": 800 }
+    ]
+  }
+}

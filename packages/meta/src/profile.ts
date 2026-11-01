@@ -11,6 +11,7 @@ import type { ContentBundle, Grade } from '@them/content';
 import { createRun } from '@them/core';
 import { z } from 'zod';
 import { checkClassesContent } from './classes';
+import { checkGearContent, withStartingGear } from './gear';
 import { checkTitlesContent } from './titles';
 import { checkTraitsContent } from './traits';
 import { rollId, type MetaEnv } from './env';
@@ -102,7 +103,7 @@ export const Profile = z.object({
 });
 export type Profile = z.infer<typeof Profile>;
 
-/** A fresh profile from content `meta.startingProfile`. */
+/** A fresh profile from content `meta.startingProfile`, wearing the starting gear (`gear.starting`). */
 export function newProfile(content: ContentBundle, env: MetaEnv): Profile {
   const start = content.meta.startingProfile;
   const t = env.now();
@@ -113,7 +114,7 @@ export function newProfile(content: ContentBundle, env: MetaEnv): Profile {
     if (!def) throw new Error(`newProfile: unknown starting hero "${heroId}"`);
     return { heroId, stars: def.stars, level: 1, exp: 0 };
   });
-  return {
+  const base: Profile = {
     id: rollId(env.rolls),
     createdAt: t,
     updatedAt: t,
@@ -133,6 +134,7 @@ export function newProfile(content: ContentBundle, env: MetaEnv): Profile {
     totals: { runs: 0, wins: 0, kills: 0 },
     rewardedRuns: [],
   };
+  return withStartingGear(base, content, env.rolls);
 }
 
 /** Grade order, best first. */
@@ -173,6 +175,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   out.push(...checkTraitsContent(content));
   out.push(...checkClassesContent(content));
   out.push(...checkTitlesContent(content));
+  out.push(...checkGearContent(content));
   // Stat and trait mod keys must be core Mods keys, and trait card params must exist on their
   // cards: createRun rejects both (cheap, one run per source).
   const trial = (what: string, mods: Iterable<string>, cardParams: Record<string, Record<string, number>> = {}) => {
@@ -189,5 +192,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   for (const c of content.classes.classes) trial(`classes.${c.id}`, Object.keys(c.mods));
   for (const t of content.titles.titles) trial(`titles.${t.id}`, Object.keys(t.mods));
   content.titles.collection.forEach((tier, i) => trial(`titles.collection[${i}]`, Object.keys(tier.mods)));
+  for (const g of content.gear.items) trial(`gear.${g.id}`, [...Object.keys(g.mods), ...Object.keys(g.perEnhance)]);
+  for (const s of content.gear.sets) s.bonuses.forEach((b, i) => trial(`gear.sets.${s.id}[${i}]`, Object.keys(b.mods)));
   return out;
 }

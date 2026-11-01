@@ -23,6 +23,12 @@
     },
     "class-seal": {
       "name": "Class Seal"
+    },
+    "enhance-stone": {
+      "name": "Empowering Stone"
+    },
+    "protection-scroll": {
+      "name": "Protection Scroll"
     }
   },
   "trait": {
@@ -277,6 +283,53 @@
     "nightmare-walker": {
       "name": "Nightmare Walker",
       "desc": "Win any world on Nightmare. Equipped: +6% damage."
+    }
+  },
+  "gear": {
+    "slot": {
+      "weapon": "Weapon",
+      "armor": "Armour",
+      "accessory": "Accessory"
+    },
+    "item": {
+      "worn-blade": {
+        "name": "Worn Blade",
+        "desc": "A tired old sword. +2% damage per enhancement level."
+      },
+      "hunter-bow": {
+        "name": "Hunter's Bow",
+        "desc": "+10% range, +3% critical chance. Grows in damage and critical chance."
+      },
+      "ember-staff": {
+        "name": "Ember Staff",
+        "desc": "5% shorter cooldown. Grows in damage and cooldown."
+      },
+      "warlord-axe": {
+        "name": "Warlord's Axe",
+        "desc": "Garroth Warlord set. +10% damage, +2% per enhancement level."
+      },
+      "padded-vest": {
+        "name": "Padded Vest",
+        "desc": "Quilted cloth. +2% max HP per enhancement level."
+      },
+      "warlord-plate": {
+        "name": "Warlord's Plate",
+        "desc": "Garroth Warlord set. +10% max HP, +3% armour."
+      },
+      "traveler-charm": {
+        "name": "Traveller's Charm",
+        "desc": "+20% pickup radius. +0.5% in-stage EXP per enhancement level."
+      },
+      "warlord-signet": {
+        "name": "Warlord's Signet",
+        "desc": "Garroth Warlord set. +5% damage, +1% per enhancement level."
+      }
+    },
+    "set": {
+      "garroth-warlord": {
+        "name": "Garroth Warlord",
+        "desc": "2 pieces: +5% damage. 3 pieces: +10% max HP and +3% armour."
+      }
     }
   },
   "enemy": {

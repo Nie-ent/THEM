@@ -289,6 +289,8 @@ export const WorldDef = z.object({
    * (`@them/meta`). Keys are currency ids from `meta.currencies`.
    */
   rewards: z.record(Id, z.number().int().nonnegative()).default({}),
+  /** Base item rewards (ids from `meta.items`, e.g. enhancement stones), scaled like `rewards`. */
+  rewardItems: z.record(Id, z.number().int().nonnegative()).default({}),
 });
 export type WorldDef = z.infer<typeof WorldDef>;
 
@@ -527,6 +529,56 @@ export const TitlesDef = z.object({
 export type TitlesDef = z.infer<typeof TitlesDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* Equipment and enhancement (GDD §4, §8, §12; P2-06)                                          */
+/* ------------------------------------------------------------------------------------------ */
+
+export const GearItemDef = z.object({
+  id: Id,
+  slot: Id,
+  rarity: z.enum(['common', 'rare', 'epic', 'legendary']),
+  /** Armour/weapon set id (GDD §4 "ชุดเกราะมีเซ็ตโบนัส"). */
+  set: Id.optional(),
+  nameKey: I18nKey,
+  descKey: I18nKey,
+  /** Run mods at +0 (stat-mods convention). */
+  mods: z.record(z.string(), z.number()).default({}),
+  /** Added per enhancement level (+1 … +15). */
+  perEnhance: z.record(z.string(), z.number()).default({}),
+});
+export type GearItemDef = z.infer<typeof GearItemDef>;
+
+export const GearDef = z.object({
+  slots: z.array(z.object({ id: Id, nameKey: I18nKey })).min(1),
+  /** Item ids a new profile owns and wears. */
+  starting: z.array(Id).default([]),
+  items: z.array(GearItemDef).min(1),
+  sets: z.array(z.object({
+    id: Id, nameKey: I18nKey, descKey: I18nKey,
+    /** Bonuses by number of set pieces worn; tiers stack. */
+    bonuses: z.array(z.object({ pieces: z.number().int().min(2), mods: z.record(z.string(), z.number()) })).min(1),
+  })).default([]),
+  enhance: z.object({
+    maxLevel: z.number().int().positive(),
+    stoneItemId: Id,
+    protectItemId: Id,
+    goldCurrency: Id,
+    /** GDD §8: ranked treats every item as this enhancement level. */
+    rankedLevel: z.number().int().nonnegative(),
+    /**
+     * One entry per attempt from +L to +L+1 (index L): success chance, chance to drop one level on a
+     * failure (prevented by a protection scroll), and the stones + gold each attempt costs.
+     */
+    steps: z.array(z.object({
+      chance: z.number().gt(0).max(1),
+      dropChance: z.number().min(0).max(1),
+      stones: z.number().int().nonnegative(),
+      gold: z.number().int().nonnegative(),
+    })),
+  }),
+});
+export type GearDef = z.infer<typeof GearDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
@@ -535,6 +587,7 @@ export const ContentBundle = z.object({
   traits: TraitsDef,
   classes: ClassesDef,
   titles: TitlesDef,
+  gear: GearDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),
