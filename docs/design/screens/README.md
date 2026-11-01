@@ -8,6 +8,7 @@
 | [prep.md](prep.md) | P1-08 | Prep phase: timer, wave intel, build menu, call wave early |
 | [pause-settings.md](pause-settings.md) | P1-08 | Pause and settings |
 | [results.md](results.md) | P1-08 | Results: score breakdown by GDD §12 multipliers, grade |
+| [camp.md](camp.md) | P2-09 | Camp: character / stats / class, traits, gear + enhance, heroes, summon, titles; results rewards |
 
 Flow: menu → run start → prep ⇄ wave (card draft interrupts a wave on level-up) → results → menu.
 Pause can open from prep, wave and card draft.
