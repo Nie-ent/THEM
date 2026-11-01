@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { content, type Grade } from '@them/content';
 import type { ScoreBreakdown } from '@them/core';
+import { profileStore, useProfile } from '../game/profile';
 import type { GameSession } from '../game/session';
 import { useHud } from '../game/store';
 import { BlotIcon, Button, PenIcon, Wrap, mmss, useDesktop, useFmt } from './kit';
@@ -59,6 +60,8 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
   const [skipped, setSkipped] = useState(false);
   const [open, setOpen] = useState(false);
   const newBest = useMemo(() => (final ? isNewBest(final) : false), [final]);
+  useProfile(); // re-render when the run is recorded
+  const lastRun = profileStore.lastRun;
 
   // Any key or tap skips the reveal.
   useEffect(() => {
@@ -142,6 +145,25 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
       <p className="flex items-start gap-2 font-hand text-xl leading-display text-annotation"><PenIcon size={18} /><span>“<Wrap text={t(win ? 'ui.results.quote' : 'ui.results.quoteDefeat')} />”</span></p>
     </div>
   );
+  // Rewards of this run (P2-10, camp.md "Results screen addition"): from the profile store.
+  const rewards = lastRun && lastRun.applied ? (
+    <section data-testid="results-rewards" className="flex flex-col gap-1 border-t border-border pt-3">
+      <h2 className="text-md font-semibold">{t('ui.results.rewards')}</h2>
+      <ul className="flex flex-col gap-0.5 text-md tabular-nums">
+        {Object.entries(lastRun.rewards.currencies).filter(([, n]) => n > 0).map(([id, n]) => (
+          <li key={id} className="text-reward">{t('ui.results.rewardItem', { n: int(n), name: t(content.meta.currencies.find((c) => c.id === id)?.nameKey ?? id) })}</li>
+        ))}
+        <li>{t('ui.results.rewardExp', { n: int(lastRun.rewards.exp) })}</li>
+        {lastRun.levelsGained > 0 && <li className="font-semibold text-reward">{t('ui.results.levelUp', { level: int(profileStore.profile?.level ?? 0) })}</li>}
+        {Object.entries(lastRun.rewards.items).filter(([, n]) => n > 0).map(([id, n]) => (
+          <li key={id}>{t('ui.results.rewardItem', { n: int(n), name: t(content.meta.items.find((i) => i.id === id)?.nameKey ?? id) })}</li>
+        ))}
+        {lastRun.newTitles.map((id) => (
+          <li key={id} className="font-semibold text-reward"><Wrap text={t('ui.results.newTitle', { name: t(content.titles.titles.find((x) => x.id === id)?.nameKey ?? id) })} /></li>
+        ))}
+      </ul>
+    </section>
+  ) : null;
   const scoreBadge = newBest && <span data-testid="results-new-best" className="rounded-sm border border-reward px-2 text-sm text-reward">{t('ui.results.newBest')}</span>;
   const actions = (
     <>
@@ -163,7 +185,7 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
           <div className="them-scroll-y min-w-0 flex-1 pl-16 pr-8 pt-10">
             {heading}
             <div className="mt-6 flex items-start gap-8">
-              <div className="w-140 shrink-0">{lines}{scoreBadge && <div className="pt-1">{scoreBadge}</div>}</div>
+              <div className="flex w-140 shrink-0 flex-col gap-3">{lines}{scoreBadge && <div className="pt-1">{scoreBadge}</div>}{rewards}</div>
               {stamp('h-50 w-50 text-6xl')}
             </div>
             <div className="flex items-center gap-4 py-6">{actions}</div>
@@ -182,6 +204,7 @@ export function ResultsScreen({ session, onMenu }: { session: GameSession; onMen
             </p>
             {lines}
             {scoreBadge && <div>{scoreBadge}</div>}
+            {rewards}
           </div>
           <div className="flex shrink-0 flex-col gap-2 border-t border-border bg-surface p-3 pb-[max(var(--them-space-3),env(safe-area-inset-bottom))]">{actions}</div>
         </div>

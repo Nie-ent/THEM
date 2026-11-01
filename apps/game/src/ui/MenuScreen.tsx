@@ -5,12 +5,14 @@ import pkg from '../../package.json' with { type: 'json' };
 import { BlotIcon, Button, Segmented, Wrap, useDesktop, useFmt } from './kit';
 import { applyLocale } from './lang';
 import { readBest } from './ResultsScreen';
+import { profileStore, useProfile } from '../game/profile';
 
-export function MenuScreen({ onStart, onSettings }: { onStart: () => void; onSettings: () => void }) {
+export function MenuScreen({ onStart, onSettings, onCamp }: { onStart: () => void; onSettings: () => void; onCamp: () => void }) {
   const { t } = useTranslation();
   const { int } = useFmt();
   const desktop = useDesktop();
   const best = readBest();
+  const profile = useProfile();
 
   const toggle = (
     <Segmented<Locale>
@@ -38,6 +40,9 @@ export function MenuScreen({ onStart, onSettings }: { onStart: () => void; onSet
   const actions = (
     <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
       <Button data-testid="menu-start" variant="primary" autoFocus className="min-h-14 md:min-h-12 md:min-w-50" onClick={onStart}>{t('ui.menu.start')}</Button>
+      <Button data-testid="menu-camp" className="min-h-12 md:min-w-40" disabled={!profile} title={profileStore.loadStatus === 'newer' ? t('ui.camp.newerSave') : undefined} onClick={onCamp}>
+        {profile ? t('ui.menu.camp', { level: int(profile.level) }) : t('ui.menu.campOff')}
+      </Button>
       <Button data-testid="menu-settings" variant="text" className="min-h-12" onClick={onSettings}>{t('ui.menu.settings')}</Button>
     </div>
   );

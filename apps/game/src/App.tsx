@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import { i18n } from '@them/i18n';
 import { GameSession } from './game/session';
+import { CampScreen } from './ui/camp/CampScreen';
 import { GameScreen } from './ui/GameScreen';
 import { MenuScreen } from './ui/MenuScreen';
 import { SettingsPage } from './ui/PauseScreen';
@@ -16,6 +17,7 @@ function initialSeed(): number {
 export function App() {
   const [session, setSession] = useState<GameSession | null>(null);
   const [settings, setSettings] = useState(false);
+  const [camp, setCamp] = useState(false);
 
   return (
     <I18nextProvider i18n={i18n}>
@@ -24,8 +26,10 @@ export function App() {
           <GameScreen session={session} onQuit={() => setSession(null)} />
         ) : settings ? (
           <SettingsPage onBack={() => setSettings(false)} />
+        ) : camp ? (
+          <CampScreen onBack={() => setCamp(false)} />
         ) : (
-          <MenuScreen onStart={() => setSession(new GameSession(initialSeed()))} onSettings={() => setSettings(true)} />
+          <MenuScreen onStart={() => setSession(new GameSession(initialSeed()))} onSettings={() => setSettings(true)} onCamp={() => setCamp(true)} />
         )}
       </div>
     </I18nextProvider>
