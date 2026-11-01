@@ -66,6 +66,8 @@ packages/core       Pure TS simulation. No DOM/Phaser/Math.random/Date. 30 Hz fi
   src/effects/        Content behaviours by id: cards/ buildings/ personalities/ bosses/ enemies/
   src/effects/README.md   ← the recipe for adding content; follow it exactly
 packages/content    JSON data + zod schemas (src/schema.ts). All balance numbers live here.
+packages/meta       Phase 2 meta progression (pure TS): profile, versioned save + SaveService, loadout → createRun,
+                    run rewards → profile. App side: apps/game/src/game/profile.ts
 packages/i18n       i18next; locales/th.json + en.json; wrap.ts = Thai line breaking (Intl.Segmenter)
 packages/ui-tokens  Design tokens (TS + generated CSS vars `--them-*`). Designer-owned.
 apps/game

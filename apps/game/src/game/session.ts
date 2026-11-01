@@ -10,6 +10,7 @@ import {
 } from '@them/core';
 import { EventBridge } from './bridge';
 import { InputState, type Command } from './input';
+import { profileStore } from './profile';
 import { HUD_HZ, HudStore } from './store';
 
 const MAX_STEPS_PER_FRAME = 5;
@@ -25,6 +26,8 @@ export class GameSession {
   private hudAcc = 0;
   private coreThreatT = 0;
   seed: number;
+  /** Id of the current run (seed + start time). */
+  runId = '';
   /** Set by the stage scene: screen pixels → world position. */
   screenToWorld: ((x: number, y: number) => { x: number; y: number }) | null = null;
   /** Set by a React screen that wants stage taps (mobile build slot, hero placement). */
@@ -34,19 +37,25 @@ export class GameSession {
 
   constructor(seed: number) {
     this.seed = seed;
-    this.run = createRun({ worldId: content.worlds[0]!.id }, content, seed);
+    this.run = this.newRun(seed);
     this.flushEvents();
     this.publishHud(true);
   }
 
   restart(seed = this.seed + 1): void {
     this.seed = seed;
-    this.run = createRun({ worldId: content.worlds[0]!.id }, content, seed);
+    this.run = this.newRun(seed);
     this.input.clear();
     this.acc = 0;
     this.flushEvents();
     this.hud.set({ final: null, selectedBuilding: null, bossLine: null });
     this.publishHud(true);
+  }
+
+  /** Each run gets an id so its rewards are paid exactly once. Config comes from the profile (P2-01). */
+  private newRun(seed: number): Run {
+    this.runId = `${seed}-${Date.now()}`;
+    return createRun(profileStore.runConfig(content.worlds[0]!.id), content, seed);
   }
 
   command(cmd: Command): void {
@@ -103,7 +112,10 @@ export class GameSession {
         default:
           break;
       }
-      if (ev.type === 'runEnd') this.hud.set({ final: ev.score });
+      if (ev.type === 'runEnd') {
+        profileStore.recordRun(this.run, this.runId);
+        this.hud.set({ final: ev.score });
+      }
       if (ev.type === 'bossLine') {
         this.hud.set({ bossLine: { key: ev.key, bossId: ev.bossId, moment: ev.moment, seq: (this.hud.get().bossLine?.seq ?? 0) + 1 } });
       }

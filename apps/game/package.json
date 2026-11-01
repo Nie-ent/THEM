@@ -13,6 +13,7 @@
     "@them/content": "workspace:*",
     "@them/core": "workspace:*",
     "@them/i18n": "workspace:*",
+    "@them/meta": "workspace:*",
     "@them/ui-tokens": "workspace:*",
     "phaser": "4.2.1",
     "react": "19.3.1",
