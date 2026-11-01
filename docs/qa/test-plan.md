@@ -150,3 +150,28 @@ Final pass on `main` @ 0eecddf, 2026-11-01 (first pass @ 479b63d is in git histo
 | Determinism green | **PASS** | core + QA determinism gates |
 | Planner ≈50 %, no-build loses, loss C at best | **PASS** | `balance-latest.md`: 23/50 (46 %), 0/50, 0 losses above C |
 | QA + designer sign-off recorded | **PARTIAL** | QA: this table. Designer: P1-08 PASS; P1-09 row in `docs/design/review.md` still empty |
+
+
+## Phase 2 QA sign-off (`origin/phase-2` @ c4f201f, 2026-11-01)
+
+New QA tooling: `pnpm balance:progression` (`tests/balance/progression.ts`, `profiles.ts` → `docs/qa/balance-progression.md`),
+`tests/gates/save-safety.test.ts`, loadout replay in `tests/gates/determinism.test.ts`, `tests/e2e/save-safety.spec.ts`.
+
+| Ticket | QA status | Evidence | Notes |
+| --- | --- | --- | --- |
+| P2-01 meta, save, loadout, rewards | PASS with findings | save-safety gate + e2e, loadout determinism gate | QA-P2-003, 004, 005 |
+| P2-02 levels, stats | PASS with finding | EXP table = 20·L^2.2; pacing 46/978/2,236 runs | no paid stat reset (QA-P2-002); balance QA-P2-001 |
+| P2-03 traits, respec | PASS with finding | data vs GDD §5 keystones; respec costs | crystals have no source (QA-P2-002) |
+| P2-04 classes | PASS | 4 + 8 at Lv 10 / 35; class cards via `unlockCards` | class weapons not built (known) |
+| P2-05 titles | PASS | 10 titles, collection tiers, ranked off | "Unscarred" approximation (known) |
+| P2-06 gear, enhancement | PASS with finding | exact 40.31 / 14.50 | only starter gear obtainable, no scrolls (QA-P2-002) |
+| P2-07 heroes | PASS with finding | caps 20…60, limit breaks | essence only on A/S wins (QA-P2-003) |
+| P2-08 gacha | PASS | 2 M pulls vs rates and pity; `effectiveRates` within 0.03 pt, shown as the main column | |
+| P2-09 specs | not QA's (designer review pending) | | |
+| P2-10 Camp screens | PASS (QA functional) | `camp.spec.ts` green both viewports; save-safety e2e | designer review pending |
+| P2-11 QA gates | PASS | `phase2-sims.test.ts` green; independent checks agree | |
+
+**Merge recommendation: merge into `main` as `0.2.0-dev`. No P0. Every gate and e2e is green and saves are safe.
+Before Phase 2 is called done: the owner must decide QA-P2-001 (how growth meets the difficulty limiter),
+because it changes the meaning of every balance number, and the designer must review P2-09/P2-10.
+QA-P2-002…005 are P2 and can be scheduled after the merge.**
