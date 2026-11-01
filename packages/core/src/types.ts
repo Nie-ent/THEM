@@ -4,6 +4,7 @@ import type {
 import type { Params } from '@them/content';
 import type { Kind, PickupType } from './constants';
 import type { BossScript, BuildingBehavior, CardEffect, EnemyBehavior, Personality } from './registry';
+import type { LimiterResult } from './power';
 import type { Rng } from './rng';
 import type { SpatialHash } from './spatial';
 import type { World } from './world';
@@ -19,7 +20,11 @@ export interface RunConfig {
   difficulty?: Difficulty;
   /** Number of hardcore modifiers active (+0.1 difficulty multiplier each, GDD §12). */
   hardcoreRules?: number;
-  /** Player power. Defaults to the world's recommended power. Fed through the difficulty limiter. */
+  /**
+   * Explicit player power, for bare runs only (tests, tools). Normally omitted: core derives power
+   * from the loadout (src/power.ts). Passing it together with a loadout that has modifiers throws,
+   * so power is never counted twice.
+   */
   power?: number;
   /** AI hero ids brought into the run (content `heroes[].id`). */
   allyHeroes?: string[];
@@ -341,6 +346,8 @@ export interface Run {
   cardState: Record<string, number>;
   /** Hero / structure damage multiplier from the difficulty limiter. */
   powerMult: number;
+  /** Difficulty limiter outcome (power from the loadout, recommended power, loadout scale). */
+  limiter: LimiterResult;
 
   bosses: BossRuntime[];
   telegraphs: Telegraph[];

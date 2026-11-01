@@ -6,7 +6,7 @@ import {
   MetaError, allocateStats, expToNext, grantExp, resetStats, runExpFor, statMods,
 } from '../src/progression';
 import { applyRunOutcome, type RunOutcome } from '../src/rewards';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const g = content.meta.globalLevel;
 const worldId = content.worlds[0]!.id;
@@ -107,7 +107,7 @@ describe('stats', () => {
 
   it('flows through the loadout into the run (vitality → hero max HP)', () => {
     const p = allocateStats(leveled(), { vitality: 5 });
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     const want = content.balance.playerHero.hp * (1 + content.meta.stats.vitality.maxHpMult! * 5);
     expect(run.w.maxHp[run.hero]).toBeCloseTo(want, 6);
   });

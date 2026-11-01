@@ -40,19 +40,20 @@ describe('loadout → createRun', () => {
     expect(stateHash(b)).toBe(stateHash(a));
   });
 
-  it('sums contributions per key and per power, and core applies them', () => {
-    const c1: LoadoutContributor = () => ({ mods: { damageMult: 0.1, armorAdd: 1 }, power: 40 });
-    const c2: LoadoutContributor = () => ({ mods: { damageMult: 0.05, maxHpMult: 0.2 }, power: 60 });
+  it('sums contributions per key, never sets power, and core applies them (through the limiter)', () => {
+    const c1: LoadoutContributor = () => ({ mods: { damageMult: 0.1, armorAdd: 1 } });
+    const c2: LoadoutContributor = () => ({ mods: { damageMult: 0.05, maxHpMult: 0.2 } });
     const p = freshProfile();
     const built = buildLoadout(p, content, [c1, c2]);
     expect(built.loadout.mods!.damageMult).toBeCloseTo(0.15, 12);
     expect(built.loadout.mods!.armorAdd).toBe(1);
-    expect(built.power).toBe(100);
     const cfg = buildRunConfig(p, content, { worldId, difficulty: 'hard' }, [c1, c2]);
-    expect(cfg).toMatchObject({ worldId, difficulty: 'hard', power: 100 });
+    expect(cfg).toMatchObject({ worldId, difficulty: 'hard' });
+    expect(cfg.power).toBeUndefined();
     const run = createRun(cfg, content, 1);
-    expect(run.mods.damageMult).toBeCloseTo(1.15, 12);
-    expect(run.w.maxHp[run.hero]).toBeCloseTo(content.balance.playerHero.hp * 1.2, 9);
+    const s = run.limiter.scale;
+    expect(run.mods.damageMult).toBeCloseTo(1 + 0.15 * s, 12);
+    expect(run.w.maxHp[run.hero]).toBeCloseTo(content.balance.playerHero.hp * (1 + 0.2 * s), 9);
   });
 
   it('team: only owned, known heroes, no duplicates, capped at maxTeamSize', () => {

@@ -9,3 +9,5 @@ export { cardEffects, buildingBehaviors, personalities, bossScripts, enemyBehavi
 export type { CardEffect, BuildingBehavior, Personality, BossScript, EnemyBehavior } from './registry';
 export type { Ctx } from './ctx';
 export { num, str, bool } from './params';
+export { BASE_POWER, heroBaseStrength, limitLoadout, loadoutPower, loadoutMods, teamStrength } from './power';
+export type { LimiterResult, PowerBase } from './power';

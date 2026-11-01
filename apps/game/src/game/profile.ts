@@ -5,7 +5,11 @@
  *
  * Failure policy (never block play):
  * - no save → a new profile is created and saved;
- * - corrupt save → the raw text is kept under `them.save.corrupt`, then a new profile replaces it;
+ * - corrupt save → the raw text is copied to `them.save.corrupt`, then a new profile replaces it;
+ *   if that backup could not be written (or the load itself failed), the original is NEVER
+ *   overwritten: play continues with a fresh in-memory profile (`saveBlocked`), and every later save
+ *   first retries the backup (a re-load). Writing resumes once the backup exists, the slot turns out
+ *   empty, or the player explicitly chooses to discard the old save (`discardOldSave()`) (QA-P2-004);
  * - save from a newer build → play runs without a profile (Phase 1 config) and nothing is written;
  * - storage unavailable → the profile lives in memory for the session.
  */
@@ -46,6 +50,13 @@ type ActResult<T> = Profile | ({ profile: Profile } & T);
 export class ProfileStore {
   profile: Profile | null = null;
   loadStatus: LoadResult['status'] | 'loading' = 'loading';
+  /** Where the unreadable save was copied (status `corrupt`); null if that copy failed. */
+  backupKey: string | null = null;
+  /**
+   * True while the stored save must not be overwritten: it is unreadable and no backup of it exists
+   * yet (or loading failed outright). The profile then lives in memory only.
+   */
+  saveBlocked = false;
   /** The last recorded run (rewards, levels gained, new titles) for the results screen. */
   lastRun: ApplyResult | null = null;
   /** Titles unlocked by the last Camp action (shown once by the Camp). */
@@ -82,9 +93,13 @@ export class ProfileStore {
     try {
       r = await this.saves.load();
     } catch {
-      r = { status: 'corrupt', reason: 'load threw', backupKey: null };
+      r = { status: 'corrupt', reason: 'load threw', backupKey: null }; // → saveBlocked
     }
     this.loadStatus = r.status;
+    if (r.status === 'corrupt') {
+      this.backupKey = r.backupKey;
+      this.saveBlocked = r.backupKey === null;
+    }
     if (r.status !== 'newer') {
       this.profile = r.status === 'ok' ? r.profile : newProfile(content, this.env);
       if (r.status !== 'ok' || r.migratedFrom !== null) await this.persist();
@@ -138,8 +153,39 @@ export class ProfileStore {
     this.notify();
   }
 
+  /** The player explicitly accepts losing the unreadable save: allow writing over it. */
+  async discardOldSave(): Promise<void> {
+    this.saveBlocked = false;
+    await this.persist();
+    this.notify();
+  }
+
+  /**
+   * Retry backing up the blocked save by loading again (the save service copies an unreadable save
+   * to its backup key on load). Unblocks only when overwriting is now safe: the backup exists or the
+   * slot is empty. A readable or newer save stays protected.
+   */
+  private async retryBackup(): Promise<boolean> {
+    try {
+      const r = await this.saves.load();
+      if (r.status === 'empty') return true;
+      if (r.status === 'corrupt' && r.backupKey !== null) {
+        this.backupKey = r.backupKey;
+        return true;
+      }
+    } catch {
+      /* still failing */
+    }
+    return false;
+  }
+
   private async persist(): Promise<void> {
     if (!this.profile) return;
+    if (this.saveBlocked) {
+      if (!(await this.retryBackup())) return;
+      this.saveBlocked = false;
+      this.notify();
+    }
     try {
       await this.saves.save(this.profile);
     } catch {
@@ -151,7 +197,7 @@ export class ProfileStore {
 export const profileStore = new ProfileStore(new KeyValueSaveService(browserStore(), { now: () => Date.now() }));
 
 // Read-only debug hook for e2e and owner testing (same spirit as window.__them).
-(window as unknown as { __themProfile?: ProfileStore }).__themProfile = profileStore;
+if (typeof window !== 'undefined') (window as unknown as { __themProfile?: ProfileStore }).__themProfile = profileStore;
 
 /** Re-render on any profile change; returns the current profile (null while loading / newer save). */
 export function useProfile(): Profile | null {

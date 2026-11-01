@@ -5,12 +5,12 @@
  * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
  * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear (done), P2-07 heroes (done).
  *
- * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
- * so also raising power would count them twice. How growth meets the limiter is an open balance
- * decision (see docs/HANDOFF.md).
+ * Player power is not a meta number: core derives it from this loadout (packages/core/src/power.ts)
+ * and applies the world's difficulty limiter by scaling the loadout above recommended power
+ * (GDD §3). Meta never sets `RunConfig.power`, so growth is counted exactly once.
  *
  * Stacking: within the loadout every contribution to the same key is **summed** (so two +10%
- * damage sources make +20%, applied once by core as ×1.2). Power contributions are summed too.
+ * damage sources make +20%, applied once by core as ×1.2).
  */
 import type { ContentBundle } from '@them/content';
 import type { Difficulty, Loadout, Mods, RunConfig } from '@them/core';
@@ -28,8 +28,6 @@ export { teamFor };
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
   mods?: Partial<Record<keyof Mods, number>>;
-  /** Player power for the difficulty limiter (GDD §3). */
-  power?: number;
   /** Card param deltas (summed per card and param). */
   cardParams?: Record<string, Record<string, number>>;
   /** Card draft weight multipliers (multiplied together). */
@@ -59,8 +57,6 @@ export const CONTRIBUTORS: readonly LoadoutContributor[] = [
 
 export interface BuiltLoadout {
   loadout: Loadout;
-  /** Undefined when no contributor sets power: core then uses the world's recommended power. */
-  power: number | undefined;
   noAllies: boolean;
 }
 
@@ -73,7 +69,6 @@ export function buildLoadout(
   const mods: Partial<Record<keyof Mods, number>> = {};
   const cardParams: Record<string, Record<string, number>> = {};
   const cardWeights: Record<string, number> = {};
-  let power: number | undefined;
   let noAllies = false;
   const unlock = new Set<string>();
   const allyMods: Record<string, { hpMult?: number; damageMult?: number }> = {};
@@ -87,7 +82,6 @@ export function buildLoadout(
       for (const [k, v] of Object.entries(params)) t[k] = (t[k] ?? 0) + v;
     }
     for (const [card, m] of Object.entries(part.cardWeights ?? {})) cardWeights[card] = (cardWeights[card] ?? 1) * m;
-    if (part.power !== undefined) power = (power ?? 0) + part.power;
     if (part.noAllies) noAllies = true;
     for (const id of part.unlockCards ?? []) unlock.add(id);
     for (const [hero, m] of Object.entries(part.allyMods ?? {})) {
@@ -102,7 +96,7 @@ export function buildLoadout(
   if (Object.keys(cardWeights).length > 0) loadout.cardWeights = cardWeights;
   if (unlock.size > 0) loadout.unlockCards = [...unlock].sort();
   if (Object.keys(allyMods).length > 0) loadout.allyMods = allyMods;
-  return { loadout, power, noAllies };
+  return { loadout, noAllies };
 }
 
 export interface RunRequest {
@@ -121,10 +115,9 @@ export function buildRunConfig(
   contributors: readonly LoadoutContributor[] = CONTRIBUTORS,
 ): RunConfig {
   if (!content.worlds.some((w) => w.id === req.worldId)) throw new Error(`buildRunConfig: unknown world "${req.worldId}"`);
-  const { loadout, power, noAllies } = buildLoadout(profile, content, contributors, { ranked: req.ranked ?? false });
+  const { loadout, noAllies } = buildLoadout(profile, content, contributors, { ranked: req.ranked ?? false });
   const config: RunConfig = { worldId: req.worldId, allyHeroes: noAllies ? [] : teamFor(profile, content), loadout };
   if (req.difficulty !== undefined) config.difficulty = req.difficulty;
   if (req.hardcoreRules !== undefined) config.hardcoreRules = req.hardcoreRules;
-  if (power !== undefined) config.power = power;
   return config;
 }

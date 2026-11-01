@@ -18,9 +18,10 @@ import { str } from './params';
 import { bossScripts, buildingBehaviors, cardEffects, enemyBehaviors, personalities } from './registry';
 import { Rng } from './rng';
 import { computeScore, powerMultiplier } from './scoring';
+import { heroBaseStrength, limitLoadout, loadoutMods, type LimiterResult } from './power';
 import { SpatialHash } from './spatial';
 import {
-  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Loadout, type Mods, type Resolved,
+  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Loadout, type Resolved,
   type Run, type RunConfig, type ScoreBreakdown, type SpawnEntry, type Telegraph, type TelegraphSpec, type WaveIntel,
 } from './types';
 import { World } from './world';
@@ -92,8 +93,9 @@ function setWeapon(w: World, e: number, wp: ContentBundle['balance']['playerHero
  * Apply the loadout's card changes to a copy of the card list (content itself is never mutated):
  * `cardParams` adds to numeric params (every entry of a per-level table), `cardWeights` multiplies
  * the draft weight. Keys are applied in sorted order. Throws on unknown cards / non-numeric params.
+ * `scale` is the difficulty limiter's loadout scale (src/power.ts): param deltas shrink with it.
  */
-function patchCards(content: ContentBundle, lo: Loadout): ContentBundle {
+function patchCards(content: ContentBundle, lo: Loadout, scale: number): ContentBundle {
   const cp = lo.cardParams ?? {}, cw = lo.cardWeights ?? {};
   if (Object.keys(cp).length === 0 && Object.keys(cw).length === 0) return content;
   const cards = content.cards.map((c) => ({ ...c, params: { ...c.params } }));
@@ -109,7 +111,7 @@ function patchCards(content: ContentBundle, lo: Loadout): ContentBundle {
   for (const id of Object.keys(cp).sort()) {
     const c = find(id);
     for (const key of Object.keys(cp[id]!).sort()) {
-      const d = finite(cp[id]![key], `loadout cardParams.${id}.${key}`);
+      const d = finite(cp[id]![key], `loadout cardParams.${id}.${key}`) * scale;
       const v = c.params[key];
       if (typeof v === 'number') c.params[key] = v + d;
       else if (Array.isArray(v)) c.params[key] = v.map((x) => x + d);
@@ -133,7 +135,7 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     worldId: config.worldId,
     difficulty: config.difficulty ?? 'normal',
     hardcoreRules: config.hardcoreRules ?? 0,
-    power: config.power ?? worldDef.recommendedPower,
+    power: config.power ?? 0, // replaced below by the derived power
     allyHeroes: config.allyHeroes ?? baseContent.heroes.filter((h) => h.defaultTeam).map((h) => h.id),
     loadout: {
       mods: { ...lo?.mods },
@@ -160,8 +162,36 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     if (!c) throw new Error(`createRun: loadout unlocks unknown card "${id}"`);
     if (!c.exclusive) throw new Error(`createRun: loadout unlocks card "${id}", which is not exclusive`);
   }
+  // Difficulty limiter (src/power.ts): power comes from the loadout unless explicitly given for a
+  // bare run. Above recommended the loadout's effects are scaled down; powerMult only serves the
+  // explicit bare-run path, so the two never stack.
+  const hasEffects = Object.values(full.loadout.mods ?? {}).some((v) => v !== 0) || Object.keys(full.loadout.allyMods ?? {}).length > 0;
+  if (config.power !== undefined && hasEffects) throw new Error('createRun: pass either `power` or a loadout with modifiers, not both');
+  const cap = baseContent.balance.difficultyLimiter.cap;
+  const recommended = worldDef.recommendedPower;
+  let limiter: LimiterResult;
+  let powerMult = 1;
+  if (config.power !== undefined) {
+    if (!Number.isFinite(config.power) || config.power < 0) throw new Error('createRun: power must be a finite number >= 0');
+    const active = config.power > recommended;
+    powerMult = active ? powerMultiplier(config.power, recommended, cap) : 1;
+    limiter = { power: config.power, recommended, effectivePower: active ? recommended * powerMult : config.power, scale: 1, allyFactor: 1, active };
+  } else {
+    const ph = baseContent.balance.playerHero;
+    const strength = (id: string) => {
+      const h = baseContent.heroes.find((x) => x.id === id);
+      return h ? heroBaseStrength(h.hp, h.weapon) : 0;
+    };
+    const referenceTeam = baseContent.heroes.filter((h) => h.defaultTeam).reduce((a, h) => a + heroBaseStrength(h.hp, h.weapon), 0);
+    const referenceCount = baseContent.heroes.filter((h) => h.defaultTeam).length;
+    limiter = limitLoadout(full.loadout, {
+      heroHp: ph.hp, heroArmor: ph.armor, referenceTeam, referenceCount,
+      allies: full.allyHeroes.map((id) => ({ id, base: strength(id) })),
+    }, recommended, cap);
+  }
+  full.power = limiter.power;
   // Card changes from the loadout live in the run's own copy of content.
-  const content = patchCards(baseContent, full.loadout);
+  const content = patchCards(baseContent, full.loadout, limiter.scale);
   const idx = indexContent(content);
   const res = resolve(content, idx);
   for (const h of full.allyHeroes) if (!idx.heroIdx.has(h)) throw new Error(`createRun: unknown ally hero "${h}"`);
@@ -182,7 +212,7 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     grid: undefined as unknown as BuildGrid,
     level: 1, xp: 0, pendingLevels: 0, draft: null, rerollsLeft: content.balance.rerollsPerRun,
     cards: [], mods: baseMods(), cardState: {},
-    powerMult: powerMultiplier(full.power, worldDef.recommendedPower, content.balance.difficultyLimiter.cap),
+    powerMult, limiter,
     bosses: [], telegraphs: [], nextTelegraphId: 1,
     kills: { normal: 0, elite: 0, miniboss: 0, boss: 0 }, bossKilled: false,
     heroDamageThisWave: 0, heroDamageFracSum: 0, wavesScored: 0,
@@ -225,9 +255,11 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     w.speed[a] = d.speed;
     // Per-hero growth from meta (hero level and stars, P2-07): fractions on base HP and weapon damage.
     const am = full.loadout.allyMods?.[id];
-    w.hp[a] = w.maxHp[a] = d.hp * (1 + (am?.hpMult ?? 0));
+    // Difficulty limiter: one factor on the whole AI team's strength (src/power.ts).
+    const af = limiter.allyFactor;
+    w.hp[a] = w.maxHp[a] = d.hp * (1 + (am?.hpMult ?? 0)) * af;
     setWeapon(w, a, d.weapon);
-    w.wDamage[a] *= 1 + (am?.damageMult ?? 0);
+    w.wDamage[a] *= (1 + (am?.damageMult ?? 0)) * af;
     run.allies.push(a);
     run.allyDefs.push(di);
   });
@@ -418,17 +450,8 @@ function spawnPickup(run: Run, type: PickupType, x: number, y: number, value: nu
 /* ------------------------------------------------------------------------------------------ */
 
 export function applyMods(run: Run): void {
-  const m = baseMods();
-  // Meta loadout first (sorted keys: order-independent of how the profile built the object), then cards.
-  const lm = run.config.loadout.mods;
-  if (lm) {
-    for (const key of Object.keys(lm).sort()) {
-      const k = key as keyof Mods;
-      const v = lm[k]!;
-      if (key.endsWith('Mult')) m[k] *= 1 + v;
-      else m[k] += v;
-    }
-  }
+  // Meta loadout first (sorted keys; scaled by the difficulty limiter), then cards.
+  const m = loadoutMods(run.config.loadout, run.limiter.scale);
   for (const c of run.cards) {
     const ci = run.idx.cardIdx.get(c.id)!;
     const eff = run.res.cardEffects[ci];

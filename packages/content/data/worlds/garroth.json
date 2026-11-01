@@ -33,7 +33,7 @@
   },
   "prepSeconds": 25,
   "standardTimeSeconds": 1500,
-  "recommendedPower": 1000,
+  "recommendedPower": 100,
   "startingResources": {
     "wood": 20,
     "stone": 10

@@ -9,7 +9,7 @@ import { buildRunConfig } from '../src/loadout';
 import { checkMetaContent, type Profile } from '../src/profile';
 import { MetaError } from '../src/progression';
 import { computeRunRewards, type RunOutcome } from '../src/rewards';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const G = content.gear;
 const E = G.enhance;
@@ -150,7 +150,7 @@ describe('gear in the run', () => {
     expect(gearLoadout(p, content).mods).toEqual({ damageMult: 0.3 });
     p = withItem('warlord-plate', 0, p).p;
     expect(gearLoadout(p, content).mods).toEqual({ damageMult: 0.3, maxHpMult: 0.2, armorAdd: 0.06 });
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     expect(run.mods.damageMult).toBeCloseTo(1.3, 9);
   });
 

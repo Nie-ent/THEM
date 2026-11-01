@@ -98,6 +98,16 @@ export interface RunView {
   readonly grid: Readonly<BuildGrid>;
   readonly telegraphs: readonly Readonly<Telegraph>[];
   readonly bosses: readonly { readonly e: number; readonly bossId: string; readonly phase: number; readonly enraged: boolean; readonly stance: string }[];
+  /**
+   * Difficulty limiter (GDD §3, src/power.ts). `power`: from the loadout (bare = 100);
+   * `effectivePower`: after the limiter; `limiterActive`: power is above `recommendedPower` and the
+   * loadout is scaled by `loadoutScale`.
+   */
+  readonly power: number;
+  readonly recommendedPower: number;
+  readonly effectivePower: number;
+  readonly limiterActive: boolean;
+  readonly loadoutScale: number;
 }
 
 /** Snapshot of run state for the renderer/HUD. Cheap: typed arrays are shared, not copied. */
@@ -133,6 +143,11 @@ export function view(run: Run): RunView {
     grid: run.grid,
     telegraphs: run.telegraphs,
     bosses: run.bosses.map((b) => ({ e: b.e, bossId: run.idx.bosses[b.def]!.id, phase: b.phase, enraged: b.enraged, stance: b.stance })),
+    power: run.limiter.power,
+    recommendedPower: run.limiter.recommended,
+    effectivePower: run.limiter.effectivePower,
+    limiterActive: run.limiter.active,
+    loadoutScale: run.limiter.scale,
   };
 }
 
@@ -160,6 +175,7 @@ export function stateHash(run: Run): string {
   const mixS = (s: string) => { for (let i = 0; i < s.length; i++) mixU(s.charCodeAt(i)); mixU(0xff); };
   const w = run.w;
   mixU(run.tick); mixU(run.activeTicks); mixS(run.phase); mixU(run.waveIndex); mixF(run.prepTimer); mixF(run.waveTime);
+  mixF(run.limiter.scale); mixF(run.limiter.allyFactor); mixF(run.powerMult);
   mixU(run.spawnCursor); mixU(run.waveAlive); mixF(run.wood); mixF(run.stone); mixU(run.level); mixF(run.xp);
   mixU(run.pendingLevels); mixU(run.rerollsLeft); mixU(run.paused ? 1 : 0); mixF(run.heroDamageThisWave);
   mixF(run.heroDamageFracSum); mixU(run.kills.normal); mixU(run.kills.elite); mixU(run.kills.miniboss); mixU(run.kills.boss);

@@ -22,7 +22,7 @@ export {
   type LoadoutPart, type LoadoutContributor, type BuiltLoadout, type RunRequest,
 } from './loadout';
 export {
-  outcomeFromRun, computeRunRewards, applyRunOutcome, type RunOutcome, type RunFacts, type RunRewards, type ApplyResult,
+  outcomeFromRun, computeRunRewards, applyRunOutcome, stochasticRound, rewardRoll, type RunOutcome, type RunFacts, type RunRewards, type ApplyResult,
 } from './rewards';
 export {
   MetaError, expToNext, runExpFor, grantExp, allocateStats, resetStats, canResetStatsFree, statMods, statsContributor,

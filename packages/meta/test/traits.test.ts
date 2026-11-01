@@ -7,7 +7,7 @@ import { MetaError, grantExp } from '../src/progression';
 import {
   allocateTrait, checkTraitsContent, keystonesTaken, pointsInBranch, resetTraits, traitBlock, traitLoadout, traitResetCost,
 } from '../src/traits';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const worldId = content.worlds[0]!.id;
 const T = content.traits;
@@ -103,7 +103,7 @@ describe('traits in the run', () => {
   it('minor + keystone mods reach core', () => {
     let p = withPoints(20);
     p = take(p, ...times('ar-focus', 5), ...times('ar-insight', 3), ...times('ar-kindling', 2), 'ar-glass-cannon');
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     expect(run.mods.damageMult).toBeCloseTo(1.8, 9);
     expect(run.mods.cooldownMult).toBeCloseTo(0.9, 9);
     expect(run.w.maxHp[run.hero]).toBeCloseTo(content.balance.playerHero.hp * 0.5, 6);
@@ -112,7 +112,7 @@ describe('traits in the run', () => {
   it('card nodes change the card in the run (Ember Mastery: radius and damage per rank)', () => {
     let p = withPoints(20);
     p = take(p, ...times('ar-focus', 5), ...times('ar-ember-mastery', 2));
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     const base = content.cards.find((c) => c.id === 'ember-ring')!.params;
     const got = run.idx.cards[run.idx.cardIdx.get('ember-ring')!]!.params;
     expect(got.radius).toEqual((base.radius as number[]).map((x) => x + 20));
@@ -124,7 +124,7 @@ describe('traits in the run', () => {
     p = take(p, ...times('hu-keen-eye', 5), ...times('hu-fleet', 3), ...times('hu-long-shot', 2), 'hu-lone-wolf');
     const cfg = buildRunConfig(p, content, { worldId });
     expect(cfg.allyHeroes).toEqual([]);
-    expect(createRun(cfg, content, 1).allies).toEqual([]);
+    expect(createRun(cfg, unlimited, 1).allies).toEqual([]);
     expect(traitLoadout(p, content).noAllies).toBe(true);
   });
 

@@ -8,7 +8,7 @@ import { buildRunConfig } from '../src/loadout';
 import { checkMetaContent, type Profile } from '../src/profile';
 import { MetaError } from '../src/progression';
 import { allocateTrait, traitBlock } from '../src/traits';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const C = content.classes;
 const worldId = content.worlds[0]!.id;
@@ -94,17 +94,17 @@ describe('class in the run', () => {
     expect(l.cardWeights).toMatchObject({ 'sharpened-edge': 1.5 });
     const cfg = buildRunConfig(p, content, { worldId });
     expect(cfg.loadout?.unlockCards).toEqual(['blood-frenzy', 'war-cry']);
-    const run = createRun(cfg, content, 1);
+    const run = createRun(cfg, unlimited, 1);
     expect(run.mods.damageMult).toBeCloseTo(1.15, 9);
   });
 
   it('a class run can be offered its own cards; a bare run never sees any exclusive card', () => {
     const exclusive = new Set(content.cards.filter((c) => c.exclusive).map((c) => c.id));
-    const bare = offeredCards(createRun({ worldId }, content, 3), 20);
+    const bare = offeredCards(createRun({ worldId }, unlimited, 3), 20);
     expect([...bare].filter((id) => exclusive.has(id))).toEqual([]);
     const p = setClass(at(10), content, 'ranger');
     let seen = new Set<string>();
-    for (let seed = 1; seed <= 6 && !seen.has('hawk-eye'); seed++) seen = offeredCards(createRun(buildRunConfig(p, content, { worldId }), content, seed), 20);
+    for (let seed = 1; seed <= 6 && !seen.has('hawk-eye'); seed++) seen = offeredCards(createRun(buildRunConfig(p, content, { worldId }), unlimited, seed), 20);
     expect(seen.has('hawk-eye')).toBe(true);
     expect([...seen].filter((id) => exclusive.has(id) && id !== 'hawk-eye')).toEqual([]);
   });
@@ -112,7 +112,7 @@ describe('class in the run', () => {
   it('class trait nodes only count while the class is held', () => {
     let p = setClass(at(12), content, 'mage');
     p = allocateTrait({ ...p, traits: { ...p.traits, unspentPoints: 1 } }, content, 'cl-mage-attunement');
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     expect(run.mods.cooldownMult).toBeCloseTo(1 - 0.08 - 0.02, 9); // class −8% and node −2% are summed in the loadout
   });
 });
