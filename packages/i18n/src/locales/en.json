@@ -20,6 +20,9 @@
   "item": {
     "time-crystal": {
       "name": "Rewind Crystal"
+    },
+    "class-seal": {
+      "name": "Class Seal"
     }
   },
   "trait": {
@@ -133,7 +136,105 @@
       "hy-warden": {
         "name": "Warden",
         "desc": "Hunter + Commander. +8% weapon range and +10% tower damage."
+      },
+      "cl-warrior-discipline": {
+        "name": "Warrior Discipline",
+        "desc": "Warrior. +3% damage per rank."
+      },
+      "cl-mage-attunement": {
+        "name": "Attunement",
+        "desc": "Mage. 2% shorter cooldown per rank."
+      },
+      "cl-ranger-tracking": {
+        "name": "Tracking",
+        "desc": "Ranger. +1.5% critical chance per rank."
+      },
+      "cl-marshal-logistics": {
+        "name": "Logistics",
+        "desc": "Marshal. +4% tower damage per rank."
+      },
+      "cl-shield-knight-aegis": {
+        "name": "Aegis",
+        "desc": "Shield Knight. +3% armour per rank."
+      },
+      "cl-berserker-rage": {
+        "name": "Rage",
+        "desc": "Berserker. +5% damage per rank."
+      },
+      "cl-pyromancer-kindle": {
+        "name": "Kindle",
+        "desc": "Pyromancer. Ember Ring +3 damage per rank."
+      },
+      "cl-chronomancer-haste": {
+        "name": "Haste",
+        "desc": "Chronomancer. 3% shorter cooldown per rank."
+      },
+      "cl-sharpshooter-aim": {
+        "name": "True Aim",
+        "desc": "Sharpshooter. +10% critical damage per rank."
+      },
+      "cl-shadow-stalker-veil": {
+        "name": "Veil",
+        "desc": "Shadow Stalker. +4% move speed per rank."
+      },
+      "cl-engineer-blueprints": {
+        "name": "Blueprints",
+        "desc": "Engineer. +6% tower damage per rank."
+      },
+      "cl-warmaster-orders": {
+        "name": "Standing Orders",
+        "desc": "Warmaster. +6% AI hero damage per rank."
       }
+    }
+  },
+  "class": {
+    "warrior": {
+      "name": "Warrior",
+      "desc": "Front-line fighter. +10% max HP, +3% armour. Unlocks War Cry."
+    },
+    "mage": {
+      "name": "Mage",
+      "desc": "Spell and fire. 8% shorter cooldown. Unlocks Arcane Focus; fire cards come more often."
+    },
+    "ranger": {
+      "name": "Ranger",
+      "desc": "Range and precision. +8% range, +3% critical chance. Unlocks Hawk Eye."
+    },
+    "marshal": {
+      "name": "Marshal",
+      "desc": "Leads towers and heroes. +10% tower and AI hero damage. Unlocks Rally Banner."
+    },
+    "shield-knight": {
+      "name": "Shield Knight",
+      "desc": "Warrior path. +15% max HP, +5% armour. Unlocks Bulwark."
+    },
+    "berserker": {
+      "name": "Berserker",
+      "desc": "Warrior path. +15% damage but takes 10% more. Unlocks Blood Frenzy."
+    },
+    "pyromancer": {
+      "name": "Pyromancer",
+      "desc": "Mage path. +12% damage. Unlocks Inferno Heart."
+    },
+    "chronomancer": {
+      "name": "Chronomancer",
+      "desc": "Mage path. 8% shorter cooldown, +5% speed. Unlocks Time Slip."
+    },
+    "sharpshooter": {
+      "name": "Sharpshooter",
+      "desc": "Ranger path. +25% critical damage, +5% range. Unlocks Deadshot."
+    },
+    "shadow-stalker": {
+      "name": "Shadow Stalker",
+      "desc": "Ranger path. +8% speed, +4% critical chance. Unlocks Phantom Step."
+    },
+    "engineer": {
+      "name": "Engineer",
+      "desc": "Marshal path. +20% tower damage. Unlocks Reinforced Frames."
+    },
+    "warmaster": {
+      "name": "Warmaster",
+      "desc": "Marshal path. +20% AI hero damage. Unlocks Battle Standard."
     }
   },
   "enemy": {
@@ -268,6 +369,59 @@
     "ember-ring": {
       "name": "Ember Ring",
       "desc": "A ring of fire pulses around you, hurting and igniting nearby enemies."
+    },
+    "war-cry": {
+      "name": "War Cry",
+      "desc": "Damage +10% / +20% / +30%, armour +3% / +6% / +9%. Warrior only."
+    },
+    "arcane-focus": {
+      "name": "Arcane Focus",
+      "desc": "Cooldown −10% / −18% / −25%, in-stage EXP +5%. Mage only."
+    },
+    "hawk-eye": {
+      "name": "Hawk Eye",
+      "desc": "Critical chance +8% / +14% / +20%, range +10%. Ranger only."
+    },
+    "rally-banner": {
+      "name": "Rally Banner",
+      "desc": "AI hero damage +20% / +35% / +50%, tower damage +10% / +20% / +30%. Marshal only."
+    },
+    "bulwark": {
+      "name": "Bulwark",
+      "desc": "Armour +10% / +15%, max HP +20% / +30%. Shield Knight only.",
+      "drawback": "Move speed −10%"
+    },
+    "blood-frenzy": {
+      "name": "Blood Frenzy",
+      "desc": "Damage +35% / +55%, cooldown −10% / −15%. Berserker only.",
+      "drawback": "Damage taken +20%"
+    },
+    "inferno-heart": {
+      "name": "Inferno Heart",
+      "desc": "Damage +25% / +40%. Pyromancer only.",
+      "drawback": "Max HP −15%"
+    },
+    "time-slip": {
+      "name": "Time Slip",
+      "desc": "Cooldown −15% / −25%, move speed +8% / +12%. Chronomancer only."
+    },
+    "deadshot": {
+      "name": "Deadshot",
+      "desc": "Critical damage +40% / +70%, shots pierce 1 more. Sharpshooter only.",
+      "drawback": "Cooldown +15%"
+    },
+    "phantom-step": {
+      "name": "Phantom Step",
+      "desc": "Move speed +15% / +25%, critical chance +6% / +10%. Shadow Stalker only."
+    },
+    "reinforced-frames": {
+      "name": "Reinforced Frames",
+      "desc": "Tower damage +30% / +50%. Engineer only.",
+      "drawback": "Hero damage −10%"
+    },
+    "battle-standard": {
+      "name": "Battle Standard",
+      "desc": "AI hero damage +40% / +60%, HP regeneration +0.5 / +1 per second. Warmaster only."
     }
   },
   "building": {

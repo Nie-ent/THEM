@@ -164,6 +164,11 @@ export const CardDef = z.object({
   effect: Id,
   params: Params.default({}),
   tags: z.array(z.string()).default([]),
+  /**
+   * Class card (P2-04): never offered unless the run's loadout unlocks it (`Loadout.unlockCards`).
+   * Keep exclusive cards at the end of cards.json so bare runs roll exactly as before.
+   */
+  exclusive: z.boolean().default(false),
 });
 export type CardDef = z.infer<typeof CardDef>;
 
@@ -398,8 +403,11 @@ export const TraitNodeDef = z.object({
   id: Id,
   /** A branch id, or "hybrid" for nodes unlocked by two branches. */
   branch: Id,
-  /** minor = numbers; card = changes a skill card; keystone = big trade-off (limited); hybrid = two-branch node. */
-  kind: z.enum(['minor', 'card', 'keystone', 'hybrid']),
+  /**
+   * minor = numbers; card = changes a skill card; keystone = big trade-off (limited); hybrid =
+   * two-branch node; class = class-only extension (needs `requiresClass` in the class chain).
+   */
+  kind: z.enum(['minor', 'card', 'keystone', 'hybrid', 'class']),
   nameKey: I18nKey,
   descKey: I18nKey,
   maxRank: z.number().int().positive(),
@@ -411,6 +419,8 @@ export const TraitNodeDef = z.object({
   requiresBranches: z.record(Id, z.number().int().positive()).default({}),
   /** Node ids that need at least one rank first. */
   requiresNodes: z.array(Id).default([]),
+  /** Class id (tier 1 or 2) the profile must hold for this node; refunded when the class changes. */
+  requiresClass: Id.optional(),
   /** Run mods per rank (stat-mods convention). */
   mods: z.record(z.string(), z.number()).default({}),
   /** Card param deltas per rank: `{ cardId: { param: delta } }`. */
@@ -437,12 +447,44 @@ export const TraitsDef = z.object({
 export type TraitsDef = z.infer<typeof TraitsDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* Classes (GDD §6, P2-04)                                                                     */
+/* ------------------------------------------------------------------------------------------ */
+
+export const ClassDef = z.object({
+  id: Id,
+  tier: z.number().int().positive(),
+  /** Tier-2+ classes branch from this class. */
+  parent: Id.optional(),
+  /** Trait branch the class leans on (UI grouping; class trait nodes sit in it). */
+  branch: Id,
+  nameKey: I18nKey,
+  descKey: I18nKey,
+  /** Passive run mods (stat-mods convention). A tier-2 class adds its parent's too. */
+  mods: z.record(z.string(), z.number()).default({}),
+  /** Exclusive cards this class unlocks in the run draft (cards.json `exclusive: true`). */
+  cards: z.array(Id).default([]),
+  /** Draft weight multipliers for shared cards that fit the class. */
+  cardWeights: z.record(Id, z.number().nonnegative()).default({}),
+});
+export type ClassDef = z.infer<typeof ClassDef>;
+
+export const ClassesDef = z.object({
+  /** Global Level at which each tier can be picked (GDD §6: 10 and 35). */
+  tiers: z.array(z.object({ tier: z.number().int().positive(), level: z.number().int().positive() })).min(1),
+  /** Changing to a class that is not a promotion of the current one costs this item. */
+  change: z.object({ itemId: Id, cost: z.number().int().nonnegative() }),
+  classes: z.array(ClassDef).min(1),
+});
+export type ClassesDef = z.infer<typeof ClassesDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
   balance: BalanceDef,
   meta: MetaDef,
   traits: TraitsDef,
+  classes: ClassesDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

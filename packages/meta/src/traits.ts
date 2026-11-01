@@ -15,6 +15,7 @@
 import type { ContentBundle, TraitNodeDef } from '@them/content';
 import type { Mods } from '@them/core';
 import type { LoadoutContributor, LoadoutPart } from './loadout';
+import { classChain } from './classes';
 import { MetaError } from './progression';
 import type { Profile } from './profile';
 
@@ -38,7 +39,10 @@ export function keystonesTaken(profile: Profile, content: ContentBundle): number
 }
 
 export type TraitBlock =
-  | 'unknown' | 'maxed' | 'points' | 'branch-points' | 'requires-node' | 'requires-branches' | 'keystone-limit';
+  | 'unknown' | 'maxed' | 'points' | 'branch-points' | 'requires-node' | 'requires-branches' | 'keystone-limit'
+  | 'requires-class';
+
+const holdsClass = (profile: Profile, content: ContentBundle, id: string) => classChain(content, profile.classId).some((c) => c.id === id);
 
 /** Why the next rank of `id` cannot be taken, or null if it can. */
 export function traitBlock(profile: Profile, content: ContentBundle, id: string): TraitBlock | null {
@@ -47,6 +51,7 @@ export function traitBlock(profile: Profile, content: ContentBundle, id: string)
   const r = rankOf(profile, id);
   if (r >= d.maxRank) return 'maxed';
   if (profile.traits.unspentPoints < d.cost) return 'points';
+  if (d.requiresClass !== undefined && !holdsClass(profile, content, d.requiresClass)) return 'requires-class';
   if (r === 0) {
     if (pointsInBranch(profile, content, d.branch) < d.requiresBranchPoints) return 'branch-points';
     for (const req of d.requiresNodes) if (rankOf(profile, req) < 1) return 'requires-node';
@@ -113,6 +118,7 @@ export function traitLoadout(profile: Profile, content: ContentBundle): LoadoutP
   for (const d of nodes) {
     const r = Math.min(rankOf(profile, d.id), d.maxRank);
     if (r <= 0) continue;
+    if (d.requiresClass !== undefined && !holdsClass(profile, content, d.requiresClass)) continue;
     for (const k of Object.keys(d.mods).sort()) mods[k] = (mods[k] ?? 0) + d.mods[k]! * r;
     for (const c of Object.keys(d.cardParams).sort()) {
       const t = (cardParams[c] ??= {});

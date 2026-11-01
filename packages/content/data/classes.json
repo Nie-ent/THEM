@@ -1,0 +1,216 @@
+{
+  "tiers": [
+    {
+      "tier": 1,
+      "level": 10
+    },
+    {
+      "tier": 2,
+      "level": 35
+    }
+  ],
+  "change": {
+    "itemId": "class-seal",
+    "cost": 1
+  },
+  "classes": [
+    {
+      "id": "warrior",
+      "tier": 1,
+      "branch": "vanguard",
+      "nameKey": "class.warrior.name",
+      "descKey": "class.warrior.desc",
+      "mods": {
+        "maxHpMult": 0.1,
+        "armorAdd": 0.03
+      },
+      "cards": [
+        "war-cry"
+      ],
+      "cardWeights": {
+        "sharpened-edge": 1.5,
+        "tough-hide": 1.5,
+        "iron-vanguard": 1.5
+      }
+    },
+    {
+      "id": "mage",
+      "tier": 1,
+      "branch": "arcanist",
+      "nameKey": "class.mage.name",
+      "descKey": "class.mage.desc",
+      "mods": {
+        "cooldownMult": -0.08
+      },
+      "cards": [
+        "arcane-focus"
+      ],
+      "cardWeights": {
+        "ember-ring": 2,
+        "quickdraw": 1.5,
+        "pitch-arrows": 1.5
+      }
+    },
+    {
+      "id": "ranger",
+      "tier": 1,
+      "branch": "hunter",
+      "nameKey": "class.ranger.name",
+      "descKey": "class.ranger.desc",
+      "mods": {
+        "rangeMult": 0.08,
+        "critChance": 0.03
+      },
+      "cards": [
+        "hawk-eye"
+      ],
+      "cardWeights": {
+        "piercing-bolt": 1.5,
+        "split-shot": 1.5,
+        "swift-boots": 1.5
+      }
+    },
+    {
+      "id": "marshal",
+      "tier": 1,
+      "branch": "commander",
+      "nameKey": "class.marshal.name",
+      "descKey": "class.marshal.desc",
+      "mods": {
+        "structureDamageMult": 0.1,
+        "allyDamageMult": 0.1
+      },
+      "cards": [
+        "rally-banner"
+      ],
+      "cardWeights": {
+        "magnet-charm": 1.5
+      }
+    },
+    {
+      "id": "shield-knight",
+      "tier": 2,
+      "parent": "warrior",
+      "branch": "vanguard",
+      "nameKey": "class.shield-knight.name",
+      "descKey": "class.shield-knight.desc",
+      "mods": {
+        "maxHpMult": 0.15,
+        "armorAdd": 0.05
+      },
+      "cards": [
+        "bulwark"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "berserker",
+      "tier": 2,
+      "parent": "warrior",
+      "branch": "vanguard",
+      "nameKey": "class.berserker.name",
+      "descKey": "class.berserker.desc",
+      "mods": {
+        "damageMult": 0.15,
+        "damageTakenMult": 0.1
+      },
+      "cards": [
+        "blood-frenzy"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "pyromancer",
+      "tier": 2,
+      "parent": "mage",
+      "branch": "arcanist",
+      "nameKey": "class.pyromancer.name",
+      "descKey": "class.pyromancer.desc",
+      "mods": {
+        "damageMult": 0.12
+      },
+      "cards": [
+        "inferno-heart"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "chronomancer",
+      "tier": 2,
+      "parent": "mage",
+      "branch": "arcanist",
+      "nameKey": "class.chronomancer.name",
+      "descKey": "class.chronomancer.desc",
+      "mods": {
+        "cooldownMult": -0.08,
+        "speedMult": 0.05
+      },
+      "cards": [
+        "time-slip"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "sharpshooter",
+      "tier": 2,
+      "parent": "ranger",
+      "branch": "hunter",
+      "nameKey": "class.sharpshooter.name",
+      "descKey": "class.sharpshooter.desc",
+      "mods": {
+        "critMult": 0.25,
+        "rangeMult": 0.05
+      },
+      "cards": [
+        "deadshot"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "shadow-stalker",
+      "tier": 2,
+      "parent": "ranger",
+      "branch": "hunter",
+      "nameKey": "class.shadow-stalker.name",
+      "descKey": "class.shadow-stalker.desc",
+      "mods": {
+        "speedMult": 0.08,
+        "critChance": 0.04
+      },
+      "cards": [
+        "phantom-step"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "engineer",
+      "tier": 2,
+      "parent": "marshal",
+      "branch": "commander",
+      "nameKey": "class.engineer.name",
+      "descKey": "class.engineer.desc",
+      "mods": {
+        "structureDamageMult": 0.2
+      },
+      "cards": [
+        "reinforced-frames"
+      ],
+      "cardWeights": {}
+    },
+    {
+      "id": "warmaster",
+      "tier": 2,
+      "parent": "marshal",
+      "branch": "commander",
+      "nameKey": "class.warmaster.name",
+      "descKey": "class.warmaster.desc",
+      "mods": {
+        "allyDamageMult": 0.2
+      },
+      "cards": [
+        "battle-standard"
+      ],
+      "cardWeights": {}
+    }
+  ]
+}

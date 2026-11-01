@@ -41,8 +41,12 @@ describe('PHASE1 scope (QA gate)', () => {
   });
 
   it('12 cards, some with drawbacks; 2 rerolls per run', () => {
-    expect(content.cards.length).toBe(12);
-    expect(content.cards.filter((c) => c.drawbackKey).length).toBeGreaterThan(0);
+    // Phase 2 adds class cards (exclusive: only offered with a class); the shared pool stays 12.
+    const shared = content.cards.filter((c) => !c.exclusive);
+    expect(shared.length).toBe(12);
+    // Exclusive cards sit after the shared pool so bare runs roll exactly as in Phase 1.
+    expect(content.cards.slice(0, 12).every((c) => !c.exclusive)).toBe(true);
+    expect(shared.filter((c) => c.drawbackKey).length).toBeGreaterThan(0);
     expect(content.balance.rerollsPerRun).toBe(2);
     expect(content.balance.cardChoices).toBe(3);
   });

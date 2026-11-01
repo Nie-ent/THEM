@@ -3,7 +3,7 @@
  *
  * Each meta system contributes modifiers through a `LoadoutContributor`. A new profile (no stats,
  * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
- * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class, P2-05 titles, P2-06 gear, P2-07 heroes.
+ * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles, P2-06 gear, P2-07 heroes.
  *
  * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
  * so also raising power would count them twice. How growth meets the limiter is an open balance
@@ -17,6 +17,7 @@ import type { Difficulty, Loadout, Mods, RunConfig } from '@them/core';
 import type { Profile } from './profile';
 import { statsContributor } from './progression';
 import { traitsContributor } from './traits';
+import { classContributor } from './classes';
 
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
@@ -29,6 +30,8 @@ export interface LoadoutPart {
   cardWeights?: Record<string, number>;
   /** Bring no AI heroes (any contributor setting it wins). */
   noAllies?: boolean;
+  /** Exclusive (class) cards the draft may offer (union). */
+  unlockCards?: string[];
 }
 
 export type LoadoutContributor = (profile: Profile, content: ContentBundle) => LoadoutPart;
@@ -37,6 +40,7 @@ export type LoadoutContributor = (profile: Profile, content: ContentBundle) => L
 export const CONTRIBUTORS: readonly LoadoutContributor[] = [
   statsContributor, // P2-02
   traitsContributor, // P2-03
+  classContributor, // P2-04
 ];
 
 export interface BuiltLoadout {
@@ -52,6 +56,7 @@ export function buildLoadout(profile: Profile, content: ContentBundle, contribut
   const cardWeights: Record<string, number> = {};
   let power: number | undefined;
   let noAllies = false;
+  const unlock = new Set<string>();
   for (const c of contributors) {
     const part = c(profile, content);
     for (const [k, v] of Object.entries(part.mods ?? {}) as [keyof Mods, number][]) {
@@ -64,11 +69,13 @@ export function buildLoadout(profile: Profile, content: ContentBundle, contribut
     for (const [card, m] of Object.entries(part.cardWeights ?? {})) cardWeights[card] = (cardWeights[card] ?? 1) * m;
     if (part.power !== undefined) power = (power ?? 0) + part.power;
     if (part.noAllies) noAllies = true;
+    for (const id of part.unlockCards ?? []) unlock.add(id);
   }
   // Only include card changes when there are some, so an empty profile gives the bare `{ mods }`.
   const loadout: Loadout = { mods };
   if (Object.keys(cardParams).length > 0) loadout.cardParams = cardParams;
   if (Object.keys(cardWeights).length > 0) loadout.cardWeights = cardWeights;
+  if (unlock.size > 0) loadout.unlockCards = [...unlock].sort();
   return { loadout, power, noAllies };
 }
 

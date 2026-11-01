@@ -30,3 +30,7 @@ export {
   pointsInBranch, keystonesTaken, traitBlock, allocateTrait, traitResetCost, resetTraits, traitLoadout, traitsContributor,
   checkTraitsContent, type TraitBlock,
 } from './traits';
+export {
+  classDef, classChain, tierLevel, classChangeCost, classBlock, setClass, classLoadout, classContributor, checkClassesContent,
+  type ClassBlock,
+} from './classes';

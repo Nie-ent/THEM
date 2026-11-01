@@ -26,7 +26,8 @@
   },
   "runExp": { "base": 50, "perLevel": 20 },
   "items": [
-    { "id": "time-crystal", "nameKey": "item.time-crystal.name" }
+    { "id": "time-crystal", "nameKey": "item.time-crystal.name" },
+    { "id": "class-seal", "nameKey": "item.class-seal.name" }
   ],
   "stats": {
     "strength": { "damageMult": 0.01 },

@@ -182,13 +182,14 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits`, stacked, not merged to main)
+### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes`, stacked, not merged to main)
 
 | Ticket | Status |
 | --- | --- |
 | P2-01 | Engineer done, gates green; awaiting QA. `packages/meta` + `apps/game/src/game/profile.ts` |
 | P2-02 | Engineer done, gates green; awaiting QA. `packages/meta/src/progression.ts`, numbers in `content/data/meta.json` |
 | P2-03 | Engineer + content done, gates green; awaiting QA. `content/data/traits.json` (4 branches, 23 nodes), `packages/meta/src/traits.ts`; core `Loadout.cardParams` / `cardWeights` |
+| P2-04 | Engineer + content done, gates green; awaiting QA. `content/data/classes.json` (4 tier-1, 8 tier-2), 12 exclusive class cards, 12 class trait nodes, `packages/meta/src/classes.ts`; core `CardDef.exclusive` + `Loadout.unlockCards`. QA: `tests/gates/phase1-scope` now counts the shared pool (still 12) |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
@@ -210,6 +211,13 @@ Trait Tree (P2-03) notes, for the owner and the designer:
   Rewind Crystals have no source yet (shop, events and Raid come later); "free reset after a balance patch"
   (GDD §5) is not implemented and needs a save-schema change when it is.
 - Trait points: 1 per Global Level → 49 at Lv 50; one full branch with its keystone costs about 16.
+
+Classes (P2-04) notes:
+- Class weapons (GDD §6 "starting weapon": sword arc, long bow, spell burst) are not built: every class still
+  fires the Phase 1 bolt; classes differ by mods, cards and traits. Real weapon types need core weapon behaviours.
+- First pick and promotion are free; other changes cost 1 Class Seal (no source yet, like Rewind Crystals).
+- Exclusive cards must stay at the end of cards.json (gate-checked) so bare runs roll as before.
+- Secret classes (GDD §6) need the story/quest systems; not started.
 
 ---
 
