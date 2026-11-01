@@ -48,6 +48,32 @@ describe('P2-01 loadout', () => {
     expect(run.config.loadout.mods!.damageMult).toBe(0.1);
   });
 
+  it('cardParams add to numbers and per-level tables, in the run copy only', () => {
+    const before = structuredClone(content.cards.find((c) => c.id === 'ember-ring')!.params);
+    const run = createRun({ worldId, loadout: { cardParams: { 'ember-ring': { radius: 15, damage: 2 } } } }, content, 1);
+    const p = run.idx.cards[run.idx.cardIdx.get('ember-ring')!]!.params;
+    expect(p.radius).toEqual((before.radius as number[]).map((x) => x + 15));
+    expect(p.damage).toEqual((before.damage as number[]).map((x) => x + 2));
+    expect(content.cards.find((c) => c.id === 'ember-ring')!.params).toEqual(before);
+    const glass = run.idx.cards[run.idx.cardIdx.get('split-shot')!]!.params;
+    expect(glass).toEqual(content.cards.find((c) => c.id === 'split-shot')!.params);
+  });
+
+  it('cardWeights multiply draft weights; 0 removes the card from offers', () => {
+    const banned = Object.fromEntries(content.cards.filter((c) => c.id !== 'quickdraw').map((c) => [c.id, 0]));
+    const run = createRun({ worldId, loadout: { cardWeights: banned } }, content, 1);
+    run.pendingLevels = 1;
+    step(run, NO_INPUT); // opens the draft
+    expect(run.draft?.map((o) => o.cardId)).toEqual(['quickdraw']);
+    expect(content.cards.find((c) => c.id === 'sharpened-edge')!.weight).toBeGreaterThan(0);
+  });
+
+  it('rejects unknown cards, missing params and bad weights', () => {
+    expect(() => createRun({ worldId, loadout: { cardParams: { nope: { x: 1 } } } }, content, 1)).toThrow(/unknown card "nope"/);
+    expect(() => createRun({ worldId, loadout: { cardParams: { 'ember-ring': { bounce: 1 } } } }, content, 1)).toThrow(/no numeric param "bounce"/);
+    expect(() => createRun({ worldId, loadout: { cardWeights: { quickdraw: -1 } } }, content, 1)).toThrow(/negative/);
+  });
+
   it('rejects unknown keys and non-finite values', () => {
     expect(() => createRun({ worldId, loadout: { mods: { nope: 1 } as never } }, content, 1)).toThrow(/unknown loadout mod "nope"/);
     expect(() => createRun({ worldId, loadout: { mods: { damageMult: Number.NaN } } }, content, 1)).toThrow(/not a finite number/);

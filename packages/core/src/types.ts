@@ -39,6 +39,14 @@ export interface Loadout {
    * non-finite values make `createRun` throw.
    */
   mods?: Partial<Record<keyof Mods, number>>;
+  /**
+   * Card param changes (traits that modify skill cards, GDD §5): `{ cardId: { param: delta } }`.
+   * The delta is added to a numeric param, or to every level of a per-level table. The run gets its
+   * own copy of the card list; content is not mutated.
+   */
+  cardParams?: Record<string, Record<string, number>>;
+  /** Draft weight multipliers per card id (class card pools): 0 removes a card from offers. */
+  cardWeights?: Record<string, number>;
 }
 
 /** One build command. `cell` = row * cols + col of the build grid. */

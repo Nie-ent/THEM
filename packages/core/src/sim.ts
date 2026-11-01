@@ -20,7 +20,7 @@ import { Rng } from './rng';
 import { computeScore, powerMultiplier } from './scoring';
 import { SpatialHash } from './spatial';
 import {
-  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Mods, type Resolved,
+  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Loadout, type Mods, type Resolved,
   type Run, type RunConfig, type ScoreBreakdown, type SpawnEntry, type Telegraph, type TelegraphSpec, type WaveIntel,
 } from './types';
 import { World } from './world';
@@ -88,25 +88,69 @@ function setWeapon(w: World, e: number, wp: ContentBundle['balance']['playerHero
   w.wPierce[e] = wp.pierce; w.wCount[e] = wp.count; w.wType[e] = wp.damageType === 'fire' ? DamageType.Fire : DamageType.Physical;
 }
 
-export function createRunImpl(config: RunConfig, content: ContentBundle, seed: number): Run {
-  const worldDef = content.worlds.find((x) => x.id === config.worldId);
+/**
+ * Apply the loadout's card changes to a copy of the card list (content itself is never mutated):
+ * `cardParams` adds to numeric params (every entry of a per-level table), `cardWeights` multiplies
+ * the draft weight. Keys are applied in sorted order. Throws on unknown cards / non-numeric params.
+ */
+function patchCards(content: ContentBundle, lo: Loadout): ContentBundle {
+  const cp = lo.cardParams ?? {}, cw = lo.cardWeights ?? {};
+  if (Object.keys(cp).length === 0 && Object.keys(cw).length === 0) return content;
+  const cards = content.cards.map((c) => ({ ...c, params: { ...c.params } }));
+  const find = (id: string) => {
+    const c = cards.find((x) => x.id === id);
+    if (!c) throw new Error(`createRun: loadout references unknown card "${id}"`);
+    return c;
+  };
+  const finite = (v: unknown, what: string) => {
+    if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error(`createRun: ${what} is not a finite number`);
+    return v;
+  };
+  for (const id of Object.keys(cp).sort()) {
+    const c = find(id);
+    for (const key of Object.keys(cp[id]!).sort()) {
+      const d = finite(cp[id]![key], `loadout cardParams.${id}.${key}`);
+      const v = c.params[key];
+      if (typeof v === 'number') c.params[key] = v + d;
+      else if (Array.isArray(v)) c.params[key] = v.map((x) => x + d);
+      else throw new Error(`createRun: card "${id}" has no numeric param "${key}"`);
+    }
+  }
+  for (const id of Object.keys(cw).sort()) {
+    const m = finite(cw[id], `loadout cardWeights.${id}`);
+    if (m < 0) throw new Error(`createRun: loadout cardWeights.${id} is negative`);
+    const c = find(id);
+    c.weight *= m;
+  }
+  return { ...content, cards };
+}
+
+export function createRunImpl(config: RunConfig, baseContent: ContentBundle, seed: number): Run {
+  const worldDef = baseContent.worlds.find((x) => x.id === config.worldId);
   if (!worldDef) throw new Error(`createRun: unknown world "${config.worldId}"`);
-  const idx = indexContent(content);
-  const res = resolve(content, idx);
+  const lo = config.loadout;
   const full: Required<RunConfig> = {
     worldId: config.worldId,
     difficulty: config.difficulty ?? 'normal',
     hardcoreRules: config.hardcoreRules ?? 0,
     power: config.power ?? worldDef.recommendedPower,
-    allyHeroes: config.allyHeroes ?? content.heroes.map((h) => h.id),
-    loadout: { mods: { ...config.loadout?.mods } },
+    allyHeroes: config.allyHeroes ?? baseContent.heroes.map((h) => h.id),
+    loadout: {
+      mods: { ...lo?.mods },
+      ...(lo?.cardParams ? { cardParams: Object.fromEntries(Object.entries(lo.cardParams).map(([k, v]) => [k, { ...v }])) } : {}),
+      ...(lo?.cardWeights ? { cardWeights: { ...lo.cardWeights } } : {}),
+    },
   };
-  for (const h of full.allyHeroes) if (!idx.heroIdx.has(h)) throw new Error(`createRun: unknown ally hero "${h}"`);
   const known = baseMods();
   for (const [k, v] of Object.entries(full.loadout.mods ?? {})) {
     if (!(k in known)) throw new Error(`createRun: unknown loadout mod "${k}"`);
     if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error(`createRun: loadout mod "${k}" is not a finite number`);
   }
+  // Card changes from the loadout live in the run's own copy of content.
+  const content = patchCards(baseContent, full.loadout);
+  const idx = indexContent(content);
+  const res = resolve(content, idx);
+  for (const h of full.allyHeroes) if (!idx.heroIdx.has(h)) throw new Error(`createRun: unknown ally hero "${h}"`);
 
   const w = new World();
   const root = new Rng(seed);
