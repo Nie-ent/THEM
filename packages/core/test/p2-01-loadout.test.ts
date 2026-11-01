@@ -74,6 +74,21 @@ describe('P2-01 loadout', () => {
     expect(() => createRun({ worldId, loadout: { cardWeights: { quickdraw: -1 } } }, content, 1)).toThrow(/negative/);
   });
 
+  it('allyMods scale an AI hero base HP and weapon damage; others untouched', () => {
+    const mira = content.heroes.find((h) => h.id === 'mira')!;
+    const brann = content.heroes.find((h) => h.id === 'brann')!;
+    const run = createRun({ worldId, loadout: { allyMods: { mira: { hpMult: 0.5, damageMult: 0.25 } } } }, content, 1);
+    const [a, b] = run.allyDefs.map((d) => content.heroes[d]!.id);
+    const iMira = a === 'mira' ? run.allies[0]! : run.allies[1]!;
+    const iBrann = b === 'brann' ? run.allies[1]! : run.allies[0]!;
+    expect(run.w.maxHp[iMira]).toBeCloseTo(mira.hp * 1.5, 9);
+    expect(run.w.wDamage[iMira]).toBeCloseTo(mira.weapon.damage * 1.25, 9);
+    expect(run.w.maxHp[iBrann]).toBe(brann.hp);
+    expect(() => createRun({ worldId, loadout: { allyMods: { ghost: { hpMult: 1 } } } }, content, 1)).toThrow(/unknown hero/);
+    expect(() => createRun({ worldId, loadout: { allyMods: { mira: { speed: 1 } as never } } }, content, 1)).toThrow(/unknown key/);
+    expect(() => createRun({ worldId, loadout: { allyMods: { mira: { hpMult: -1 } } } }, content, 1)).toThrow(/> -1/);
+  });
+
   it('rejects unknown keys and non-finite values', () => {
     expect(() => createRun({ worldId, loadout: { mods: { nope: 1 } as never } }, content, 1)).toThrow(/unknown loadout mod "nope"/);
     expect(() => createRun({ worldId, loadout: { mods: { damageMult: Number.NaN } } }, content, 1)).toThrow(/not a finite number/);

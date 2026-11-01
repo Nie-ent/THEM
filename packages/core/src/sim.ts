@@ -140,8 +140,16 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
       ...(lo?.cardParams ? { cardParams: Object.fromEntries(Object.entries(lo.cardParams).map(([k, v]) => [k, { ...v }])) } : {}),
       ...(lo?.cardWeights ? { cardWeights: { ...lo.cardWeights } } : {}),
       ...(lo?.unlockCards ? { unlockCards: [...lo.unlockCards].sort() } : {}),
+      ...(lo?.allyMods ? { allyMods: Object.fromEntries(Object.entries(lo.allyMods).map(([k, v]) => [k, { ...v }])) } : {}),
     },
   };
+  for (const [id, m] of Object.entries(full.loadout.allyMods ?? {})) {
+    if (!baseContent.heroes.some((h) => h.id === id)) throw new Error(`createRun: allyMods for unknown hero "${id}"`);
+    for (const [k, v] of Object.entries(m)) {
+      if (k !== 'hpMult' && k !== 'damageMult') throw new Error(`createRun: allyMods.${id} has unknown key "${k}"`);
+      if (typeof v !== 'number' || !Number.isFinite(v) || v <= -1) throw new Error(`createRun: allyMods.${id}.${k} must be a finite number > -1`);
+    }
+  }
   const known = baseMods();
   for (const [k, v] of Object.entries(full.loadout.mods ?? {})) {
     if (!(k in known)) throw new Error(`createRun: unknown loadout mod "${k}"`);
@@ -215,8 +223,11 @@ export function createRunImpl(config: RunConfig, baseContent: ContentBundle, see
     w.def[a] = di;
     w.radius[a] = d.radius;
     w.speed[a] = d.speed;
-    w.hp[a] = w.maxHp[a] = d.hp;
+    // Per-hero growth from meta (hero level and stars, P2-07): fractions on base HP and weapon damage.
+    const am = full.loadout.allyMods?.[id];
+    w.hp[a] = w.maxHp[a] = d.hp * (1 + (am?.hpMult ?? 0));
     setWeapon(w, a, d.weapon);
+    w.wDamage[a] *= 1 + (am?.damageMult ?? 0);
     run.allies.push(a);
     run.allyDefs.push(di);
   });

@@ -49,6 +49,11 @@ export interface Loadout {
   cardWeights?: Record<string, number>;
   /** Exclusive (class) card ids this run may be offered. Other exclusive cards are never offered. */
   unlockCards?: string[];
+  /**
+   * Per AI hero (content hero id): growth from hero level and stars (P2-07), as fractions on the
+   * hero's base HP and weapon damage (`hpMult: 0.5` → ×1.5). Heroes not in the run are ignored.
+   */
+  allyMods?: Record<string, { hpMult?: number; damageMult?: number }>;
 }
 
 /** One build command. `cell` = row * cols + col of the build grid. */
