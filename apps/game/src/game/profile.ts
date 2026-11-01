@@ -46,6 +46,8 @@ type ActResult<T> = Profile | ({ profile: Profile } & T);
 export class ProfileStore {
   profile: Profile | null = null;
   loadStatus: LoadResult['status'] | 'loading' = 'loading';
+  /** Where the raw text of a corrupt save was copied (null: no corrupt save, or the backup failed). */
+  backupKey: string | null = null;
   /** The last recorded run (rewards, levels gained, new titles) for the results screen. */
   lastRun: ApplyResult | null = null;
   /** Titles unlocked by the last Camp action (shown once by the Camp). */
@@ -85,6 +87,7 @@ export class ProfileStore {
       r = { status: 'corrupt', reason: 'load threw', backupKey: null };
     }
     this.loadStatus = r.status;
+    this.backupKey = r.status === 'corrupt' ? r.backupKey : null;
     if (r.status !== 'newer') {
       this.profile = r.status === 'ok' ? r.profile : newProfile(content, this.env);
       if (r.status !== 'ok' || r.migratedFrom !== null) await this.persist();

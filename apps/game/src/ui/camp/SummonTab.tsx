@@ -2,9 +2,10 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { content } from '@them/content';
-import { effectiveRates, pull, type Profile, type PullResult, type Star } from '@them/meta';
+import { effectiveRates, pull, type Profile, type PullResult } from '@them/meta';
 import { profileStore } from '../../game/profile';
-import { Button, Wrap, useFmt } from '../kit';
+import { Button, GoldIcon, Wrap, useFmt } from '../kit';
+import { displayRates } from './rates';
 import { Section, Stars, goldName, itemName, useAct } from './common';
 
 export function SummonTab({ profile }: { profile: Profile }) {
@@ -13,7 +14,8 @@ export function SummonTab({ profile }: { profile: Profile }) {
   const { run, errorLine } = useAct();
   const [results, setResults] = useState<PullResult[]>([]);
   // Owner decision (2026-11-01): show the real rates, i.e. with pity and the 10-pull guarantee included.
-  const real = useMemo(() => effectiveRates(content), []);
+  const real = useMemo(() => displayRates(effectiveRates(content) as Record<number, number>), []);
+  const listed = useMemo(() => displayRates(Object.fromEntries(Object.entries(content.gacha.rates).map(([k, v]) => [Number(k), v]))), []);
   const G = content.gacha;
   const banner = G.banners[0]!;
   const pct = new Intl.NumberFormat(i18n.language, { style: 'percent', maximumFractionDigits: 1 });
@@ -26,8 +28,10 @@ export function SummonTab({ profile }: { profile: Profile }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <Section title={t(banner.nameKey)} aside={`${int(gold)} ${goldName(t)}`}>
+      <Section title={t(banner.nameKey)} aside={<span className="inline-flex items-center gap-1"><GoldIcon />{int(gold)} {goldName(t)}</span>} className="order-1">
         <p className="text-md leading-body text-text-muted"><Wrap text={t(banner.descKey)} /></p>
+      </Section>
+      <Section title={t('ui.camp.summon.pulls')} className="order-3 md:order-2">
         <div className="flex flex-wrap gap-2">
           <Button data-testid="summon-1" disabled={gold < G.cost.single} onClick={() => doPull(1)}>{t('ui.camp.summon.pull1', { n: int(G.cost.single), currency: goldName(t) })}</Button>
           <Button data-testid="summon-10" variant="primary" disabled={gold < G.cost.ten} onClick={() => doPull(10)}>{t('ui.camp.summon.pull10', { n: int(G.cost.ten), currency: goldName(t) })}</Button>
@@ -51,13 +55,7 @@ export function SummonTab({ profile }: { profile: Profile }) {
         )}
       </Section>
 
-      <Section title={t('ui.camp.summon.pity')}>
-        <p data-testid="summon-pity" className="text-md tabular-nums">{t('ui.camp.summon.since5', { n: int(profile.gacha.pullsSince5), hard: int(G.pity.hard) })}</p>
-        <p className="text-sm text-text-muted"><Wrap text={t('ui.camp.summon.soft', { n: int(G.pity.softFrom) })} /></p>
-        <p className="text-sm text-text-muted">{t('ui.camp.summon.guarantee4', { n: int(untilGuarantee) })}</p>
-      </Section>
-
-      <Section title={t('ui.camp.summon.rates')}>
+      <Section title={t('ui.camp.summon.rates')} className="order-2 md:order-3">
         <table data-testid="summon-rates" className="w-full max-w-120 text-md tabular-nums">
           <thead>
             <tr className="border-b border-border text-sm text-text-muted">
@@ -70,14 +68,21 @@ export function SummonTab({ profile }: { profile: Profile }) {
             {(['5', '4', '3', '2', '1'] as const).map((s) => (
               <tr key={s} className="border-b border-border last:border-b-0">
                 <td className="py-1"><Stars n={Number(s)} /></td>
-                <td className="py-1 text-right font-semibold">{pct.format(real[Number(s) as Star])}</td>
-                <td className="py-1 text-right text-sm text-text-muted">{pct.format(G.rates[s] ?? 0)}</td>
+                <td className="py-1 text-right font-semibold">{pct.format(real[Number(s)]!)}</td>
+                <td className="py-1 text-right text-sm text-text-muted">{pct.format(listed[Number(s)] ?? 0)}</td>
               </tr>
             ))}
           </tbody>
         </table>
         <p className="text-sm leading-body text-text-muted"><Wrap text={t('ui.camp.summon.effectiveNote')} /></p>
       </Section>
+
+      <Section title={t('ui.camp.summon.pity')} className="order-4">
+        <p data-testid="summon-pity" className="text-md tabular-nums">{t('ui.camp.summon.since5', { n: int(profile.gacha.pullsSince5), hard: int(G.pity.hard) })}</p>
+        <p className="text-sm text-text-muted"><Wrap text={t('ui.camp.summon.soft', { n: int(G.pity.softFrom) })} /></p>
+        <p className="text-sm text-text-muted">{t('ui.camp.summon.guarantee4', { n: int(untilGuarantee) })}</p>
+      </Section>
+
     </div>
   );
 }

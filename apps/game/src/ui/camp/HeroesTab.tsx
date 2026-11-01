@@ -6,12 +6,13 @@ import {
   heroExpToNext, heroGrowth, heroLevelCap, limitBreakHero, starUpHero, toggleTeamHero, useExpBooks as feedExpBooks, type Profile,
 } from '@them/meta';
 import { Button, Wrap, useFmt } from '../kit';
-import { Bar, ModLines, Section, Stars, goldName, itemName, useAct } from './common';
+import { Bar, ModLines, Reason, Section, Stars, goldName, itemName, useAct, useShortReason } from './common';
 
 export function HeroesTab({ profile }: { profile: Profile }) {
   const { t } = useTranslation();
   const { int } = useFmt();
   const { run, errorLine } = useAct();
+  const shortReason = useShortReason();
   const [selected, setSelected] = useState(profile.heroes.owned[0]?.heroId ?? null);
   const G = content.heroGrowth;
   const h = profile.heroes.owned.find((x) => x.heroId === selected) ?? null;
@@ -60,7 +61,7 @@ export function HeroesTab({ profile }: { profile: Profile }) {
           <div className="flex flex-wrap gap-2">
             {books.map((b) => {
               const have = profile.items[b] ?? 0;
-              return [1, 10].map((n) => (
+              return [1, 10].filter((n) => n === 1 || have >= 10).map((n) => (
                 <Button key={`${b}-${n}`} data-testid={`hero-book-${b === books[0] ? 'small' : 'large'}${n === 10 ? '-10' : ''}`} disabled={have < n || h.level >= cap}
                   onClick={() => run(() => feedExpBooks(profile, content, h.heroId, b, n))}>
                   {t('ui.camp.heroes.book', { name: itemName(t, b), n, have: int(have) })}
@@ -68,11 +69,12 @@ export function HeroesTab({ profile }: { profile: Profile }) {
               ));
             })}
           </div>
+          {books.map((b) => <Reason key={b} testid={`hero-book-reason-${b === books[0] ? 'small' : 'large'}`} text={shortReason(profile, b, 1)} />)}
           <div className="flex flex-wrap gap-2">
             <Button data-testid="hero-star-up" disabled={!nextStar} onClick={() => run(() => starUpHero(profile, content, h.heroId))}>
               {nextStar ? t('ui.camp.heroes.starUp', { to: nextStar.to, shards: int(nextStar.shards), shardName: itemName(t, G.shardItemId), gold: int(nextStar.gold), goldName: goldName(t), have: int(profile.items[G.shardItemId] ?? 0) }) : t('ui.camp.heroes.maxStars')}
             </Button>
-            <Button data-testid="hero-limit-break" disabled={!nextBreak || h.level < cap} onClick={() => run(() => limitBreakHero(profile, content, h.heroId))}>
+            <Button data-testid="hero-limit-break" disabled={!nextBreak || h.level < cap || Object.entries(nextBreak.items).some(([id, n]) => (profile.items[id] ?? 0) < n)} onClick={() => run(() => limitBreakHero(profile, content, h.heroId))}>
               {nextBreak
                 ? t('ui.camp.heroes.limitBreak', {
                   cost: [...Object.entries(nextBreak.items).map(([id, n]) => `${itemName(t, id)} ×${int(n)}`), `${int(nextBreak.gold)} ${goldName(t)}`].join(' · '),
@@ -81,6 +83,8 @@ export function HeroesTab({ profile }: { profile: Profile }) {
             </Button>
           </div>
           {nextBreak && h.level < cap && <p className="text-sm text-text-muted">{t('ui.camp.heroes.limitBreakAtCap')}</p>}
+          {nextBreak && Object.entries(nextBreak.items).map(([id, n]) => <Reason key={id} text={shortReason(profile, id, n)} />)}
+          {nextStar && <Reason text={shortReason(profile, G.shardItemId, nextStar.shards)} />}
         </Section>
       )}
       {errorLine}

@@ -622,6 +622,12 @@
     "W": "West"
   },
   "ui": {
+    "save": {
+      "corrupt": "Your save could not be read, so a new profile was started. The old data is kept as a backup under {{key}}.",
+      "corruptNoBackup": "Your save could not be read and no backup could be made. A new profile was started.",
+      "newer": "This save was written by a newer version of the game. Update the game to use Camp. Your save has not been changed.",
+      "dismiss": "Got it"
+    },
     "menu": {
       "epigraph": "Some worlds were written to fall.",
       "worldLabel": "World 1",
@@ -829,6 +835,16 @@
     },
     "camp": {
       "title": "Camp",
+      "short": "Need {{n}} more {{name}}.",
+      "noSource": "{{name}}: no source yet, so this cannot be used.",
+      "confirm": {
+        "cancel": "Cancel",
+        "ok": "Confirm",
+        "resetTitle": "Spend {{n}} {{item}} to reset?",
+        "resetBody": "The reset returns your points. The crystals are spent and cannot be refunded.",
+        "keystoneTitle": "Learn {{name}} for {{n}} points?",
+        "keystoneBody": "A keystone is powerful and comes with a drawback. Resetting it later may cost crystals."
+      },
       "back": "Menu",
       "loading": "Opening the camp…",
       "newerSave": "Update the game to use your save.",
@@ -875,6 +891,7 @@
       },
       "traits": {
         "points": "{{n}} trait points",
+        "subtitle": "Permanent skills that carry into every run",
         "reset": "Reset all ({{cost}})",
         "resetBranch": "Reset branch ({{cost}})",
         "free": "free",
@@ -912,11 +929,14 @@
         "next": "+{{from}} → +{{to}}",
         "chance": "success {{p}}",
         "safe": "This step always succeeds.",
-        "drop": "On failure: {{p}} chance to drop one level.",
+        "drop": "On failure: {{p}} chance to drop to +{{to}}.",
         "noDrop": "On failure: the level is kept.",
         "cost": "Costs {{stoneName}} ×{{stones}} and {{gold}} {{goldName}}",
         "protect": "Use a {{name}} ({{n}} left)",
         "enhance": "Enhance",
+        "enhanceRisk": "Enhance · may drop",
+        "enhanceProtected": "Enhance · scroll protects",
+        "noScrolls": "No scrolls left",
         "result": {
           "success": "Success! Now +{{n}}.",
           "fail": "Failed. Still +{{n}}.",
@@ -945,13 +965,14 @@
         "new": "New!",
         "shards": "{{name}} +{{n}}",
         "pity": "Pity",
-        "since5": "{{n}} / {{hard}} pulls since the last 5★",
+        "since5": "{{n}} pulls since the last 5★ · guaranteed at {{hard}}",
         "soft": "From pull {{n}} the 5★ chance rises with every pull. Pity carries over to every banner.",
         "guarantee4": "A 4★ or better is guaranteed within {{n}} pulls.",
         "rates": "Rates",
+        "pulls": "Pull",
         "star": "Stars",
-        "rateListed": "Per pull, before guarantees",
-        "rateEffective": "Rate",
+        "rateListed": "Single pull",
+        "rateEffective": "Overall rate (guarantees included)",
         "effectiveNote": "Rates include pity and the 10-pull guarantee: this is what you get over many pulls. The smaller column is the chance of a single pull before any guarantee."
       },
       "titles": {

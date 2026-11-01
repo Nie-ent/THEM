@@ -248,6 +248,7 @@ P2 notes (do not block):
 | Date | Commit | Direction | Tokens | Phone portrait | Result | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
 | 2026-11-01 | c4f201f | ok | S1 | S4, S5 | CHANGES | S1–S6 |
+| 2026-11-01 | 8af2f3b | ok | ok | ok | PASS | Re-review: S1–S6 all in the spec (hud-track, sentence case, gilt coin, enhance risk wording + button states, rates headers/order/100% gate/"guaranteed at 80", crystal confirms, 2×2 branch grid). |
 
 Structure is sound (one screen, rail on desktop / scrolling strip on phone, one loud thing per tab,
 meta-only rules, testids). The spec under-specifies the two screens where players can lose value.
@@ -281,6 +282,7 @@ Must fix (spec text):
 | Summon | 2026-11-01 | c4f201f | B1 | B1 | B1 | B1 | CHANGES | B1, B4 (judged from code) |
 | Titles | 2026-11-01 | c4f201f | ok | ok | B1 | B1 | CHANGES | B1 |
 | Results rewards | 2026-11-01 | c4f201f | B1 | B1 | B1 | B1 | CHANGES | B1 (judged from code) |
+| All tabs + results (re-review) | 2026-11-01 | 8af2f3b | ok | ok | ok | ok | PASS | B1–B6 fixed: 36 valid PNGs + `.gitattributes`; 2×2 branch grid; warning-styled drop line naming +10, "may drop" / "scroll protects" button, checkbox resets per item and disables at 0, fail-drop in danger; rates above pulls with clear headers; crystal confirms; no all-caps. N2, N3, N4-adjacent, N6 (ต้นไม้ทักษะ / สาย…) done. |
 
 **Verdict P2-10: CHANGES.** Tokens, layout, Trirong headings, rubric primaries and Thai wrapping are
 right; Character, Heroes and the desktop trait columns read well. Blocking items:
@@ -330,3 +332,13 @@ Nice to have:
 
 Font risks once Google Fonts load: Trirong "Lv 36" and section headings in Thai at leading-display;
 Plex Thai widths in the 2×2 branch grid and the summon table headers.
+
+P2 notes after the P2-10 re-review (do not block):
+
+- P2-12 N1 partial: active tab scrolls into view; no overflow cue on the phone strip (fade is out by the
+  no-gradient rule). Add a 1 px `border-strong` edge or a "›" glyph when it overflows.
+- P2-13 N5 open: group trait nodes under tier dividers to cut repeated "Needs N points" lines on phones.
+- P2-14 No screenshot of the crystal confirm dialog or the menu save notice (QA-P2-004); add
+  `camp-confirm-*` and `menu-save-notice-*` to the next shot run.
+- P2-15 Phone summon: Pull buttons sit below the rates and can fall under the fold; consider a sticky
+  pull bar per the spec's sticky-action pattern.

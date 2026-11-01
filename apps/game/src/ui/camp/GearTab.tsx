@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { content } from '@them/content';
 import { enhanceGear, enhanceInfo, equipGear, gearDef, type EnhanceOutcome, type GearItem, type Profile } from '@them/meta';
 import { profileStore } from '../../game/profile';
-import { Button, Wrap, useFmt } from '../kit';
-import { ModLines, Section, goldName, itemName, useAct } from './common';
+import { Button, WarnIcon, Wrap, useFmt } from '../kit';
+import { ModLines, Reason, Section, goldName, itemName, useAct, useShortReason } from './common';
 
 /** Bonuses of one item at its level: base + perEnhance × level. */
 function itemMods(it: GearItem): Record<string, number> {
@@ -20,6 +20,7 @@ export function GearTab({ profile }: { profile: Profile }) {
   const { t } = useTranslation();
   const { int, pct } = useFmt();
   const { run, errorLine } = useAct();
+  const shortReason = useShortReason();
   const [selected, setSelected] = useState<string | null>(null);
   const [protect, setProtect] = useState(false);
   const [last, setLast] = useState<{ outcome: EnhanceOutcome; level: number } | null>(null);
@@ -35,7 +36,7 @@ export function GearTab({ profile }: { profile: Profile }) {
 
   const enhance = () => {
     if (!sel) return;
-    const r = run<{ outcome: EnhanceOutcome; level: number }>(() => enhanceGear(profile, content, sel.uid, profileStore.rolls, { protect }));
+    const r = run<{ outcome: EnhanceOutcome; level: number }>(() => enhanceGear(profile, content, sel.uid, profileStore.rolls, { protect: protect && (info?.scrolls ?? 0) > 0 }));
     if (r) setLast({ outcome: r.outcome, level: r.level });
   };
 
@@ -73,7 +74,7 @@ export function GearTab({ profile }: { profile: Profile }) {
                 type="button"
                 data-testid={`gear-item-${it.uid}`}
                 aria-pressed={selected === it.uid}
-                onClick={() => { setSelected(it.uid); setLast(null); }}
+                onClick={() => { setSelected(it.uid); setLast(null); setProtect(false); }}
                 className={`flex min-h-11 w-full flex-col items-start rounded-md border px-3 py-2 text-left ${selected === it.uid ? 'border-focus bg-surface-raised' : 'border-border-strong bg-surface hover:border-focus'}`}
               >
                 <span className="text-md font-semibold"><Wrap text={name(it)} /></span>
@@ -99,18 +100,28 @@ export function GearTab({ profile }: { profile: Profile }) {
             {info.next === null ? <p className="text-sm text-text-muted">{t('ui.camp.gear.max')}</p> : (
               <>
                 <p className="text-md tabular-nums">{t('ui.camp.gear.next', { from: info.level, to: info.level + 1 })} · {t('ui.camp.gear.chance', { p: pct(info.next.chance) })}</p>
-                <p className="text-sm text-text-muted">{info.next.chance >= 1 ? t('ui.camp.gear.safe') : info.next.dropChance > 0 ? t('ui.camp.gear.drop', { p: pct(info.next.dropChance) }) : t('ui.camp.gear.noDrop')}</p>
+                {info.next.chance >= 1
+                  ? <p className="text-sm text-text-muted">{t('ui.camp.gear.safe')}</p>
+                  : info.next.dropChance > 0
+                    ? <p data-testid="gear-risk" className="flex items-start gap-2 text-md font-semibold text-semantic-warning"><WarnIcon size={18} color="var(--them-color-semantic-warning)" /><span><Wrap text={t('ui.camp.gear.drop', { p: pct(info.next.dropChance), to: info.level - 1 })} /></span></p>
+                    : <p className="text-sm text-text-muted">{t('ui.camp.gear.noDrop')}</p>}
                 <p className="text-sm tabular-nums text-text-muted">{t('ui.camp.gear.cost', { stones: int(info.next.stones), stoneName: itemName(t, E.stoneItemId), gold: int(info.next.gold), goldName: goldName(t) })}</p>
                 {info.next.dropChance > 0 && (
-                  <label className="flex min-h-11 items-center gap-2 text-md">
-                    <input data-testid="gear-protect" type="checkbox" className="size-5 accent-accent" checked={protect} onChange={(e) => setProtect(e.target.checked)} />
-                    {t('ui.camp.gear.protect', { n: int(info.scrolls), name: itemName(t, E.protectItemId) })}
-                  </label>
+                  <div className="flex flex-col">
+                    <label className={`flex min-h-11 items-center gap-2 text-md ${info.scrolls === 0 ? 'text-text-subtle' : ''}`}>
+                      <input data-testid="gear-protect" type="checkbox" className="size-5 accent-accent" disabled={info.scrolls === 0} checked={protect && info.scrolls > 0} onChange={(e) => setProtect(e.target.checked)} />
+                      {t('ui.camp.gear.protect', { n: int(info.scrolls), name: itemName(t, E.protectItemId) })}
+                    </label>
+                    {info.scrolls === 0 && <Reason testid="gear-no-scrolls" text={`${t('ui.camp.gear.noScrolls')} · ${shortReason(profile, E.protectItemId, 1) ?? ''}`} />}
+                  </div>
                 )}
-                <Button data-testid="gear-enhance" variant="primary" className="self-start" disabled={!info.canAfford} onClick={enhance}>{t('ui.camp.gear.enhance')}</Button>
+                <Reason testid="gear-stone-reason" text={shortReason(profile, E.stoneItemId, info.next.stones)} />
+                <Button data-testid="gear-enhance" variant="primary" className="self-start" disabled={!info.canAfford} onClick={enhance}>
+                  {info.next.dropChance > 0 && info.next.chance < 1 ? t(protect && info.scrolls > 0 ? 'ui.camp.gear.enhanceProtected' : 'ui.camp.gear.enhanceRisk') : t('ui.camp.gear.enhance')}
+                </Button>
               </>
             )}
-            {last && <p data-testid="gear-result" role="status" className={`text-md font-semibold ${last.outcome === 'success' ? 'text-semantic-success' : 'text-semantic-warning'}`}>{t(`ui.camp.gear.result.${last.outcome}`, { n: last.level })}</p>}
+            {last && <p data-testid="gear-result" role="status" className={`text-md font-semibold ${last.outcome === 'success' ? 'text-semantic-success' : last.outcome === 'fail-drop' ? 'text-semantic-danger' : 'text-semantic-warning'}`}>{t(`ui.camp.gear.result.${last.outcome}`, { n: last.level })}</p>}
           </div>
         </Section>
       )}

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { content } from '@them/content';
 import { expToNext } from '@them/meta';
 import { useProfile } from '../../game/profile';
-import { BlotIcon, Button, useDesktop, useFmt } from '../kit';
+import { BlotIcon, Button, GoldIcon, useDesktop, useFmt } from '../kit';
 import { CharacterTab } from './CharacterTab';
 import { Bar, goldName } from './common';
 import { GearTab } from './GearTab';
@@ -23,6 +23,8 @@ export function CampScreen({ onBack }: { onBack: () => void }) {
   const profile = useProfile();
   const [tab, setTab] = useState<Tab>('character');
   const tabRefs = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+
+  useEffect(() => { tabRefs.current[tab]?.scrollIntoView?.({ inline: 'nearest', block: 'nearest' }); }, [tab]);
 
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => { if (e.key === 'Escape') onBack(); };
@@ -68,7 +70,7 @@ export function CampScreen({ onBack }: { onBack: () => void }) {
           className={`flex min-h-11 shrink-0 items-center justify-between gap-2 whitespace-nowrap rounded-md px-3 text-md font-medium leading-ui ${tab === x ? 'bg-surface-raised text-reward' : 'text-text-muted hover:text-text'}`}
         >
           {t(`ui.camp.tabs.${x}`)}
-          {badge(x) > 0 && <span className="rounded-sm bg-accent px-1.5 text-xs font-semibold tabular-nums text-text-on-accent" aria-label={t('ui.camp.unspent', { n: badge(x) })}>{int(badge(x))}</span>}
+          {badge(x) > 0 && <span className="rounded-sm border border-reward px-1.5 text-xs font-semibold tabular-nums text-reward" aria-label={t('ui.camp.unspent', { n: badge(x) })}>{int(badge(x))}</span>}
         </button>
       ))}
     </div>
@@ -82,7 +84,7 @@ export function CampScreen({ onBack }: { onBack: () => void }) {
       {next !== null && <Bar value={profile.exp} max={next} label={t('ui.camp.expLabel')} />}
     </div>
   );
-  const gold = <span data-testid="camp-gold" className="whitespace-nowrap text-md font-semibold tabular-nums text-reward">{int(profile.currencies.gold ?? 0)} {goldName(t)}</span>;
+  const gold = <span data-testid="camp-gold" className="inline-flex items-center gap-1 whitespace-nowrap text-md font-semibold tabular-nums text-reward"><GoldIcon size={16} />{int(profile.currencies.gold ?? 0)} {goldName(t)}</span>;
   const panel = (
     <div id="camp-panel" role="tabpanel" aria-labelledby={`camp-tab-${tab}`} className="them-scroll-y min-h-0 flex-1 overflow-y-auto px-4 py-6 md:px-8">
       <div className="max-w-220">
@@ -101,7 +103,7 @@ export function CampScreen({ onBack }: { onBack: () => void }) {
       <main data-testid="camp" className="absolute inset-0 z-modal flex flex-col bg-bg">
         <header className="flex h-16 shrink-0 items-center gap-6 border-b border-border px-4">
           <Button data-testid="camp-back" variant="text" onClick={onBack}>‹ {t('ui.camp.back')}</Button>
-          <h1 className="font-display text-xl font-semibold uppercase leading-display tracking-wide">{t('ui.camp.title')}</h1>
+          <h1 className="font-display text-xl font-semibold leading-display">{t('ui.camp.title')}</h1>
           <div className="flex flex-1 items-center justify-end gap-6">{level}{gold}</div>
         </header>
         <div className="flex min-h-0 flex-1">
