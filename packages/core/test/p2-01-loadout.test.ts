@@ -1,9 +1,12 @@
 // P2-01: meta loadout → createRun. Core consumes the loadout as modifiers only.
 import { describe, expect, it } from 'vitest';
-import { content } from '@them/content';
+import { content as shipped } from '@them/content';
 import { createRun, stateHash, step } from '../src/api';
 import { NO_INPUT } from '../src/types';
 
+// These tests check the loadout's raw effect: an unreachable recommended power keeps the difficulty
+// limiter (P2-12, test/power.test.ts) out of the way.
+const content: typeof shipped = { ...shipped, worlds: shipped.worlds.map((w) => ({ ...w, recommendedPower: 1e12 })) };
 const worldId = content.worlds[0]!.id;
 const hp = content.balance.playerHero.hp;
 const speed = content.balance.playerHero.speed;

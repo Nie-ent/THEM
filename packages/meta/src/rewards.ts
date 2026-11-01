@@ -1,13 +1,21 @@
 /**
  * Run result → profile (GDD §3, §12).
  *
- *   reward = floor(world.rewards[c] × rewardPct / 100 × lossFactor)
+ *   currency = floor(world.rewards[c] × rewardPct / 100 × lossFactor)
+ *   item     = stochasticRound(world.rewardItems[i] × rewardPct / 100 × lossFactor), at least 1 on a win
  *   lossFactor = wavesCleared / waveCount on a loss when content `meta.runRewards.lossScalesByWavesCleared`,
  *                else 1
  *
  * `rewardPct` comes from the run's grade (S 120, A 100, B 80, C 60); a loss is always the lowest band
  * (core caps it). Account EXP uses the same factor: floor((runExp.base + runExp.perLevel × L) × factor),
  * L = the profile's Global Level when the run is recorded (P2-02).
+ *
+ * Items are small counts (1–3), so flooring erased grade differences (QA-P2-003). They round
+ * stochastically instead: the fractional part is paid as one extra item with that probability, so
+ * the expected value is exact (S pays 20% more on average, a wave-11 loss still averages 0.9
+ * stones). The "roll" is a hash of (runId, item id): deterministic, so the results-screen preview and
+ * the applied reward always agree and a retried save pays the same. Any win pays at least 1 of
+ * every item the world awards (every win progresses hero limit breaks).
  *
  * Each outcome carries a `runId`; rewards for the same id are applied once (the profile remembers
  * the last REWARDED_RUNS_KEPT ids), so a retried save or a double event cannot pay twice.
@@ -86,8 +94,30 @@ export function computeRunRewards(outcome: RunOutcome, content: ContentBundle, l
     currencies[id] = Math.floor(Math.round(world.rewards[id]! * factor * 1e9) / 1e9);
   }
   const items: Record<string, number> = {};
-  for (const id of Object.keys(world.rewardItems).sort()) items[id] = Math.floor(Math.round(world.rewardItems[id]! * factor * 1e9) / 1e9);
+  for (const id of Object.keys(world.rewardItems).sort()) {
+    const base = world.rewardItems[id]!;
+    const exact = Math.round(base * factor * 1e9) / 1e9;
+    let n = stochasticRound(exact, rewardRoll(outcome.runId, id));
+    if (outcome.result === 'win' && base > 0) n = Math.max(1, n);
+    items[id] = n;
+  }
   return { factor, grade: outcome.score.grade, currencies, items, exp: runExpFor(content, level, factor) };
+}
+
+/** floor(x) + 1 with probability frac(x); `u` ∈ [0, 1). */
+export function stochasticRound(x: number, u: number): number {
+  const f = Math.floor(x);
+  return x - f > u ? f + 1 : f;
+}
+
+/** Deterministic uniform [0, 1) from (runId, key): FNV-1a 32-bit + murmur finaliser. */
+export function rewardRoll(runId: string, key: string): number {
+  let h = 0x811c9dc5;
+  const s = `${runId}|${key}`;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  h = Math.imul(h ^ (h >>> 16), 0x85ebca6b) >>> 0;
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) >>> 0;
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
 
 export interface ApplyResult {

@@ -6,7 +6,7 @@ import { checkGachaContent, effectiveRates, fiveStarChance, grantHero, pull, rol
 import { buildRunConfig } from '../src/loadout';
 import { checkMetaContent, type Profile } from '../src/profile';
 import { MetaError } from '../src/progression';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const G = content.gacha;
 const worldId = content.worlds[0]!.id;
@@ -22,7 +22,7 @@ describe('gacha content (GDD §12)', () => {
   });
 
   it('gacha heroes stay out of bare runs (defaultTeam false)', () => {
-    const run = createRun({ worldId }, content, 1);
+    const run = createRun({ worldId }, unlimited, 1);
     expect(run.allyDefs.map((d) => content.heroes[d]!.id)).toEqual(['mira', 'brann']);
   });
 });
@@ -93,7 +93,7 @@ describe('pulling', () => {
     expect(b).toMatchObject({ duplicate: true, shards: G.duplicateShards['2'] });
     expect(b.profile.items[content.heroGrowth.shardItemId]).toBe(G.duplicateShards['2']);
     // The pulled hero fights: Tova is in the run.
-    const run = createRun(buildRunConfig(a.profile, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(a.profile, content, { worldId }), unlimited, 1);
     expect(run.allyDefs.map((d) => content.heroes[d]!.id)).toContain('tova');
   });
 

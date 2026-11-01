@@ -41,6 +41,11 @@ export interface HudState {
   upkeepStone: number;
   /** Latest boss line (i18n key) for the UI to show; `seq` increments per line so repeats re-show. */
   bossLine: { key: string; bossId: string; moment: 'intro' | 'phase' | 'defeat'; seq: number } | null;
+  /** Difficulty limiter (GDD §3): loadout power, world recommended power, and whether it is capping. */
+  power: number;
+  recommendedPower: number;
+  effectivePower: number;
+  limiterActive: boolean;
   selectedBuilding: string | null;
   final: ScoreBreakdown | null;
 }
@@ -50,6 +55,7 @@ export const initialHud: HudState = {
   heroHp: 0, heroMaxHp: 1, coreHp: 0, coreMaxHp: 1, level: 1, xp: 0, xpToNext: 1, wood: 0, stone: 0, score: 0,
   draft: null, rerollsLeft: 0, slotsUsed: 0, maxSlots: 0, intel: null, boss: null, coreThreat: false,
   burning: 0, upkeepWood: 0, upkeepStone: 0, bossLine: null,
+  power: 100, recommendedPower: 100, effectivePower: 100, limiterActive: false,
   selectedBuilding: null, final: null,
 };
 

@@ -10,7 +10,7 @@ import { SAVE_VERSION } from '../src/migrations';
 import { Profile, checkMetaContent } from '../src/profile';
 import { MetaError } from '../src/progression';
 import { decodeSave } from '../src/save';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const G = content.heroGrowth;
 const worldId = content.worlds[0]!.id;
@@ -121,7 +121,7 @@ describe('heroes in the run', () => {
     expect(heroGrowth(content, hero(p, 'brann'))).toEqual({ hpMult: 0.8, damageMult: 0.7 });
     const cfg = buildRunConfig(p, content, { worldId });
     expect(cfg.loadout?.allyMods).toEqual({ brann: { hpMult: 0.8, damageMult: 0.7 } });
-    const run = createRun(cfg, content, 1);
+    const run = createRun(cfg, unlimited, 1);
     const i = run.allies[run.allyDefs.findIndex((d) => content.heroes[d]!.id === 'brann')]!;
     const base = content.heroes.find((h) => h.id === 'brann')!;
     expect(run.w.maxHp[i]).toBeCloseTo(base.hp * 1.8, 9);

@@ -168,6 +168,10 @@ export class GameSession {
         phase: b.phase, phases: bd.phases.length, enraged: b.enraged,
       } : null,
       coreThreat: this.coreThreatT > 0,
+      power: Math.round(v.power),
+      recommendedPower: Math.round(v.recommendedPower),
+      effectivePower: Math.round(v.effectivePower),
+      limiterActive: v.limiterActive,
     });
   }
 

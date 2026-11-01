@@ -12,7 +12,7 @@ import { MetaError } from '../src/progression';
 import { applyRunOutcome, outcomeFromRun, type RunFacts, type RunOutcome } from '../src/rewards';
 import { KeyValueSaveService, decodeSave, memoryStore } from '../src/save';
 import { checkTitlesContent, countedTitles, equipTitle, titleLoadout, unlockTitles } from '../src/titles';
-import { freshProfile } from './helpers';
+import { freshProfile, unlimited } from './helpers';
 
 const worldId = content.worlds[0]!.id;
 const n = content.worlds[0]!.waves.length;
@@ -82,7 +82,7 @@ describe('earning titles', () => {
   });
 
   it('outcomeFromRun facts come from the run (hero damage, Core HP, allies)', () => {
-    const run = createRun(buildRunConfig(freshProfile(), content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(freshProfile(), content, { worldId }), unlimited, 1);
     step(run, { moveX: 0, moveY: 0, callWave: true });
     run.w.hp[run.hero] = 1;
     getCtx(run).spawnEnemy('raider', run.w.x[run.hero]! + 12, run.w.y[run.hero]! + 12);
@@ -115,7 +115,7 @@ describe('equipping and bonuses', () => {
     const l = titleLoadout(p, content);
     // lone-survivor +5% damage, tier 3: +2% HP, tier 6: +3% damage
     expect(l.mods).toEqual({ damageMult: 0.08, maxHpMult: 0.02 });
-    const run = createRun(buildRunConfig(p, content, { worldId }), content, 1);
+    const run = createRun(buildRunConfig(p, content, { worldId }), unlimited, 1);
     expect(run.mods.damageMult).toBeCloseTo(1.08, 9);
     // Ranked: no title bonus at all (gear is normalised separately, so compare with a title-less profile).
     const ranked = buildRunConfig(p, content, { worldId, ranked: true });
