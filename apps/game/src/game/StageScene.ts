@@ -40,8 +40,13 @@ const SIDES: Side[] = ['N', 'E', 'S', 'W'];
 const MAX_AIM = 12;
 const FLASH_POOL = 16;
 const CHARRED_MAX = 40;
+/** Area pulses (ember ring): pool size and how long one ring stays on screen. */
+const PULSE_POOL = 8;
+const PULSE_SECONDS = 0.35;
 
 interface ImpactFlash { shape: TeleShape; t: number }
+/** A pulse follows its source entity (`e`) while it is drawn; t < 0 = free slot. */
+interface Pulse { e: number; x: number; y: number; r: number; t: number }
 
 export class StageScene extends Phaser.Scene {
   private session!: GameSession;
@@ -68,6 +73,7 @@ export class StageScene extends Phaser.Scene {
   private safe = new Phaser.Geom.Rectangle();
   private teleCache = new Map<number, TeleShape>();
   private flashes: ImpactFlash[] = [];
+  private pulses: Pulse[] = Array.from({ length: PULSE_POOL }, () => ({ e: -1, x: 0, y: 0, r: 0, t: -1 }));
   private charred: { x: number; y: number }[] = [];
   private chevrons: { side: Side; t: number }[] = [];
   private heroHitT = 0;
@@ -200,6 +206,10 @@ export class StageScene extends Phaser.Scene {
         if (i) for (const side of SIDES) if (i.sides[side] > 0) this.chevrons.push({ side, t: 0 });
       }),
       b.on('waveEnd', () => { this.charred.length = 0; }),
+      b.on('pulse', (ev) => {
+        const p = this.pulses.find((x) => x.t < 0) ?? this.pulses.reduce((a, b2) => (b2.t > a.t ? b2 : a));
+        p.e = ev.e; p.x = ev.x; p.y = ev.y; p.r = ev.r; p.t = 0;
+      }),
     );
   }
 
@@ -438,6 +448,21 @@ export class StageScene extends Phaser.Scene {
       f.t += dt;
       if (f.t > 0.034 + 0.15) { f.t = -1; continue; }
       drawImpact(g, f.shape, f.t < 0.034, 1 - Math.max(0, f.t - 0.034) / 0.15);
+    }
+    // Area pulses (ember ring): a fire ring that expands to the effect radius and fades, centred on
+    // the source as it moves. Reduced motion: no expansion, fade only.
+    const ents = v.entities;
+    for (const p of this.pulses) {
+      if (p.t < 0) continue;
+      p.t += dt;
+      if (p.t > PULSE_SECONDS) { p.t = -1; continue; }
+      if (p.e >= 0 && p.e < ents.count && ents.kind[p.e] !== Kind.None) { p.x = ents.x[p.e]!; p.y = ents.y[p.e]!; }
+      const k = p.t / PULSE_SECONDS;
+      const ease = 1 - (1 - k) * (1 - k);
+      const r = this.reduced ? p.r : p.r * (0.3 + 0.7 * ease);
+      const a = 1 - k;
+      g.fillStyle(col(C.burning), 0.16 * a).fillCircle(p.x, p.y, r);
+      g.lineStyle(3, col(C.burning), 0.85 * a).strokeCircle(p.x, p.y, r);
     }
     // Core pulses a violet ring at 2 Hz for the whole wind-up (readability §5).
     if (coreThreat) {

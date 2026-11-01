@@ -78,6 +78,11 @@ export type SimEvent =
   /** A boss line for the UI (i18n key from bosses.json: params.introKey/defeatKey, phase params.lineKey). */
   | { type: 'bossLine'; e: number; bossId: string; moment: 'intro' | 'phase' | 'defeat'; phase: number; key: string }
   | { type: 'paused'; paused: boolean }
+  /**
+   * An area effect went off (e.g. the ember-ring card): radius `r` around (x, y), from entity `e`.
+   * Presentation only — the damage arrives as separate `hit` events.
+   */
+  | { type: 'pulse'; e: number; x: number; y: number; r: number; fire: boolean }
   | { type: 'rejected'; command: 'build' | 'sell' | 'pickCard' | 'reroll' | 'placeHero' | 'callWave'; reason: string }
   | { type: 'runEnd'; result: 'win' | 'lose'; score: ScoreBreakdown };
 

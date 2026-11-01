@@ -21,6 +21,8 @@ cardEffects.register({
     const n = run.hash.query(w.x[h], w.y[h], radius, run.scratch2);
     const dmg = num(params, 'damage', level) * ctx.outgoingMult(h);
     const secs = num(params, 'igniteSeconds', level, 3);
+    // The renderer draws the ring from this; without it the pulse is invisible when nothing is in range.
+    ctx.emit({ type: 'pulse', e: h, x: w.x[h], y: w.y[h], r: radius, fire: true });
     for (let i = 0; i < n; i++) {
       const e = run.scratch2[i];
       if (!w.isAlive(e) || w.kind[e] !== Kind.Enemy) continue;

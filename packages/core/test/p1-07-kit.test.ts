@@ -93,6 +93,19 @@ describe('card ember-ring', () => {
     expect(run.w.burnT[near]).toBeGreaterThan(0);
     expect(run.w.hp[far]).toBe(1000);
   });
+
+  it('emits a pulse event on every pulse, even with no enemy in range (the renderer draws it)', () => {
+    const run = newRun();
+    pick(run, 'ember-ring');
+    run1(run, { ...idle, callWave: true });
+    const h = run.hero;
+    const pulses: Extract<SimEvent, { type: 'pulse' }>[] = [];
+    for (let i = 0; i < 125; i++) for (const ev of run1(run)) if (ev.type === 'pulse') pulses.push(ev);
+    // interval 2 s at level 1 → 2 or 3 pulses in ~4.2 s
+    expect(pulses.length).toBeGreaterThanOrEqual(2);
+    const card = content.cards.find((c) => c.id === 'ember-ring')!;
+    expect(pulses[0]).toMatchObject({ e: h, r: (card.params.radius as number[])[0], fire: true });
+  });
 });
 
 describe('building fire-pit-trap', () => {
