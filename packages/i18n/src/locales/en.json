@@ -950,9 +950,9 @@
         "guarantee4": "A 4★ or better is guaranteed within {{n}} pulls.",
         "rates": "Rates",
         "star": "Stars",
-        "rateListed": "Listed rate",
-        "rateEffective": "Real share",
-        "effectiveNote": "The listed rate is the chance of each pull before the guarantees. The real share is what players actually get over many pulls, with the 10-pull guarantee and pity included."
+        "rateListed": "Per pull, before guarantees",
+        "rateEffective": "Rate",
+        "effectiveNote": "Rates include pity and the 10-pull guarantee: this is what you get over many pulls. The smaller column is the chance of a single pull before any guarantee."
       },
       "titles": {
         "main": "Main title",

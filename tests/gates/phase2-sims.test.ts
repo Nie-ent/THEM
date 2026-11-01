@@ -16,7 +16,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { content } from '../../packages/content/src/index';
 import { Rng } from '../../packages/core/src/index';
-import { rollStar, type PityState } from '../../packages/meta/src/gacha';
+import { effectiveRates, rollStar, type PityState } from '../../packages/meta/src/gacha';
 import { MIGRATIONS, SAVE_VERSION } from '../../packages/meta/src/migrations';
 import { Profile, newProfile } from '../../packages/meta/src/profile';
 import { grantExp, runExpFor } from '../../packages/meta/src/progression';
@@ -51,6 +51,11 @@ describe('P2-11 gacha distribution (200,000 pulls)', () => {
     const p90 = gaps[Math.floor(gaps.length * 0.9)]!;
     expect(p90).toBeGreaterThanOrEqual(63);
     expect(p90).toBeLessThanOrEqual(67);
+  });
+
+  it('the real rates shown in the Summon tab (effectiveRates) match the simulation within 0.3 points', () => {
+    const real = effectiveRates(content);
+    for (const s of [1, 2, 3, 4, 5] as const) expect(Math.abs(count[s] / PULLS - real[s])).toBeLessThan(0.003);
   });
 
   it('4★ at least the base 10% (the guarantee only adds); 3★ / 2★ / 1★ keep base proportions', () => {

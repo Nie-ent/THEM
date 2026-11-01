@@ -88,7 +88,9 @@ Targets ≥ 44×44 (R4.4). Lists are single column. The tab strip never wraps; i
 
 ### Summon
 - Banner name and description; the price for 1 and 10 pulls in gold.
-- **Rates table**: base rates per star as listed in content, and a note that the 10-pull
+- **Rates table** (owner decision 2026-11-01: show real rates): the real share per star from
+  `effectiveRates()` (pity and the 10-pull guarantee included) as the main column, the per-pull base
+  rate as a smaller second column, and a note explaining the difference. Former draft: base rates, and a note that the 10-pull
   guarantee and pity raise the real 4★/5★ share (QA-P2-11-001: show "effective" values too:
   5★ ≈ 2.4%, 4★ ≈ 14.4%, taken from `docs/qa/phase2-sims.md`, keys `ui.camp.summon.effective*`).
 - Pity: pulls since the last 5★ (`n / 80`), soft pity note from pull 60, pulls until the next

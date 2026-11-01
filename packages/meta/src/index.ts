@@ -48,5 +48,5 @@ export {
   checkHeroGrowthContent,
 } from './heroes';
 export {
-  fiveStarChance, rollStar, grantHero, pull, checkGachaContent, type PityState, type PullResult, type Star,
+  fiveStarChance, effectiveRates, rollStar, grantHero, pull, checkGachaContent, type PityState, type PullResult, type Star,
 } from './gacha';

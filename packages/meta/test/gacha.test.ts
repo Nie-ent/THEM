@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { content } from '@them/content';
 import { createRun } from '@them/core';
 import { seededRolls, type RollSource } from '../src/env';
-import { checkGachaContent, fiveStarChance, grantHero, pull, rollStar, type PityState } from '../src/gacha';
+import { checkGachaContent, effectiveRates, fiveStarChance, grantHero, pull, rollStar, type PityState } from '../src/gacha';
 import { buildRunConfig } from '../src/loadout';
 import { checkMetaContent, type Profile } from '../src/profile';
 import { MetaError } from '../src/progression';
@@ -48,6 +48,16 @@ describe('pity math', () => {
     }
     expect(mean).toBeCloseTo(41.2, 1);
     expect(p90).toBe(65);
+  });
+
+  it('effective (real) rates: sum to 1; 5★ = 1 / mean pulls per 5★; 4★ ≈ 14.4% with the guarantee', () => {
+    const r = effectiveRates(content);
+    expect(r[5] + r[4] + r[3] + r[2] + r[1]).toBeCloseTo(1, 9);
+    let surv = 1, mean = 0;
+    for (let n = 1; n <= G.pity.hard; n++) { const f = surv * fiveStarChance(content, n); mean += n * f; surv -= f; }
+    expect(r[5]).toBeCloseTo(1 / mean, 6);
+    expect(r[4]).toBeCloseTo(0.1441, 3);
+    expect(r[1]).toBeCloseTo(r[2], 9); // equal base rates stay equal
   });
 
   it('rollStar: 5★ resets both counters, 4★ resets the 4★ counter, the 10th pull without 4★+ is a 4★', () => {

@@ -56,6 +56,58 @@ export function rollStar(content: ContentBundle, state: PityState, rolls: RollSo
   return star;
 }
 
+/**
+ * Long-run share of each star with pity and the 4★ guarantee included: the rates players really
+ * get (owner decision 2026-11-01: the Summon screen shows these). Exact, from the stationary
+ * distribution of the pity state (pullsSince5, pullsSince4); no simulation.
+ */
+export function effectiveRates(content: ContentBundle): Record<Star, number> {
+  const g = content.gacha;
+  const H = g.pity.hard, G4 = g.pity.guarantee4Every;
+  const base = (s: Star) => g.rates[String(s) as '1'] ?? 0;
+  const restTotal = base(4) + base(3) + base(2) + base(1);
+  /** P(star | state) for state (a = pulls since 5★, b = pulls since 4★+). */
+  const probs = (a: number, b: number): Record<Star, number> => {
+    const p5 = fiveStarChance(content, a + 1);
+    const rest = 1 - p5;
+    if (b + 1 >= G4) return { 5: p5, 4: rest, 3: 0, 2: 0, 1: 0 };
+    const k = restTotal > 0 ? rest / restTotal : 0;
+    return { 5: p5, 4: base(4) * k, 3: base(3) * k, 2: base(2) * k, 1: base(1) * k };
+  };
+  const idx = (a: number, b: number) => a * G4 + b;
+  let pi = new Float64Array(H * G4);
+  pi[0] = 1;
+  for (let it = 0; it < 5000; it++) {
+    const next = new Float64Array(H * G4);
+    for (let a = 0; a < H; a++) {
+      for (let b = 0; b < G4; b++) {
+        const w = pi[idx(a, b)]!;
+        if (w === 0) continue;
+        const p = probs(a, b);
+        next[0] += w * p[5];
+        if (a + 1 < H) {
+          next[idx(a + 1, 0)] += w * p[4];
+          if (b + 1 < G4) next[idx(a + 1, b + 1)] += w * (p[3] + p[2] + p[1]);
+        }
+      }
+    }
+    let diff = 0;
+    for (let i = 0; i < next.length; i++) diff += Math.abs(next[i]! - pi[i]!);
+    pi = next;
+    if (diff < 1e-13) break;
+  }
+  const out: Record<Star, number> = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  for (let a = 0; a < H; a++) {
+    for (let b = 0; b < G4; b++) {
+      const w = pi[idx(a, b)]!;
+      if (w === 0) continue;
+      const p = probs(a, b);
+      for (const s of [5, 4, 3, 2, 1] as Star[]) out[s] += w * p[s];
+    }
+  }
+  return out;
+}
+
 export interface PullResult {
   heroId: string;
   stars: Star;

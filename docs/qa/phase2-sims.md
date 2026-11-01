@@ -20,7 +20,7 @@ Numbers below are from that gate's seeds on 2026-11-01, branch `qa/P2-11-gates`.
 
 | ID | Sev | Finding |
 | --- | --- | --- |
-| QA-P2-11-001 | P2 | **Effective 4★ rate is 14.4%, not the 10% the banner lists**, because the 10-pull guarantee adds 4★s; the effective 5★ rate is 2.4% (pity). GDD §8 says rates are shown clearly. Decide whether the UI shows base rates, effective rates, or both (some app stores and regions require the effective "consolidated" rate). |
+| QA-P2-11-001 | P2 | **Resolved 2026-11-01**: owner chose to show real rates; the Summon tab shows `effectiveRates()` (exact: 5★ 2.43%, 4★ 14.41%, 3★ 26.78%, 2★/1★ 28.19%), gate-checked against this simulation. Original finding: **effective 4★ rate is 14.4%, not the 10% the banner lists**, because the 10-pull guarantee adds 4★s; the effective 5★ rate is 2.4% (pity). GDD §8 says rates are shown clearly. Decide whether the UI shows base rates, effective rates, or both (some app stores and regions require the effective "consolidated" rate). |
 | QA-P2-11-002 | P3 | Star shares under 4★ are each about 1.5 points below base because pity moves probability to 4★ and 5★. Expected; listed so the displayed table is not mistaken for observed rates. |
 
 Not simulated yet (no system): VIP is a scenario in the gate only (no VIP flag in the profile);
