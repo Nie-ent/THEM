@@ -20,7 +20,7 @@ import { Rng } from './rng';
 import { computeScore, powerMultiplier } from './scoring';
 import { SpatialHash } from './spatial';
 import {
-  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Resolved,
+  baseMods, type BossRuntime, type BuildGrid, type CardOption, type ContentIndex, type InputFrame, type Mods, type Resolved,
   type Run, type RunConfig, type ScoreBreakdown, type SpawnEntry, type Telegraph, type TelegraphSpec, type WaveIntel,
 } from './types';
 import { World } from './world';
@@ -99,8 +99,14 @@ export function createRunImpl(config: RunConfig, content: ContentBundle, seed: n
     hardcoreRules: config.hardcoreRules ?? 0,
     power: config.power ?? worldDef.recommendedPower,
     allyHeroes: config.allyHeroes ?? content.heroes.map((h) => h.id),
+    loadout: { mods: { ...config.loadout?.mods } },
   };
   for (const h of full.allyHeroes) if (!idx.heroIdx.has(h)) throw new Error(`createRun: unknown ally hero "${h}"`);
+  const known = baseMods();
+  for (const [k, v] of Object.entries(full.loadout.mods ?? {})) {
+    if (!(k in known)) throw new Error(`createRun: unknown loadout mod "${k}"`);
+    if (typeof v !== 'number' || !Number.isFinite(v)) throw new Error(`createRun: loadout mod "${k}" is not a finite number`);
+  }
 
   const w = new World();
   const root = new Rng(seed);
@@ -352,6 +358,16 @@ function spawnPickup(run: Run, type: PickupType, x: number, y: number, value: nu
 
 export function applyMods(run: Run): void {
   const m = baseMods();
+  // Meta loadout first (sorted keys: order-independent of how the profile built the object), then cards.
+  const lm = run.config.loadout.mods;
+  if (lm) {
+    for (const key of Object.keys(lm).sort()) {
+      const k = key as keyof Mods;
+      const v = lm[k]!;
+      if (key.endsWith('Mult')) m[k] *= 1 + v;
+      else m[k] += v;
+    }
+  }
   for (const c of run.cards) {
     const ci = run.idx.cardIdx.get(c.id)!;
     const eff = run.res.cardEffects[ci];

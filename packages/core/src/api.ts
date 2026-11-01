@@ -187,6 +187,6 @@ export function stateHash(run: Run): string {
 }
 
 export type {
-  BuildCommand, BuildGrid, CardOption, Difficulty, InputFrame, Mods, Run, RunConfig, RunPhase, ScoreBreakdown,
+  BuildCommand, BuildGrid, CardOption, Difficulty, InputFrame, Loadout, Mods, Run, RunConfig, RunPhase, ScoreBreakdown,
   SimEvent, SimEventType, Telegraph, TelegraphShape, TelegraphSpec, WaveIntel, BossRuntime,
 } from './types';

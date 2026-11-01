@@ -23,6 +23,22 @@ export interface RunConfig {
   power?: number;
   /** AI hero ids brought into the run (content `heroes[].id`). */
   allyHeroes?: string[];
+  /** Permanent modifiers from meta progression (`@them/meta` builds it). Omit for a bare run. */
+  loadout?: Loadout;
+}
+
+/**
+ * What meta progression (levels, stats, traits, class, gear, titles) brings into a run. Core only
+ * consumes it as modifiers; it never sees the profile. Part of the replay record: same loadout +
+ * seed + inputs = same run.
+ */
+export interface Loadout {
+  /**
+   * Same convention as the `stat-mods` card: keys ending in `Mult` are added as a fraction
+   * (`damageMult: 0.1` → ×1.1), every other key is added. Applied before cards. Unknown keys and
+   * non-finite values make `createRun` throw.
+   */
+  mods?: Partial<Record<keyof Mods, number>>;
 }
 
 /** One build command. `cell` = row * cols + col of the build grid. */
