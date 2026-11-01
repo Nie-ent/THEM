@@ -17,7 +17,8 @@
     "test:go": "cd services && go test ./...",
     "e2e": "playwright test",
     "bench": "tsx packages/core/bench/bench.ts",
-    "balance": "tsx tests/balance/run.ts"
+    "balance": "tsx tests/balance/run.ts",
+    "balance:progression": "tsx tests/balance/progression.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",

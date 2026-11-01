@@ -49,3 +49,37 @@ describe('determinism (QA gate)', () => {
     expect(stateHash(y)).not.toBe(stateHash(x));
   });
 });
+
+/* Phase 2: a non-empty meta loadout (Lv 50 reference profile) must replay exactly too. */
+import { buildRunConfig } from '../../packages/meta/src/index';
+import { referenceProfiles } from '../balance/profiles';
+
+describe('determinism with a meta loadout (QA gate, P2)', () => {
+  const strong = referenceProfiles().find((p) => p.name.startsWith('strong'))!.profile!;
+  const cfg = buildRunConfig(strong, content, { worldId: content.worlds[0]!.id });
+
+  it('the loadout is non-empty (mods, ally growth, cards)', () => {
+    expect(Object.keys(cfg.loadout?.mods ?? {}).length).toBeGreaterThan(5);
+    expect(Object.keys(cfg.loadout?.allyMods ?? {}).length).toBeGreaterThan(0);
+    expect(cfg.loadout?.unlockCards?.length ?? 0).toBeGreaterThan(0);
+  });
+
+  for (const seed of [11, 90001]) {
+    it(`seed ${seed}: JSON config + input log replay to the identical state and score`, () => {
+      const log: InputFrame[] = [];
+      const { run: a } = playOne(content, seed, 'planner', { record: log, config: cfg });
+      expect(a.phase).toBe('ended');
+      const storedCfg = JSON.parse(JSON.stringify(cfg));
+      const b = createRun(storedCfg, content, seed);
+      for (const f of JSON.parse(JSON.stringify(log)) as InputFrame[]) { step(b, f); b.events.length = 0; }
+      expect(stateHash(b)).toBe(stateHash(a));
+      expect(score(b)).toEqual(score(a));
+      // and the loadout matters: the same inputs without it diverge
+      const bare = createRun({ worldId: content.worlds[0]!.id }, content, seed);
+      for (const f of log.slice(0, 3000)) { step(bare, f); bare.events.length = 0; }
+      const withLo = createRun(storedCfg, content, seed);
+      for (const f of log.slice(0, 3000)) { step(withLo, f); withLo.events.length = 0; }
+      expect(stateHash(bare)).not.toBe(stateHash(withLo));
+    });
+  }
+});
