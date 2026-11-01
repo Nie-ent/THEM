@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { currentLocale, type Locale } from '@them/i18n';
 import type { GameSession } from '../game/session';
 import { useHud } from '../game/store';
-import { Button, Segmented, mmss, useDesktop, useFmt, useFocusTrap } from './kit';
+import { Button, ConfirmDialog, Segmented, mmss, useDesktop, useFmt, useFocusTrap } from './kit';
 import { applyLocale } from './lang';
 import { updateSettings, useSettings, type Settings } from './settings';
 
@@ -198,9 +198,10 @@ export function PauseScreen({ session, flow }: { session: GameSession; flow: Pau
   );
 
   const confirmDialog = confirming && (
-    <div role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" className="absolute inset-0 z-modal flex items-center justify-center bg-scrim p-6">
-      <ConfirmBox onKeep={() => flow.setLayer('actions')} onQuit={flow.confirm} />
-    </div>
+    <ConfirmDialog
+      title={t('ui.confirm.title')} body={t('ui.confirm.body')} keepLabel={t('ui.confirm.keep')} confirmLabel={t('ui.confirm.quit')}
+      keepTestid="confirm-keep" confirmTestid="confirm-quit" onKeep={() => flow.setLayer('actions')} onConfirm={flow.confirm}
+    />
   );
 
   return (
@@ -236,22 +237,6 @@ export function PauseScreen({ session, flow }: { session: GameSession; flow: Pau
           </div>
         )}
         {confirmDialog}
-      </div>
-    </div>
-  );
-}
-
-function ConfirmBox({ onKeep, onQuit }: { onKeep: () => void; onQuit: () => void }) {
-  const { t } = useTranslation();
-  const ref = useRef<HTMLDivElement>(null);
-  useFocusTrap(true, ref);
-  return (
-    <div ref={ref} className="flex w-full max-w-100 flex-col gap-4 rounded-lg border border-border-strong bg-surface-raised p-6 shadow-sheet">
-      <h3 id="confirm-title" className="font-display text-xl font-semibold leading-display">{t('ui.confirm.title')}</h3>
-      <p className="text-md leading-body text-text-muted">{t('ui.confirm.body')}</p>
-      <div className="flex flex-col gap-2 sm:flex-row-reverse">
-        <Button data-testid="confirm-keep" variant="primary" autoFocus className="flex-1" onClick={onKeep}>{t('ui.confirm.keep')}</Button>
-        <Button data-testid="confirm-quit" variant="danger" className="flex-1" onClick={onQuit}>{t('ui.confirm.quit')}</Button>
       </div>
     </div>
   );

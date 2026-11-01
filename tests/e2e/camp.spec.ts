@@ -60,6 +60,32 @@ for (const lang of LANGS) {
 }
 
 for (const lang of LANGS) {
+  test(`camp: gear enhance panel at +11 shows the drop risk, protection off and on (${lang})`, async ({ page }, info) => {
+    await openCamp(page, lang);
+    await page.evaluate(() => {
+      const store = (globalThis as unknown as { __themProfile: { profile: Record<string, unknown>; replace: (p: unknown) => void } }).__themProfile;
+      const p = structuredClone(store.profile) as Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+      const blade = p.gear.items.find((g: { itemId: string }) => g.itemId === 'worn-blade');
+      blade.enhance = 11;
+      store.replace(p);
+    });
+    await page.getByTestId('camp-tab-gear').click();
+    const uid = await page.evaluate<string>(() => {
+      const st = (globalThis as unknown as { __themProfile: { profile: { gear: { items: { uid: string; itemId: string }[] } } } }).__themProfile;
+      return st.profile.gear.items.find((g) => g.itemId === 'worn-blade')!.uid;
+    });
+    await page.getByTestId(`gear-item-${uid}`).click();
+    await expect(page.getByTestId('gear-risk')).toBeVisible();
+    await page.getByTestId('gear-enhance').scrollIntoViewIfNeeded();
+    await noHorizontalScroll(page);
+    await page.screenshot({ path: `${SHOTS}/camp-gear-enhance-${info.project.name}-${lang}.png` });
+    await page.getByTestId('gear-protect').check();
+    await page.getByTestId('gear-enhance').scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${SHOTS}/camp-gear-enhance-protected-${info.project.name}-${lang}.png` });
+  });
+}
+
+for (const lang of LANGS) {
   test(`results: a won run shows its rewards, level-up and new title (${lang})`, async ({ page }, info) => {
     await page.addInitScript(`try { window.localStorage.setItem('them.lang', ${JSON.stringify(lang)}); } catch (e) { /* ignore */ }`);
     await page.goto('/?seed=7');

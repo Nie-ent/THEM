@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { content } from '@them/content';
 import type { Profile } from '@them/meta';
 import { profileStore } from '../../game/profile';
-import { Wrap, useFmt } from '../kit';
+import { ConfirmDialog, Wrap, useFmt } from '../kit';
 
 /** Mods keys whose value is a fraction shown as a signed percent (×100). */
 const PERCENT = new Set([
@@ -35,9 +35,9 @@ export function ModLines({ mods, className = '', empty }: { mods: Record<string,
   );
 }
 
-export function Section({ title, aside, children, testid }: { title: string; aside?: ReactNode; children: ReactNode; testid?: string }) {
+export function Section({ title, aside, children, testid, className = '' }: { title: string; aside?: ReactNode; children: ReactNode; testid?: string; className?: string }) {
   return (
-    <section data-testid={testid} className="flex flex-col gap-3 border-t border-border pt-4 first:border-t-0 first:pt-0">
+    <section data-testid={testid} className={`flex flex-col gap-3 border-t border-border pt-4 first:border-t-0 first:pt-0 ${className}`}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display text-xl font-semibold leading-display"><Wrap text={title} /></h2>
         {aside && <div className="text-sm text-text-muted">{aside}</div>}
@@ -96,4 +96,47 @@ export function Bar({ value, max, label, testid }: { value: number; max: number;
       <div className="h-full rounded-sm bg-hud-xp" style={{ width: `${max > 0 ? Math.min(1, value / max) * 100 : 100}%` }} />
     </div>
   );
+}
+
+/** Items the player can actually earn today: world reward items plus gacha duplicate shards. */
+export function sourcedItems(): Set<string> {
+  const out = new Set<string>([content.heroGrowth.shardItemId]);
+  for (const w of content.worlds) for (const id of Object.keys(w.rewardItems)) out.add(id);
+  return out;
+}
+
+/**
+ * Why an action that needs `need` of `itemId` is unavailable, or null when the player has enough.
+ * An item with no source yet says so (QA-P2-002) instead of leaving a button that only errors.
+ */
+export function useShortReason() {
+  const { t } = useTranslation();
+  const { int } = useFmt();
+  const sourced = sourcedItems();
+  return (profile: Profile, itemId: string, need: number): string | null => {
+    const have = profile.items[itemId] ?? 0;
+    if (have >= need) return null;
+    const name = itemName(t, itemId);
+    return sourced.has(itemId) ? t('ui.camp.short', { n: int(need - have), name }) : t('ui.camp.noSource', { name });
+  };
+}
+
+export function Reason({ text, testid }: { text: string | null; testid?: string }) {
+  if (!text) return null;
+  return <p data-testid={testid} className="text-sm leading-body text-text-muted"><Wrap text={text} /></p>;
+}
+
+/** Asks before spending: `ask(title, body, action)` opens the shared confirm dialog; focus starts on Cancel. */
+export function useConfirm() {
+  const { t } = useTranslation();
+  const [pending, setPending] = useState<{ title: string; body: string; action: () => void } | null>(null);
+  const ask = (title: string, body: string, action: () => void) => setPending({ title, body, action });
+  const dialog = pending && (
+    <ConfirmDialog
+      title={pending.title} body={pending.body} keepLabel={t('ui.camp.confirm.cancel')} confirmLabel={t('ui.camp.confirm.ok')}
+      keepTestid="camp-confirm-cancel" confirmTestid="camp-confirm-ok"
+      onKeep={() => setPending(null)} onConfirm={() => { const a = pending.action; setPending(null); a(); }}
+    />
+  );
+  return { ask, dialog };
 }

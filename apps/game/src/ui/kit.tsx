@@ -251,3 +251,45 @@ export function CheckIcon({ size = 16 }: { size?: number }) {
 export function Row({ children, className = '' }: { children: ReactNode; className?: string }) {
   return <div className={`flex items-center gap-2 ${className}`}>{children}</div>;
 }
+
+/** Gold: a gilt circle (never a diamond: that is the Core HP end cap). */
+export function GoldIcon({ size = 14 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" aria-hidden className="shrink-0">
+      <circle cx="8" cy="8" r="7" fill={V('semantic-reward')} stroke={V('semantic-reward-edge')} strokeWidth="1.500" />
+    </svg>
+  );
+}
+
+/**
+ * Confirm dialog for destructive or paid actions (pause: leave run; camp: spend crystals).
+ * Focus starts on the safe choice; Esc closes only this layer.
+ */
+export function ConfirmDialog({ title, body, keepLabel, confirmLabel, onKeep, onConfirm, keepTestid, confirmTestid }: {
+  title: string; body: string; keepLabel: string; confirmLabel: string; onKeep: () => void; onConfirm: () => void; keepTestid: string; confirmTestid: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useFocusTrap(true, ref);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.stopPropagation();
+      e.preventDefault();
+      onKeep();
+    };
+    window.addEventListener('keydown', onKey, true);
+    return () => window.removeEventListener('keydown', onKey, true);
+  }, [onKeep]);
+  return (
+    <div className="pointer-events-auto absolute inset-0 z-modal flex items-center justify-center bg-scrim p-6">
+      <div ref={ref} role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" className="flex w-full max-w-100 flex-col gap-4 rounded-lg border border-border-strong bg-surface-raised p-6 shadow-sheet">
+        <h3 id="confirm-title" className="font-display text-xl font-semibold leading-display"><Wrap text={title} /></h3>
+        <p className="text-md leading-body text-text-muted"><Wrap text={body} /></p>
+        <div className="flex flex-col gap-2 sm:flex-row-reverse">
+          <Button data-testid={keepTestid} variant="primary" autoFocus className="flex-1" onClick={onKeep}>{keepLabel}</Button>
+          <Button data-testid={confirmTestid} variant="danger" className="flex-1" onClick={onConfirm}>{confirmLabel}</Button>
+        </div>
+      </div>
+    </div>
+  );
+}

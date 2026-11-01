@@ -7,12 +7,13 @@ import {
   tierLevel, type Profile, type StatId,
 } from '@them/meta';
 import { Button, Wrap, useFmt } from '../kit';
-import { ModLines, Section, itemName, useAct } from './common';
+import { ModLines, Reason, Section, itemName, useAct, useShortReason } from './common';
 
 export function CharacterTab({ profile }: { profile: Profile }) {
   const { t } = useTranslation();
   const { int } = useFmt();
   const { run, errorLine } = useAct();
+  const shortReason = useShortReason();
   const [pending, setPending] = useState<Record<StatId, number>>({ strength: 0, intellect: 0, agility: 0, vitality: 0, command: 0 });
   const spent = STAT_IDS.reduce((a, id) => a + pending[id], 0);
   const left = profile.unspentStatPoints - spent;
@@ -92,9 +93,10 @@ export function CharacterTab({ profile }: { profile: Profile }) {
                   <li key={c.id} className="flex flex-col gap-2 rounded-md border border-border-strong bg-surface p-3">
                     <span className="text-md font-semibold"><Wrap text={t(c.nameKey)} /></span>
                     <span className="text-sm leading-body text-text-muted"><Wrap text={t(c.descKey)} /></span>
-                    <Button data-testid={`class-pick-${c.id}`} disabled={block !== null} onClick={() => run(() => setClass(profile, content, c.id))}>
+                    <Button data-testid={`class-pick-${c.id}`} disabled={block !== null || (cost > 0 && shortReason(profile, content.classes.change.itemId, cost) !== null)} onClick={() => run(() => setClass(profile, content, c.id))}>
                       {cost > 0 ? t('ui.camp.class.change', { name: t(c.nameKey), n: cost, item: seal }) : t('ui.camp.class.pick', { name: t(c.nameKey) })}
                     </Button>
+                    {cost > 0 && <Reason text={shortReason(profile, content.classes.change.itemId, cost)} />}
                   </li>
                 );
               })}
@@ -109,9 +111,10 @@ export function CharacterTab({ profile }: { profile: Profile }) {
                 .filter((c) => !chain.some((x) => x.id === c.id) && !choices.some((x) => x.id === c.id) && profile.level >= tierLevel(content, c.tier))
                 .map((c) => (
                   <li key={c.id} className="flex flex-col gap-1">
-                    <Button data-testid={`class-pick-${c.id}`} disabled={classBlock(profile, content, c.id) !== null} onClick={() => run(() => setClass(profile, content, c.id))}>
+                    <Button data-testid={`class-pick-${c.id}`} disabled={classBlock(profile, content, c.id) !== null || shortReason(profile, content.classes.change.itemId, classChangeCost(profile, content, c.id)) !== null} onClick={() => run(() => setClass(profile, content, c.id))}>
                       {t('ui.camp.class.change', { name: t(c.nameKey), n: classChangeCost(profile, content, c.id), item: seal })}
                     </Button>
+                    <Reason text={shortReason(profile, content.classes.change.itemId, classChangeCost(profile, content, c.id))} />
                   </li>
                 ))}
             </ul>

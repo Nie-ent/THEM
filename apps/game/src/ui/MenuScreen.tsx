@@ -5,7 +5,8 @@ import pkg from '../../package.json' with { type: 'json' };
 import { BlotIcon, Button, Segmented, Wrap, useDesktop, useFmt } from './kit';
 import { applyLocale } from './lang';
 import { readBest } from './ResultsScreen';
-import { profileStore, useProfile } from '../game/profile';
+import { useProfile } from '../game/profile';
+import { SaveNotice } from './SaveNotice';
 
 export function MenuScreen({ onStart, onSettings, onCamp }: { onStart: () => void; onSettings: () => void; onCamp: () => void }) {
   const { t } = useTranslation();
@@ -40,7 +41,7 @@ export function MenuScreen({ onStart, onSettings, onCamp }: { onStart: () => voi
   const actions = (
     <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
       <Button data-testid="menu-start" variant="primary" autoFocus className="min-h-14 md:min-h-12 md:min-w-50" onClick={onStart}>{t('ui.menu.start')}</Button>
-      <Button data-testid="menu-camp" className="min-h-12 md:min-w-40" disabled={!profile} title={profileStore.loadStatus === 'newer' ? t('ui.camp.newerSave') : undefined} onClick={onCamp}>
+      <Button data-testid="menu-camp" className="min-h-12 md:min-w-40" disabled={!profile} onClick={onCamp}>
         {profile ? t('ui.menu.camp', { level: int(profile.level) }) : t('ui.menu.campOff')}
       </Button>
       <Button data-testid="menu-settings" variant="text" className="min-h-12" onClick={onSettings}>{t('ui.menu.settings')}</Button>
@@ -58,6 +59,7 @@ export function MenuScreen({ onStart, onSettings, onCamp }: { onStart: () => voi
         <div className="flex min-w-0 flex-1 flex-col justify-center gap-8 pl-16 pr-8">
           {title}
           {world}
+          <SaveNotice />
           {actions}
         </div>
       </main>
@@ -69,6 +71,7 @@ export function MenuScreen({ onStart, onSettings, onCamp }: { onStart: () => voi
       <div className="them-scroll-y flex flex-1 flex-col gap-8 px-6 pt-8">
         {title}
         {world}
+        <SaveNotice />
       </div>
       <div className="flex shrink-0 flex-col gap-2 px-6 pt-4">
         {actions}
