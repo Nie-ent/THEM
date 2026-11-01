@@ -29,6 +29,18 @@
     },
     "protection-scroll": {
       "name": "ใบกันแตก"
+    },
+    "exp-book-small": {
+      "name": "ตำราสนามรบ"
+    },
+    "exp-book-large": {
+      "name": "พงศาวดารสงคราม"
+    },
+    "star-shard": {
+      "name": "ผลึกดาว"
+    },
+    "essence-garroth": {
+      "name": "แก่นแท้แห่งการ์รอธ"
     }
   },
   "trait": {

@@ -10,8 +10,9 @@
  *
  * v1 (Phase 2, P2-01): first versioned save.
  * v2 (P2-05): `totals.kills` (lifetime kills, for titles). v1 saves start it at 0.
+ * v3 (P2-07): `heroes.owned[].limitBreaks` (world-essence limit breaks). Older heroes start at 0.
  */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export interface Migration {
   /** Version the migration reads. It produces version `from + 1`. */
@@ -29,6 +30,24 @@ export const MIGRATIONS: readonly Migration[] = [
       const p = obj(profile);
       const totals = obj(p.totals);
       return { ...p, totals: { ...totals, kills: typeof totals.kills === 'number' ? totals.kills : 0 } };
+    },
+  },
+  {
+    from: 2,
+    up(profile) {
+      const p = obj(profile);
+      const heroes = obj(p.heroes);
+      const owned = Array.isArray(heroes.owned) ? heroes.owned : [];
+      return {
+        ...p,
+        heroes: {
+          ...heroes,
+          owned: owned.map((h) => {
+            const o = obj(h);
+            return { ...o, limitBreaks: typeof o.limitBreaks === 'number' ? o.limitBreaks : 0 };
+          }),
+        },
+      };
     },
   },
 ];

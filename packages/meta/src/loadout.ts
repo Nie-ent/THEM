@@ -3,7 +3,7 @@
  *
  * Each meta system contributes modifiers through a `LoadoutContributor`. A new profile (no stats,
  * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
- * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear (done), P2-07 heroes.
+ * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits (done), P2-04 class (done), P2-05 titles (done), P2-06 gear (done), P2-07 heroes (done).
  *
  * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
  * so also raising power would count them twice. How growth meets the limiter is an open balance
@@ -20,6 +20,10 @@ import { traitsContributor } from './traits';
 import { classContributor } from './classes';
 import { titlesContributor } from './titles';
 import { gearContributor } from './gear';
+import { heroesContributor } from './heroes';
+import { teamFor } from './team';
+
+export { teamFor };
 
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
@@ -34,6 +38,8 @@ export interface LoadoutPart {
   noAllies?: boolean;
   /** Exclusive (class) cards the draft may offer (union). */
   unlockCards?: string[];
+  /** Per-hero growth (summed per hero and key). */
+  allyMods?: Record<string, { hpMult?: number; damageMult?: number }>;
 }
 
 /** `ranked`: ranked mode (GDD §7: title bonuses off; later, a normalised loadout). */
@@ -48,6 +54,7 @@ export const CONTRIBUTORS: readonly LoadoutContributor[] = [
   classContributor, // P2-04
   titlesContributor, // P2-05
   gearContributor, // P2-06
+  heroesContributor, // P2-07
 ];
 
 export interface BuiltLoadout {
@@ -69,6 +76,7 @@ export function buildLoadout(
   let power: number | undefined;
   let noAllies = false;
   const unlock = new Set<string>();
+  const allyMods: Record<string, { hpMult?: number; damageMult?: number }> = {};
   for (const c of contributors) {
     const part = c(profile, content, ctx);
     for (const [k, v] of Object.entries(part.mods ?? {}) as [keyof Mods, number][]) {
@@ -82,25 +90,19 @@ export function buildLoadout(
     if (part.power !== undefined) power = (power ?? 0) + part.power;
     if (part.noAllies) noAllies = true;
     for (const id of part.unlockCards ?? []) unlock.add(id);
+    for (const [hero, m] of Object.entries(part.allyMods ?? {})) {
+      const t = (allyMods[hero] ??= {});
+      if (m.hpMult !== undefined) t.hpMult = (t.hpMult ?? 0) + m.hpMult;
+      if (m.damageMult !== undefined) t.damageMult = (t.damageMult ?? 0) + m.damageMult;
+    }
   }
   // Only include card changes when there are some, so an empty profile gives the bare `{ mods }`.
   const loadout: Loadout = { mods };
   if (Object.keys(cardParams).length > 0) loadout.cardParams = cardParams;
   if (Object.keys(cardWeights).length > 0) loadout.cardWeights = cardWeights;
   if (unlock.size > 0) loadout.unlockCards = [...unlock].sort();
+  if (Object.keys(allyMods).length > 0) loadout.allyMods = allyMods;
   return { loadout, power, noAllies };
-}
-
-/** The ally heroes a profile brings: its team, owned and known to content, capped at maxTeamSize. */
-export function teamFor(profile: Profile, content: ContentBundle): string[] {
-  const owned = new Set(profile.heroes.owned.map((h) => h.heroId));
-  const known = new Set(content.heroes.map((h) => h.id));
-  const out: string[] = [];
-  for (const id of profile.heroes.team) {
-    if (out.length >= content.meta.maxTeamSize) break;
-    if (owned.has(id) && known.has(id) && !out.includes(id)) out.push(id);
-  }
-  return out;
 }
 
 export interface RunRequest {

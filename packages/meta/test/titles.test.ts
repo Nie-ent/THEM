@@ -129,7 +129,7 @@ describe('save v1 → v2 migration (real v1 save)', () => {
   const v1 = readFileSync(new URL('./fixtures/save-v1.json', import.meta.url), 'utf8');
 
   it('the current build reads a v1 save: totals.kills starts at 0, everything else kept', () => {
-    expect(SAVE_VERSION).toBe(2);
+    expect(SAVE_VERSION).toBeGreaterThanOrEqual(2); // v1 migrates through every later step
     const raw = JSON.parse(v1) as { version: number; profile: Record<string, unknown> & { totals: object } };
     expect(raw.version).toBe(1);
     const r = decodeSave(v1);
@@ -137,19 +137,20 @@ describe('save v1 → v2 migration (real v1 save)', () => {
     if (r.status !== 'ok') return;
     expect(r.migratedFrom).toBe(1);
     expect(r.profile.totals).toEqual({ ...raw.profile.totals, kills: 0 });
-    const { totals: _a, ...restOld } = raw.profile;
-    const { totals: _b, ...restNew } = r.profile;
+    // Later migrations touch heroes (v3: limitBreaks); everything else must be exactly kept.
+    const { totals: _a, heroes: _h1, ...restOld } = raw.profile as typeof raw.profile & { heroes: unknown };
+    const { totals: _b, heroes: _h2, ...restNew } = r.profile;
     expect(restNew).toEqual(restOld);
     expect(Profile.safeParse(r.profile).success).toBe(true);
   });
 
-  it('the save service keeps the v1 text as a backup and writes v2 on the next save', async () => {
+  it('the save service keeps the v1 text as a backup and writes the current version on the next save', async () => {
     const store = memoryStore({ 'them.save': v1 });
     const s = new KeyValueSaveService(store, { now: () => 5 });
     const r = await s.load();
     expect(r).toMatchObject({ status: 'ok', migratedFrom: 1 });
     expect(store.getItem('them.save.v1')).toBe(v1);
     if (r.status === 'ok') await s.save(r.profile);
-    expect(JSON.parse(store.getItem('them.save')!).version).toBe(2);
+    expect(JSON.parse(store.getItem('them.save')!).version).toBe(SAVE_VERSION);
   });
 });

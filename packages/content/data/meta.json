@@ -29,7 +29,11 @@
     { "id": "time-crystal", "nameKey": "item.time-crystal.name" },
     { "id": "class-seal", "nameKey": "item.class-seal.name" },
     { "id": "enhance-stone", "nameKey": "item.enhance-stone.name" },
-    { "id": "protection-scroll", "nameKey": "item.protection-scroll.name" }
+    { "id": "protection-scroll", "nameKey": "item.protection-scroll.name" },
+    { "id": "exp-book-small", "nameKey": "item.exp-book-small.name" },
+    { "id": "exp-book-large", "nameKey": "item.exp-book-large.name" },
+    { "id": "star-shard", "nameKey": "item.star-shard.name" },
+    { "id": "essence-garroth", "nameKey": "item.essence-garroth.name" }
   ],
   "stats": {
     "strength": { "damageMult": 0.01 },

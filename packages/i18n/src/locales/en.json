@@ -29,6 +29,18 @@
     },
     "protection-scroll": {
       "name": "Protection Scroll"
+    },
+    "exp-book-small": {
+      "name": "Field Manual"
+    },
+    "exp-book-large": {
+      "name": "War Chronicle"
+    },
+    "star-shard": {
+      "name": "Star Shard"
+    },
+    "essence-garroth": {
+      "name": "Essence of Garroth"
     }
   },
   "trait": {

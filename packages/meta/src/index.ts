@@ -43,3 +43,7 @@ export {
   gearDef, grantGear, equipGear, unequipSlot, enhanceInfo, enhanceGear, gearLoadout, gearContributor, withStartingGear,
   checkGearContent, type EnhanceInfo, type EnhanceOutcome,
 } from './gear';
+export {
+  heroExpToNext, heroLevelCap, useExpBooks, starUpHero, limitBreakHero, heroGrowth, heroLoadout, heroesContributor,
+  checkHeroGrowthContent,
+} from './heroes';

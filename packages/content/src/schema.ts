@@ -579,6 +579,38 @@ export const GearDef = z.object({
 export type GearDef = z.infer<typeof GearDef>;
 
 /* ------------------------------------------------------------------------------------------ */
+/* AI hero growth: stars, level, limit breaks (GDD §8, P2-07)                                  */
+/* ------------------------------------------------------------------------------------------ */
+
+const AllyGrowth = z.object({ hpMult: z.number().default(0), damageMult: z.number().default(0) });
+
+export const HeroGrowthDef = z.object({
+  maxStars: z.number().int().min(1),
+  /** GDD §8: ranked treats every hero as this level (capped by its own level cap); stars still count. */
+  rankedLevel: z.number().int().positive(),
+  /** Hero level cap at 1★ … maxStars★ (index stars - 1). Stars raise the cap (GDD §8). */
+  levelCapByStars: z.array(z.number().int().positive()),
+  /** Limit breaks with world essence (GDD §8 "แก่นแท้แห่งโลก"): each raises the cap by `capAdd`. */
+  limitBreaks: z.array(z.object({
+    capAdd: z.number().int().positive(),
+    items: z.record(Id, z.number().int().positive()),
+    gold: z.number().int().nonnegative(),
+  })).default([]),
+  /** EXP from hero level L to L+1 = base + linear × L + quadratic × L² (integers: same on every platform). */
+  exp: z.object({ base: z.number().int().nonnegative(), linear: z.number().int().nonnegative(), quadratic: z.number().int().nonnegative() }),
+  /** EXP book item id → EXP it gives. */
+  expBooks: z.record(Id, z.number().int().positive()),
+  /** Growth per hero level above 1 and per star above the hero's content stars (fractions on base HP / damage). */
+  perLevel: AllyGrowth,
+  perStar: AllyGrowth,
+  shardItemId: Id,
+  goldCurrency: Id,
+  /** Star-up costs, one entry per target star. */
+  starUp: z.array(z.object({ to: z.number().int().min(2), shards: z.number().int().nonnegative(), gold: z.number().int().nonnegative() })),
+});
+export type HeroGrowthDef = z.infer<typeof HeroGrowthDef>;
+
+/* ------------------------------------------------------------------------------------------ */
 
 export const ContentBundle = z.object({
   version: z.string(),
@@ -588,6 +620,7 @@ export const ContentBundle = z.object({
   classes: ClassesDef,
   titles: TitlesDef,
   gear: GearDef,
+  heroGrowth: HeroGrowthDef,
   worlds: z.array(WorldDef).min(1),
   enemies: z.array(EnemyDef).min(1),
   bosses: z.array(BossDef),

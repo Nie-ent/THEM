@@ -12,6 +12,7 @@ import { createRun } from '@them/core';
 import { z } from 'zod';
 import { checkClassesContent } from './classes';
 import { checkGearContent, withStartingGear } from './gear';
+import { checkHeroGrowthContent } from './heroes';
 import { checkTitlesContent } from './titles';
 import { checkTraitsContent } from './traits';
 import { rollId, type MetaEnv } from './env';
@@ -37,6 +38,8 @@ export const HeroInstance = z.object({
   stars: z.number().int().min(1).max(5),
   level: z.number().int().min(1),
   exp: Count,
+  /** World-essence limit breaks taken (save v3, P2-07). */
+  limitBreaks: Count,
 });
 export type HeroInstance = z.infer<typeof HeroInstance>;
 
@@ -112,7 +115,7 @@ export function newProfile(content: ContentBundle, env: MetaEnv): Profile {
   const owned: HeroInstance[] = start.heroes.map((heroId) => {
     const def = content.heroes.find((h) => h.id === heroId);
     if (!def) throw new Error(`newProfile: unknown starting hero "${heroId}"`);
-    return { heroId, stars: def.stars, level: 1, exp: 0 };
+    return { heroId, stars: def.stars, level: 1, exp: 0, limitBreaks: 0 };
   });
   const base: Profile = {
     id: rollId(env.rolls),
@@ -176,6 +179,7 @@ export function checkMetaContent(content: ContentBundle): string[] {
   out.push(...checkClassesContent(content));
   out.push(...checkTitlesContent(content));
   out.push(...checkGearContent(content));
+  out.push(...checkHeroGrowthContent(content));
   // Stat and trait mod keys must be core Mods keys, and trait card params must exist on their
   // cards: createRun rejects both (cheap, one run per source).
   const trial = (what: string, mods: Iterable<string>, cardParams: Record<string, Record<string, number>> = {}) => {

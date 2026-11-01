@@ -1,0 +1,21 @@
+{
+  "maxStars": 5,
+  "rankedLevel": 30,
+  "levelCapByStars": [20, 30, 40, 50, 60],
+  "limitBreaks": [
+    { "capAdd": 5, "items": { "essence-garroth": 5 }, "gold": 1000 },
+    { "capAdd": 5, "items": { "essence-garroth": 15 }, "gold": 3000 }
+  ],
+  "exp": { "base": 40, "linear": 10, "quadratic": 2 },
+  "expBooks": { "exp-book-small": 100, "exp-book-large": 1000 },
+  "perLevel": { "hpMult": 0.04, "damageMult": 0.03 },
+  "perStar": { "hpMult": 0.2, "damageMult": 0.2 },
+  "shardItemId": "star-shard",
+  "goldCurrency": "gold",
+  "starUp": [
+    { "to": 2, "shards": 10, "gold": 500 },
+    { "to": 3, "shards": 25, "gold": 1500 },
+    { "to": 4, "shards": 50, "gold": 4000 },
+    { "to": 5, "shards": 100, "gold": 10000 }
+  ]
+}

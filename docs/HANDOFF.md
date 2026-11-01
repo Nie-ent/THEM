@@ -182,7 +182,7 @@ injectable RNG module so they can move server-side.
 2. Whether a premium currency appears in Phase 2 UI or waits for payments (Phase 6).
 3. Results of the owner's real-device playtest (fps at waves 16–20, fun of the core loop).
 
-### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles` → `P2-06-gear`, stacked, not merged to main)
+### Phase 2 progress (branches `engineer/P2-01-meta` → `P2-02-levels-stats` → `P2-03-traits` → `P2-04-classes` → `P2-05-titles` → `P2-06-gear` → `P2-07-heroes`, stacked, not merged to main)
 
 | Ticket | Status |
 | --- | --- |
@@ -192,6 +192,7 @@ injectable RNG module so they can move server-side.
 | P2-04 | Engineer + content done, gates green; awaiting QA. `content/data/classes.json` (4 tier-1, 8 tier-2), 12 exclusive class cards, 12 class trait nodes, `packages/meta/src/classes.ts`; core `CardDef.exclusive` + `Loadout.unlockCards`. QA: `tests/gates/phase1-scope` now counts the shared pool (still 12) |
 | P2-05 | Engineer + content done, gates green; awaiting QA. `content/data/titles.json` (10 titles, 3 collection tiers), `packages/meta/src/titles.ts`. **Save v2** (`totals.kills`): first real migration, tested against a real v1 save in `packages/meta/test/fixtures/save-v1.json` |
 | P2-06 | Engineer + content done, gates green; awaiting QA. `content/data/gear.json` (3 slots, 8 items, 1 set, enhancement steps), `packages/meta/src/gear.ts`; worlds pay enhancement stones (`rewardItems`) |
+| P2-07 | Engineer + content done, gates green; awaiting QA. `content/data/hero-growth.json`, `packages/meta/src/heroes.ts`; core `Loadout.allyMods`. **Save v3** (`heroes.owned[].limitBreaks`), tested on a real v2 save (`fixtures/save-v2.json`) |
 | Fixes from owner playtest (2026-11-01) | Desktop build clicks below the Core (joystick zone ate mouse clicks); game froze on the first hit on the hero (dead scene listener after StrictMode double mount); ember-ring had no visual (new core `pulse` event). Each on its own `engineer/fix-*` branch, merged into the P2 branch |
 
 Defaults the owner accepted on 2026-11-01 ("ok, continue"), all data in `meta.json`:
@@ -239,6 +240,14 @@ Gear (P2-06) notes:
 - Only enhancement stones have a source (3 per Garroth clear at grade A). Gear drops, the wandering
   merchant, and protection scrolls (with the 5-per-week paid limit) come with those systems.
 - Weapon styles (sword arc, bow, spell burst) are still the Phase 1 bolt; gear only changes numbers.
+
+Heroes (P2-07) notes:
+- Hero level cap by stars 20/30/40/50/60, +5 per world-essence limit break (2 breaks). Growth per level
+  +4% HP / +3% damage, per star above the hero's base +20% / +20% (all in hero-growth.json, placeholders).
+- Garroth pays 2 Field Manuals and 1 Essence of Garroth per clear at grade A. Star shards have no source
+  until gacha duplicates (P2-08). Bond (GDD §8 "ความผูกพัน") and hero injury after a loss are not built.
+- Ranked counts heroes at level 30 (capped by their own cap); the 15★ team limit is not enforced yet.
+- The player hero's own stars (GDD §8: 1★ start, Hero Seals from world bosses) are not built.
 
 ---
 

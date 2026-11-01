@@ -16,6 +16,7 @@ import traits from '../data/traits.json' with { type: 'json' };
 import classes from '../data/classes.json' with { type: 'json' };
 import titles from '../data/titles.json' with { type: 'json' };
 import gear from '../data/gear.json' with { type: 'json' };
+import heroGrowth from '../data/hero-growth.json' with { type: 'json' };
 import garroth from '../data/worlds/garroth.json' with { type: 'json' };
 import { ContentBundle, type ContentBundleInput } from './schema';
 
@@ -32,6 +33,7 @@ export const raw: Record<keyof ContentBundleInput, unknown> = {
   classes,
   titles,
   gear,
+  heroGrowth,
   worlds: [garroth],
   enemies,
   bosses,

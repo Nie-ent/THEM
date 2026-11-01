@@ -46,7 +46,9 @@
     "gold": 100
   },
   "rewardItems": {
-    "enhance-stone": 3
+    "enhance-stone": 3,
+    "exp-book-small": 2,
+    "essence-garroth": 1
   },
   "waves": [
     {
