@@ -269,11 +269,13 @@ function SlotsUpkeep({ h }: { h: HudState }) {
   );
 }
 
-function Heroes({ placing, onPick }: { placing: string | null; onPick: (id: string) => void }) {
+/** Chips for the AI heroes in this run (the profile's team), not every hero in content. */
+function Heroes({ session, placing, onPick }: { session: GameSession; placing: string | null; onPick: (id: string) => void }) {
   const { t } = useTranslation();
+  const heroes = session.run.allyDefs.map((d) => content.heroes[d]!).filter(Boolean);
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {content.heroes.map((hero) => (
+      {heroes.map((hero) => (
         <button
           key={hero.id}
           type="button"
@@ -406,7 +408,7 @@ export function PrepScreen({ session, topSlot }: { session: GameSession; topSlot
           {msg && <p role="status" className="text-sm text-semantic-warning">{msg}</p>}
           {sel && <p className="text-sm text-text-muted">{t('ui.build.pick')}</p>}
           <SlotsUpkeep h={h} />
-          <Heroes placing={placing} onPick={choosePlacing} />
+          <Heroes session={session} placing={placing} onPick={choosePlacing} />
           {placing && <p role="status" className="text-sm text-text-muted">{t('ui.prep.heroPlacing')}</p>}
         </aside>
         <div className="anim-fade pointer-events-auto absolute bottom-6 left-1/2 z-drawer flex h-14 -translate-x-1/2 items-center gap-4 rounded-lg border border-border bg-surface px-4 shadow-sheet">
@@ -454,7 +456,7 @@ export function PrepScreen({ session, topSlot }: { session: GameSession; topSlot
         </div>
         <UpkeepLines h={h} />
         {h.upkeepWood > h.wood || h.upkeepStone > h.stone ? <p className="text-sm text-semantic-warning">{t('ui.build.upkeepShort')}</p> : null}
-        <Heroes placing={placing} onPick={choosePlacing} />
+        <Heroes session={session} placing={placing} onPick={choosePlacing} />
       </div>
     </>
   );
