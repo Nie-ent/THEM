@@ -22,3 +22,7 @@ export {
   type LoadoutPart, type LoadoutContributor, type BuiltLoadout, type RunRequest,
 } from './loadout';
 export { outcomeFromRun, computeRunRewards, applyRunOutcome, type RunOutcome, type RunRewards, type ApplyResult } from './rewards';
+export {
+  MetaError, expToNext, runExpFor, grantExp, allocateStats, resetStats, canResetStatsFree, statMods, statsContributor,
+  type ExpResult,
+} from './progression';

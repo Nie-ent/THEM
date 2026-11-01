@@ -353,6 +353,35 @@ export const MetaDef = z.object({
      */
     lossScalesByWavesCleared: z.boolean(),
   }),
+  /** Global Level (GDD §4, §12). */
+  globalLevel: z.object({
+    cap: z.number().int().min(2),
+    /**
+     * EXP to go from level L to L+1 is `expToNext[L-1]` (GDD §12: 20 × L^2.2, rounded). Stored as a
+     * table so every platform gets the same integers; length must be `cap - 1`.
+     */
+    expToNext: z.array(z.number().int().positive()),
+    statPointsPerLevel: z.number().int().nonnegative(),
+    traitPointsPerLevel: z.number().int().nonnegative(),
+    /** Stat reset is free up to and including this level (GDD §5: until the first class at Lv 10). */
+    freeRespecUntilLevel: z.number().int().nonnegative(),
+  }),
+  /** Account EXP per run at grade A (100%): base + perLevel × Global Level (GDD §12). Scaled like other rewards. */
+  runExp: z.object({ base: z.number().nonnegative(), perLevel: z.number().nonnegative() }),
+  /**
+   * What one point in each stat gives, as run modifiers (core `Mods` keys, stat-mods convention:
+   * `*Mult` = fraction, others added). GDD §4: strength → physical attack, intellect → cooldown,
+   * agility → speed + crit, vitality → HP + armour, command → structures and AI heroes.
+   */
+  stats: z.object({
+    strength: z.record(z.string(), z.number()),
+    intellect: z.record(z.string(), z.number()),
+    agility: z.record(z.string(), z.number()),
+    vitality: z.record(z.string(), z.number()),
+    command: z.record(z.string(), z.number()),
+  }),
+  /** Max absolute value of each stat-derived mod (e.g. cooldownMult -0.3 = at most 30% faster). */
+  statCaps: z.record(z.string(), z.number()).default({}),
 });
 export type MetaDef = z.infer<typeof MetaDef>;
 

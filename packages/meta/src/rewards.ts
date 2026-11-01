@@ -6,7 +6,8 @@
  *                else 1
  *
  * `rewardPct` comes from the run's grade (S 120, A 100, B 80, C 60); a loss is always the lowest band
- * (core caps it). Account EXP is added by P2-02 on top of this.
+ * (core caps it). Account EXP uses the same factor: floor((runExp.base + runExp.perLevel × L) × factor),
+ * L = the profile's Global Level when the run is recorded (P2-02).
  *
  * Each outcome carries a `runId`; rewards for the same id are applied once (the profile remembers
  * the last REWARDED_RUNS_KEPT ids), so a retried save or a double event cannot pay twice.
@@ -14,6 +15,7 @@
 import type { ContentBundle, Grade } from '@them/content';
 import { score as scoreOf, view, type Difficulty, type Run, type ScoreBreakdown } from '@them/core';
 import { REWARDED_RUNS_KEPT, betterGrade, type Profile, type WorldProgress } from './profile';
+import { grantExp, runExpFor } from './progression';
 
 export interface RunOutcome {
   runId: string;
@@ -46,9 +48,12 @@ export interface RunRewards {
   factor: number;
   grade: Grade;
   currencies: Record<string, number>;
+  /** Account EXP (P2-02). */
+  exp: number;
 }
 
-export function computeRunRewards(outcome: RunOutcome, content: ContentBundle): RunRewards {
+/** `level` = the profile's Global Level (drives account EXP). */
+export function computeRunRewards(outcome: RunOutcome, content: ContentBundle, level = 1): RunRewards {
   const world = content.worlds.find((w) => w.id === outcome.worldId);
   if (!world) throw new Error(`computeRunRewards: unknown world "${outcome.worldId}"`);
   let factor = outcome.score.rewardPct / 100;
@@ -61,7 +66,7 @@ export function computeRunRewards(outcome: RunOutcome, content: ContentBundle): 
     // Round the factor product to 1e-9 first so 100 × 0.6 does not floor to 59 on float error.
     currencies[id] = Math.floor(Math.round(world.rewards[id]! * factor * 1e9) / 1e9);
   }
-  return { factor, grade: outcome.score.grade, currencies };
+  return { factor, grade: outcome.score.grade, currencies, exp: runExpFor(content, level, factor) };
 }
 
 export interface ApplyResult {
@@ -69,14 +74,17 @@ export interface ApplyResult {
   rewards: RunRewards;
   /** False when this runId was already rewarded (profile returned unchanged). */
   applied: boolean;
+  /** Global levels gained from this run's EXP. */
+  levelsGained: number;
 }
 
-/** Pure: returns a new profile with rewards and run stats applied. */
+/** Pure: returns a new profile with rewards (currencies, account EXP) and run stats applied. */
 export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: ContentBundle, now: number): ApplyResult {
-  const rewards = computeRunRewards(outcome, content);
-  if (profile.rewardedRuns.includes(outcome.runId)) return { profile, rewards, applied: false };
+  const rewards = computeRunRewards(outcome, content, profile.level);
+  if (profile.rewardedRuns.includes(outcome.runId)) return { profile, rewards, applied: false, levelsGained: 0 };
 
-  const p = structuredClone(profile);
+  const leveled = grantExp(profile, content, rewards.exp);
+  const p = leveled.profile === profile ? structuredClone(profile) : leveled.profile;
   for (const [id, amount] of Object.entries(rewards.currencies)) p.currencies[id] = (p.currencies[id] ?? 0) + amount;
 
   const won = outcome.result === 'win';
@@ -93,5 +101,5 @@ export function applyRunOutcome(profile: Profile, outcome: RunOutcome, content: 
 
   p.rewardedRuns = [...p.rewardedRuns, outcome.runId].slice(-REWARDED_RUNS_KEPT);
   p.updatedAt = Math.max(p.updatedAt, now);
-  return { profile: p, rewards, applied: true };
+  return { profile: p, rewards, applied: true, levelsGained: leveled.levelsGained };
 }

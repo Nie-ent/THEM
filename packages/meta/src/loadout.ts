@@ -1,9 +1,13 @@
 /**
  * Profile → loadout → `createRun` config.
  *
- * Each meta system contributes modifiers through a `LoadoutContributor`. P2-01 ships none, so a
- * new profile plays exactly like Phase 1. Later tickets add theirs to `CONTRIBUTORS` (P2-02 stats,
- * P2-03 traits, P2-04 class, P2-05 titles, P2-06 gear, P2-07 heroes).
+ * Each meta system contributes modifiers through a `LoadoutContributor`. A new profile (no stats,
+ * no traits …) contributes nothing, so it plays exactly like Phase 1. Tickets add theirs to
+ * `CONTRIBUTORS`: P2-02 stats (done), P2-03 traits, P2-04 class, P2-05 titles, P2-06 gear, P2-07 heroes.
+ *
+ * Player power for the difficulty limiter is not fed yet: stats already act as direct modifiers,
+ * so also raising power would count them twice. How growth meets the limiter is an open balance
+ * decision (see docs/HANDOFF.md).
  *
  * Stacking: within the loadout every contribution to the same key is **summed** (so two +10%
  * damage sources make +20%, applied once by core as ×1.2). Power contributions are summed too.
@@ -11,6 +15,7 @@
 import type { ContentBundle } from '@them/content';
 import type { Difficulty, Loadout, Mods, RunConfig } from '@them/core';
 import type { Profile } from './profile';
+import { statsContributor } from './progression';
 
 export interface LoadoutPart {
   /** Same convention as core `Loadout.mods`: `*Mult` keys are fractions, others are added. */
@@ -22,7 +27,9 @@ export interface LoadoutPart {
 export type LoadoutContributor = (profile: Profile, content: ContentBundle) => LoadoutPart;
 
 /** Registered contributors, in a fixed order. Phase 2 tickets append here. */
-export const CONTRIBUTORS: readonly LoadoutContributor[] = [];
+export const CONTRIBUTORS: readonly LoadoutContributor[] = [
+  statsContributor, // P2-02
+];
 
 export interface BuiltLoadout {
   loadout: Loadout;

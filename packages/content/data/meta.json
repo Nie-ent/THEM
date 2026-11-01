@@ -10,5 +10,36 @@
   },
   "runRewards": {
     "lossScalesByWavesCleared": true
+  },
+  "globalLevel": {
+    "cap": 50,
+    "expToNext": [
+      20, 92, 224, 422, 690, 1030, 1446, 1940, 2514, 3170,
+      3909, 4734, 5646, 6645, 7734, 8914, 10186, 11551, 13010, 14565,
+      16215, 17962, 19808, 21752, 23796, 25940, 28186, 30534, 32984, 35538,
+      38197, 40960, 43829, 46804, 49886, 53076, 56373, 59780, 63295, 66921,
+      70657, 74504, 78462, 82533, 86716, 91012, 95421, 99945, 104583
+    ],
+    "statPointsPerLevel": 3,
+    "traitPointsPerLevel": 1,
+    "freeRespecUntilLevel": 10
+  },
+  "runExp": { "base": 50, "perLevel": 20 },
+  "stats": {
+    "strength": { "damageMult": 0.01 },
+    "intellect": { "cooldownMult": -0.005 },
+    "agility": { "speedMult": 0.005, "critChance": 0.003 },
+    "vitality": { "maxHpMult": 0.015, "armorAdd": 0.002 },
+    "command": { "structureDamageMult": 0.012, "allyDamageMult": 0.012 }
+  },
+  "statCaps": {
+    "damageMult": 1.0,
+    "cooldownMult": 0.3,
+    "speedMult": 0.4,
+    "critChance": 0.25,
+    "maxHpMult": 1.5,
+    "armorAdd": 0.3,
+    "structureDamageMult": 1.5,
+    "allyDamageMult": 1.5
   }
 }

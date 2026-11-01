@@ -8,6 +8,7 @@
  * P2-06 gear, P2-07 heroes, P2-08 gacha); P2-01 fixes the shape so saves are stable from day one.
  */
 import type { ContentBundle, Grade } from '@them/content';
+import { createRun } from '@them/core';
 import { z } from 'zod';
 import { rollId, type MetaEnv } from './env';
 
@@ -161,6 +162,17 @@ export function checkMetaContent(content: ContentBundle): string[] {
     for (const id of Object.keys(w.rewards)) {
       if (!currencyIds.has(id)) out.push(`worlds.${w.id}.rewards: unknown currency "${id}"`);
     }
+  }
+  const g = m.globalLevel;
+  if (g.expToNext.length !== g.cap - 1) out.push(`meta.globalLevel.expToNext: ${g.expToNext.length} entries, cap ${g.cap} needs ${g.cap - 1}`);
+  for (const k of Object.keys(m.statCaps)) if (!(m.statCaps[k]! >= 0)) out.push(`meta.statCaps.${k}: must be ≥ 0`);
+  // Stat mod keys must be core Mods keys: createRun rejects unknown loadout keys (cheap, one run).
+  const keys = new Set<string>();
+  for (const id of STAT_IDS) for (const k of Object.keys(m.stats[id])) keys.add(k);
+  try {
+    createRun({ worldId: content.worlds[0]!.id, loadout: { mods: Object.fromEntries([...keys].map((k) => [k, 0])) } }, content, 1);
+  } catch (e) {
+    out.push(`meta.stats: ${(e as Error).message}`);
   }
   return out;
 }
